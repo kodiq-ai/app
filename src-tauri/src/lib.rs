@@ -1,5 +1,6 @@
 use portable_pty::{native_pty_system, CommandBuilder, PtySize};
-use std::collections::HashMap;
+use regex::Regex;
+use std::collections::{HashMap, HashSet};
 use std::io::{Read, Write};
 use std::sync::Mutex;
 use tauri::Emitter;
@@ -94,16 +95,32 @@ fn spawn_terminal(
         id
     };
 
-    // Read PTY output in background thread
+    // Read PTY output in background thread + detect localhost URLs
     let app_handle = app.clone();
     let tid = terminal_id.clone();
     std::thread::spawn(move || {
         let mut buf = [0u8; 4096];
+        let mut emitted_ports: HashSet<u16> = HashSet::new();
+
+        // Compile regexes once outside the loop
+        // Match patterns like:
+        //   http://localhost:3000
+        //   http://127.0.0.1:5173
+        //   https://localhost:8080/path
+        //   localhost:4200
+        //   Local:   http://localhost:5173/
+        let url_re = Regex::new(
+            r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})"
+        ).unwrap();
+        let ansi_re = Regex::new(r"\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07").unwrap();
+
         loop {
             match reader.read(&mut buf) {
                 Ok(0) => break,
                 Ok(n) => {
                     let text = String::from_utf8_lossy(&buf[..n]).to_string();
+
+                    // Emit PTY output as before
                     let _ = app_handle.emit(
                         "pty-output",
                         serde_json::json!({
@@ -111,6 +128,30 @@ fn spawn_terminal(
                             "data": text,
                         }),
                     );
+
+                    // Strip ANSI escape codes for cleaner matching
+                    let clean = ansi_re.replace_all(&text, "").to_string();
+
+                    // Scan for localhost URLs
+                    for cap in url_re.captures_iter(&clean) {
+                        if let Some(port_str) = cap.get(1) {
+                            if let Ok(port) = port_str.as_str().parse::<u16>() {
+                                if port >= 1024 && !emitted_ports.contains(&port) {
+                                    emitted_ports.insert(port);
+                                    let url = format!("http://localhost:{}", port);
+                                    log::info!("Port detected in {}: {}", tid, url);
+                                    let _ = app_handle.emit(
+                                        "port-detected",
+                                        serde_json::json!({
+                                            "id": tid,
+                                            "port": port,
+                                            "url": url,
+                                        }),
+                                    );
+                                }
+                            }
+                        }
+                    }
                 }
                 Err(_) => break,
             }

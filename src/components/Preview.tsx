@@ -1,6 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { listen } from "@tauri-apps/api/event";
 
 type Viewport = "desktop" | "tablet" | "mobile";
+
+interface PortDetectedPayload {
+  id: string;
+  port: number;
+  url: string;
+}
 
 const VIEWPORTS: Record<Viewport, { w: number; h: number; label: string }> = {
   desktop: { w: 0, h: 0, label: "Desktop" }, // 0 = fill container
@@ -15,6 +22,7 @@ export default function Preview() {
     "loading",
   );
   const [viewport, setViewport] = useState<Viewport>("desktop");
+  const [autoDetected, setAutoDetected] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const navigate = useCallback(() => {
@@ -23,7 +31,9 @@ export default function Preview() {
       target = "http://" + target;
     }
     setUrl(target);
+    setInputUrl(target);
     setStatus("loading");
+    setAutoDetected(false);
   }, [inputUrl]);
 
   const refresh = useCallback(() => {
@@ -32,6 +42,22 @@ export default function Preview() {
       iframeRef.current.src = url;
     }
   }, [url]);
+
+  // Listen for auto-detected ports from terminal output
+  useEffect(() => {
+    const unlisten = listen<PortDetectedPayload>("port-detected", (event) => {
+      const detectedUrl = event.payload.url;
+      console.log("[Preview] Port detected:", detectedUrl);
+      setUrl(detectedUrl);
+      setInputUrl(detectedUrl);
+      setStatus("loading");
+      setAutoDetected(true);
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, []);
 
   // Probe the URL to see if it's reachable
   useEffect(() => {
@@ -168,6 +194,16 @@ export default function Preview() {
           </button>
         </div>
 
+        {/* Auto-detected badge */}
+        {autoDetected && status === "ready" && (
+          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#14b8a615] border border-[#14b8a630] rounded text-[10px] text-[#14b8a6] font-medium shrink-0 animate-pulse">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+            Auto
+          </div>
+        )}
+
         {/* Status dot */}
         <div
           className={`w-2 h-2 rounded-full shrink-0 transition-colors ${
@@ -209,10 +245,10 @@ export default function Preview() {
               </div>
               <div>
                 <p className="text-neutral-400 text-sm font-medium">
-                  No preview available
+                  Waiting for dev server
                 </p>
-                <p className="text-neutral-600 text-xs mt-1">
-                  Start a dev server to see the preview
+                <p className="text-neutral-600 text-xs mt-1 max-w-[220px] text-center leading-relaxed">
+                  Run <span className="text-neutral-500 font-mono">npm run dev</span> in the terminal — preview will connect automatically
                 </p>
               </div>
             </div>
