@@ -13,7 +13,11 @@ interface Tab {
   command: string;
 }
 
-export default function TerminalPanel() {
+interface TerminalPanelProps {
+  cwd?: string | null;
+}
+
+export default function TerminalPanel({ cwd }: TerminalPanelProps) {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [cliTools, setCliTools] = useState<CliTool[]>([]);
@@ -38,6 +42,7 @@ export default function TerminalPanel() {
       try {
         const id = await spawnTerminal(
           command === "shell" ? undefined : command,
+          cwd || undefined,
         );
         const label = getLabel(command);
         const newTab: Tab = { id, label, command };
@@ -48,7 +53,7 @@ export default function TerminalPanel() {
         console.error("Failed to spawn terminal:", err);
       }
     },
-    [],
+    [cwd],
   );
 
   const handleCloseTab = useCallback(

@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import Sidebar from "./components/Sidebar";
 import TerminalPanel from "./components/TerminalPanel";
 import Preview from "./components/Preview";
 
@@ -8,11 +9,22 @@ export default function App() {
     return saved ? parseFloat(saved) : 0.5;
   });
   const [isDragging, setIsDragging] = useState(false);
+  const [projectPath, setProjectPath] = useState<string | null>(() => {
+    return localStorage.getItem("kodiq-project-path");
+  });
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     localStorage.setItem("kodiq-split-ratio", String(splitRatio));
   }, [splitRatio]);
+
+  useEffect(() => {
+    if (projectPath) {
+      localStorage.setItem("kodiq-project-path", projectPath);
+    } else {
+      localStorage.removeItem("kodiq-project-path");
+    }
+  }, [projectPath]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,36 +74,42 @@ export default function App() {
       </header>
 
       {/* Main content */}
-      <div
-        ref={containerRef}
-        className="flex flex-1 overflow-hidden"
-        style={{ cursor: isDragging ? "col-resize" : undefined }}
-      >
-        {/* Terminal panel */}
-        <div
-          className="relative overflow-hidden bg-[#0d0d0d]"
-          style={{ width: `${splitRatio * 100}%` }}
-        >
-          <TerminalPanel />
-        </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar projectPath={projectPath} onOpenProject={setProjectPath} />
 
-        {/* Divider */}
+        {/* Terminal + Preview area */}
         <div
-          className="w-[3px] cursor-col-resize shrink-0 group relative"
-          onMouseDown={handleMouseDown}
+          ref={containerRef}
+          className="flex flex-1 overflow-hidden"
+          style={{ cursor: isDragging ? "col-resize" : undefined }}
         >
+          {/* Terminal panel */}
           <div
-            className={`absolute inset-0 transition-colors ${
-              isDragging
-                ? "bg-[#14b8a6]"
-                : "bg-[#1e1e1e] group-hover:bg-[#14b8a680]"
-            }`}
-          />
-        </div>
+            className="relative overflow-hidden bg-[#0d0d0d]"
+            style={{ width: `${splitRatio * 100}%` }}
+          >
+            <TerminalPanel cwd={projectPath} />
+          </div>
 
-        {/* Preview panel */}
-        <div className="relative flex-1 overflow-hidden bg-[#0d0d0d]">
-          <Preview />
+          {/* Divider */}
+          <div
+            className="w-[3px] cursor-col-resize shrink-0 group relative"
+            onMouseDown={handleMouseDown}
+          >
+            <div
+              className={`absolute inset-0 transition-colors ${
+                isDragging
+                  ? "bg-[#14b8a6]"
+                  : "bg-[#1e1e1e] group-hover:bg-[#14b8a680]"
+              }`}
+            />
+          </div>
+
+          {/* Preview panel */}
+          <div className="relative flex-1 overflow-hidden bg-[#0d0d0d]">
+            <Preview />
+          </div>
         </div>
       </div>
     </div>

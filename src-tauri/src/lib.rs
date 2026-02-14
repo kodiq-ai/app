@@ -242,6 +242,53 @@ fn detect_cli_tools() -> Vec<serde_json::Value> {
         .collect()
 }
 
+/// Read directory contents for file tree
+#[tauri::command]
+fn read_dir(path: String) -> Result<Vec<serde_json::Value>, String> {
+    let dir = std::path::Path::new(&path);
+    if !dir.is_dir() {
+        return Err(format!("Not a directory: {}", path));
+    }
+
+    let mut entries: Vec<serde_json::Value> = Vec::new();
+
+    let mut items: Vec<_> = std::fs::read_dir(dir)
+        .map_err(|e| format!("Failed to read dir: {}", e))?
+        .filter_map(|e| e.ok())
+        .collect();
+
+    // Sort: directories first, then by name
+    items.sort_by(|a, b| {
+        let a_dir = a.file_type().map(|t| t.is_dir()).unwrap_or(false);
+        let b_dir = b.file_type().map(|t| t.is_dir()).unwrap_or(false);
+        match (a_dir, b_dir) {
+            (true, false) => std::cmp::Ordering::Less,
+            (false, true) => std::cmp::Ordering::Greater,
+            _ => a.file_name().cmp(&b.file_name()),
+        }
+    });
+
+    for entry in items {
+        let name = entry.file_name().to_string_lossy().to_string();
+
+        // Skip hidden files and common noise
+        if name.starts_with('.') || name == "node_modules" || name == "target" || name == "__pycache__" || name == ".git" {
+            continue;
+        }
+
+        let file_type = entry.file_type().unwrap();
+        let full_path = entry.path().to_string_lossy().to_string();
+
+        entries.push(serde_json::json!({
+            "name": name,
+            "path": full_path,
+            "isDir": file_type.is_dir(),
+        }));
+    }
+
+    Ok(entries)
+}
+
 /// Resolve command string to (program, args, label)
 fn resolve_command(cmd: &str) -> (String, Vec<String>, String) {
     match cmd.trim() {
@@ -280,6 +327,7 @@ pub fn run() {
             next_id: 0,
         }))
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -296,6 +344,7 @@ pub fn run() {
             resize_pty,
             close_terminal,
             detect_cli_tools,
+            read_dir,
             spawn_shell,
         ])
         .run(tauri::generate_context!())
