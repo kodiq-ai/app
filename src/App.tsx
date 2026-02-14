@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import Terminal from "./components/Terminal";
+import TerminalPanel from "./components/TerminalPanel";
 import Preview from "./components/Preview";
 
 export default function App() {
@@ -72,7 +72,7 @@ export default function App() {
           className="relative overflow-hidden bg-[#0d0d0d]"
           style={{ width: `${splitRatio * 100}%` }}
         >
-          <Terminal />
+          <TerminalPanel />
         </div>
 
         {/* Divider */}

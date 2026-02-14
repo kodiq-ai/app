@@ -30,20 +30,26 @@ const THEME = {
   brightWhite: "#fafafa",
 };
 
-export default function Terminal() {
+interface TerminalProps {
+  terminalId: string | null;
+  isActive: boolean;
+}
+
+export default function Terminal({ terminalId, isActive }: TerminalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const { write, onData, resize } = useTerminal();
+  const { write, onData, onExit, resize } = useTerminal(terminalId);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !terminalId) return;
 
     const term = new XTerm({
       theme: THEME,
       fontSize: 13,
       lineHeight: 1.4,
-      fontFamily: "'SF Mono', 'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', monospace",
+      fontFamily:
+        "'SF Mono', 'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', monospace",
       fontWeight: "400",
       fontWeightBold: "600",
       cursorBlink: true,
@@ -62,7 +68,6 @@ export default function Terminal() {
     term.loadAddon(webLinksAddon);
     term.open(containerRef.current);
 
-    // Fit after open
     requestAnimationFrame(() => {
       fitAddon.fit();
       term.focus();
@@ -77,8 +82,13 @@ export default function Terminal() {
     });
 
     // PTY output -> write to terminal
-    const cleanup = onData((data: string) => {
+    const cleanupData = onData((data: string) => {
       term.write(data);
+    });
+
+    // PTY exit -> show message
+    const cleanupExit = onExit(() => {
+      term.write("\r\n\x1b[90m[Process exited]\x1b[0m\r\n");
     });
 
     // Resize observer
@@ -97,16 +107,31 @@ export default function Terminal() {
     return () => {
       observer.disconnect();
       clearTimeout(resizeTimer);
-      cleanup();
+      cleanupData();
+      cleanupExit();
       term.dispose();
+      termRef.current = null;
+      fitAddonRef.current = null;
     };
-  }, []);
+  }, [terminalId]);
+
+  // Focus terminal when it becomes active
+  useEffect(() => {
+    if (isActive && termRef.current) {
+      termRef.current.focus();
+      fitAddonRef.current?.fit();
+    }
+  }, [isActive]);
 
   return (
     <div
       ref={containerRef}
       className="absolute inset-0 overflow-hidden"
-      style={{ padding: 0, margin: 0 }}
+      style={{
+        padding: 0,
+        margin: 0,
+        display: isActive ? "block" : "none",
+      }}
     />
   );
 }
