@@ -1,1 +1,7 @@
-²ø1šYì
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="228" fill="#14b8a6"/>
+  <path d="M310 360L400 512L310 664" stroke="rgba(255,255,255,0.3)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M714 360L624 512L714 664" stroke="rgba(255,255,255,0.3)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="512" cy="512" r="100" fill="#fff"/>
+  <circle cx="492" cy="488" r="30" fill="rgba(255,255,255,0.3)"/>
+</svg>
