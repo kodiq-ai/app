@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import Terminal from "./Terminal";
 import {
   spawnTerminal,
@@ -17,11 +17,31 @@ interface TerminalPanelProps {
   cwd?: string | null;
 }
 
-export default function TerminalPanel({ cwd }: TerminalPanelProps) {
+export interface TerminalPanelHandle {
+  newTab: () => void;
+  closeActiveTab: () => void;
+}
+
+export default forwardRef<TerminalPanelHandle, TerminalPanelProps>(function TerminalPanel({ cwd }, ref) {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [cliTools, setCliTools] = useState<CliTool[]>([]);
   const [showNewMenu, setShowNewMenu] = useState(false);
+
+  // Expose imperative API for keyboard shortcuts
+  useImperativeHandle(ref, () => ({
+    newTab: () => handleNewTab("shell"),
+    closeActiveTab: () => {
+      if (activeTabId) {
+        closeTerminal(activeTabId).catch(() => {});
+        setTabs((prev) => {
+          const next = prev.filter((t) => t.id !== activeTabId);
+          setActiveTabId(next.length > 0 ? next[next.length - 1].id : null);
+          return next;
+        });
+      }
+    },
+  }));
 
   // Detect CLI tools on mount
   useEffect(() => {
@@ -83,7 +103,7 @@ export default function TerminalPanel({ cwd }: TerminalPanelProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTabId(tab.id)}
-              className={`group flex items-center gap-1.5 h-9 px-3 text-xs border-r border-[#1e1e1e] shrink-0 transition-colors ${
+              className={`group flex items-center gap-1.5 h-9 px-3 text-xs border-r border-[#1e1e1e] shrink-0 transition-colors tab-animate ${
                 activeTabId === tab.id
                   ? "bg-[#0d0d0d] text-neutral-200"
                   : "bg-[#111] text-neutral-500 hover:text-neutral-300 hover:bg-[#161616]"
@@ -99,6 +119,7 @@ export default function TerminalPanel({ cwd }: TerminalPanelProps) {
               <span
                 onClick={(e) => handleCloseTab(tab.id, e)}
                 className="ml-1 w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-[#ffffff15] text-neutral-500 hover:text-neutral-300 transition-all"
+                title="Close tab (⌘W)"
               >
                 ×
               </span>
@@ -111,7 +132,7 @@ export default function TerminalPanel({ cwd }: TerminalPanelProps) {
           <button
             onClick={() => setShowNewMenu(!showNewMenu)}
             className="w-9 h-9 flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:bg-[#1a1a1a] transition-colors"
-            title="New terminal"
+            title="New terminal (⌘T)"
           >
             <svg
               width="14"
@@ -127,7 +148,7 @@ export default function TerminalPanel({ cwd }: TerminalPanelProps) {
 
           {/* Dropdown menu */}
           {showNewMenu && (
-            <div className="absolute top-full right-0 mt-1 w-52 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-2xl z-50 py-1 overflow-hidden">
+            <div className="absolute top-full right-0 mt-1 w-52 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-2xl z-50 py-1 overflow-hidden dropdown-menu">
               {/* Shell */}
               <button
                 onClick={() => handleNewTab("shell")}
@@ -135,8 +156,9 @@ export default function TerminalPanel({ cwd }: TerminalPanelProps) {
               >
                 <span className="text-sm">⬛</span>
                 <span>Terminal</span>
-                <span className="ml-auto text-neutral-600 text-[10px]">
-                  zsh
+                <span className="ml-auto text-neutral-600 text-[10px] flex items-center gap-1.5">
+                  <span>zsh</span>
+                  <kbd className="px-1 py-0.5 bg-[#ffffff08] rounded text-[9px] text-neutral-600 font-mono">⌘T</kbd>
                 </span>
               </button>
 
@@ -226,7 +248,7 @@ export default function TerminalPanel({ cwd }: TerminalPanelProps) {
       )}
     </div>
   );
-}
+});
 
 function getLabel(command: string): string {
   switch (command) {

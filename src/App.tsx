@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
-import TerminalPanel from "./components/TerminalPanel";
+import TerminalPanel, { type TerminalPanelHandle } from "./components/TerminalPanel";
 import Preview from "./components/Preview";
 
 export default function App() {
@@ -13,6 +13,23 @@ export default function App() {
     return localStorage.getItem("kodiq-project-path");
   });
   const containerRef = useRef<HTMLDivElement>(null);
+  const terminalPanelRef = useRef<TerminalPanelHandle>(null);
+
+  // Keyboard shortcuts: Cmd+T (new tab), Cmd+W (close tab)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === "t") {
+        e.preventDefault();
+        terminalPanelRef.current?.newTab();
+      }
+      if (e.metaKey && e.key === "w") {
+        e.preventDefault();
+        terminalPanelRef.current?.closeActiveTab();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("kodiq-split-ratio", String(splitRatio));
@@ -89,7 +106,7 @@ export default function App() {
             className="relative overflow-hidden bg-[#0d0d0d]"
             style={{ width: `${splitRatio * 100}%` }}
           >
-            <TerminalPanel cwd={projectPath} />
+            <TerminalPanel ref={terminalPanelRef} cwd={projectPath} />
           </div>
 
           {/* Divider */}

@@ -199,7 +199,7 @@ export default function Sidebar({ projectPath, onOpenProject }: SidebarProps) {
 
   if (collapsed) {
     return (
-      <div className="flex flex-col items-center w-10 bg-[#111] border-r border-[#1e1e1e] shrink-0">
+      <div className="flex flex-col items-center w-10 bg-[#111] border-r border-[#1e1e1e] shrink-0 sidebar-animate">
         {/* Expand button */}
         <button
           onClick={() => setCollapsed(false)}
@@ -240,7 +240,7 @@ export default function Sidebar({ projectPath, onOpenProject }: SidebarProps) {
   }
 
   return (
-    <div className="flex flex-col w-56 bg-[#111] border-r border-[#1e1e1e] shrink-0 overflow-hidden">
+    <div className="flex flex-col w-56 bg-[#111] border-r border-[#1e1e1e] shrink-0 overflow-hidden sidebar-animate">
       {/* Header */}
       <div className="flex items-center h-9 px-3 border-b border-[#1e1e1e] shrink-0">
         <button
