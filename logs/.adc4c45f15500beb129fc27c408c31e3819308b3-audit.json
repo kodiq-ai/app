@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/artemboev/Projects/kodiq/logs/.adc4c45f15500beb129fc27c408c31e3819308b3-audit.json",
+    "files": [
+        {
+            "date": 1771025630187,
+            "name": "/Users/artemboev/Projects/kodiq/logs/application-2026-02-14.log",
+            "hash": "bede61f8321ada562180068cec16a25bbc14be51bffe4de1a321aae0590e616b"
+        }
+    ],
+    "hashType": "sha256"
+}
