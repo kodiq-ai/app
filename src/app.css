@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --terminal-bg: #0d0d0d;
+  --panel-bg: #141414;
+  --border-color: #1e1e1e;
+  --accent: #14b8a6;
+  --accent-hover: #0d9488;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a0a;
+  color: #e5e5e5;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter",
+    "Segoe UI", sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* xterm overrides */
+.xterm {
+  position: absolute;
+  inset: 0;
+  padding: 12px;
+}
+
+.xterm-viewport::-webkit-scrollbar {
+  width: 6px;
+}
+
+.xterm-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Smooth transitions for panels */
+.transition-width {
+  transition: width 0.05s ease-out;
+}
+
+/* Selection color */
+::selection {
+  background: #14b8a640;
+}
