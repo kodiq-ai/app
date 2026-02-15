@@ -1,8 +1,14 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
+/* Kodiq is always dark — dark theme values go directly in :root */
 
 :root {
+  /* Kodiq custom tokens */
   --bg-base: #08080a;
   --bg-raised: #0f1012;
   --bg-surface: #141517;
@@ -12,23 +18,51 @@
   --text-primary: #e8e8ec;
   --text-secondary: #8b8b96;
   --text-tertiary: #52525c;
-  --accent: #14b8a6;
+  --kodiq-accent: #14b8a6;
   --accent-dim: rgba(20, 184, 166, 0.12);
   --accent-glow: rgba(20, 184, 166, 0.25);
+
+  /* shadcn tokens — dark theme as default */
+  --radius: 0.625rem;
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: "JetBrains Mono", -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
   overflow: hidden;
   height: 100vh;
   width: 100vw;
@@ -44,53 +78,39 @@ body {
   flex-direction: column;
 }
 
-/* ─── xterm ─────────────────────────────────────────────────────────────────── */
+/* ─── Xterm.js ─────────────────────────────────────────────────────────────── */
 
-.xterm {
-  position: absolute;
-  inset: 0;
-  padding: 14px 16px;
+.xterm-container {
+  padding: 8px 4px;
 }
 
-.xterm-viewport::-webkit-scrollbar {
-  width: 5px;
+.xterm-container .xterm {
+  height: 100%;
 }
 
-.xterm-viewport::-webkit-scrollbar-track {
+.xterm-container .xterm-viewport {
+  overflow-y: auto !important;
+}
+
+.xterm-container .xterm-viewport::-webkit-scrollbar {
+  width: 6px;
+}
+
+.xterm-container .xterm-viewport::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.xterm-viewport::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 100px;
-}
-
-.xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-/* ─── Sidebar ───────────────────────────────────────────────────────────────── */
-
-.sidebar-animate {
-  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Custom scrollbar for sidebar */
-.sidebar-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 100px;
-}
-
-.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+.xterm-container .xterm-viewport::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.06);
+  border-radius: 100px;
+}
+
+.xterm-container .xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.xterm-container .xterm-cursor-layer {
+  z-index: 1;
 }
 
 /* ─── Animations ────────────────────────────────────────────────────────────── */
@@ -106,31 +126,14 @@ body {
   }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
 }
 
-@keyframes dropdown-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes tab-in {
-  from {
-    opacity: 0;
-    transform: translateX(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 @keyframes glow-pulse {
@@ -138,37 +141,34 @@ body {
   50% { opacity: 0.5; }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+.anim-1 { animation: fade-rise 0.5s ease both; }
+.anim-2 { animation: fade-rise 0.5s ease 0.08s both; }
+.anim-3 { animation: fade-rise 0.5s ease 0.16s both; }
+.anim-4 { animation: fade-rise 0.5s ease 0.24s both; }
+.anim-5 { animation: fade-rise 0.5s ease 0.32s both; }
+
+.animate-float {
+  animation: subtle-float 4s ease-in-out infinite;
 }
 
-.animate-fade-rise {
-  animation: fade-rise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.animate-fade-rise-delay-1 {
-  animation: fade-rise 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both;
-}
-
-.animate-fade-rise-delay-2 {
-  animation: fade-rise 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
-}
-
-.animate-fade-rise-delay-3 {
-  animation: fade-rise 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
-}
-
-.dropdown-menu {
-  animation: dropdown-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: top right;
-}
-
-.tab-animate {
-  animation: tab-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+.animate-blink {
+  animation: blink 1s step-end infinite;
 }
 
 .glow-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ─── Shiki syntax highlighting ────────────────────────────────────────────── */
+
+.shiki-line {
+  display: block;
+  min-height: 1lh;
+}
+
+/* Override shiki's default background — we handle bg ourselves */
+pre code .shiki-line span {
+  background: transparent !important;
 }
 
 /* ─── Selection & Focus ─────────────────────────────────────────────────────── */
@@ -183,18 +183,71 @@ body {
   border-radius: 4px;
 }
 
-/* ─── Utility ───────────────────────────────────────────────────────────────── */
+/* ─── shadcn theme mapping ──────────────────────────────────────────────────── */
 
-.tool-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  color: var(--text-tertiary);
-  transition: color 0.15s, background 0.15s;
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-.tool-btn:hover {
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.04);
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

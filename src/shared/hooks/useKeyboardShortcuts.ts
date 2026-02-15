@@ -1,0 +1,70 @@
+import { useHotkeys } from "react-hotkeys-hook";
+import { useAppStore } from "@/lib/store";
+
+interface ShortcutActions {
+  spawnTab: (command?: string, label?: string) => Promise<string | null>;
+  closeTab: (id: string) => void;
+}
+
+export function useKeyboardShortcuts({ spawnTab, closeTab }: ShortcutActions) {
+  const toggleSidebar = useAppStore((s) => s.toggleSidebar);
+  const toggleCommandPalette = useAppStore((s) => s.toggleCommandPalette);
+  const toggleSettings = useAppStore((s) => s.toggleSettings);
+  const toggleFileSearch = useAppStore((s) => s.toggleFileSearch);
+  const togglePreview = useAppStore((s) => s.togglePreview);
+
+  // ⌘K — command palette
+  useHotkeys("mod+k", (e) => {
+    e.preventDefault();
+    toggleCommandPalette();
+  }, { enableOnFormTags: true });
+
+  // ⌘T — new terminal
+  useHotkeys("mod+t", (e) => {
+    e.preventDefault();
+    if (useAppStore.getState().projectPath) spawnTab(undefined, "Терминал");
+  }, { enableOnFormTags: true });
+
+  // ⌘W — close active tab
+  useHotkeys("mod+w", (e) => {
+    e.preventDefault();
+    const { projectPath, activeTab } = useAppStore.getState();
+    if (projectPath && activeTab) closeTab(activeTab);
+  }, { enableOnFormTags: true });
+
+  // ⌘B — toggle sidebar
+  useHotkeys("mod+b", (e) => {
+    e.preventDefault();
+    toggleSidebar();
+  }, { enableOnFormTags: true });
+
+  // ⌘P — file search
+  useHotkeys("mod+p", (e) => {
+    e.preventDefault();
+    if (useAppStore.getState().projectPath) toggleFileSearch();
+  }, { enableOnFormTags: true });
+
+  // ⌘, — settings
+  useHotkeys("mod+comma", (e) => {
+    e.preventDefault();
+    toggleSettings();
+  }, { enableOnFormTags: true });
+
+  // ⌘\ — toggle preview panel
+  useHotkeys("mod+backslash", (e) => {
+    e.preventDefault();
+    if (useAppStore.getState().projectPath) togglePreview();
+  }, { enableOnFormTags: true });
+
+  // ⌘1-9 — switch tabs
+  useHotkeys("mod+1,mod+2,mod+3,mod+4,mod+5,mod+6,mod+7,mod+8,mod+9", (e, handler) => {
+    e.preventDefault();
+    const key = (handler as unknown as { keys?: string[] })?.keys?.[0];
+    if (!key) return;
+    const idx = parseInt(key) - 1;
+    const { tabs, setActiveTab } = useAppStore.getState();
+    if (idx >= 0 && idx < tabs.length) {
+      setActiveTab(tabs[idx].id);
+    }
+  }, { enableOnFormTags: true });
+}

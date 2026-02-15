@@ -1,0 +1,83 @@
+// ── Typed Tauri Bridge ────────────────────────────────────────────────────────
+// All Rust↔JS communication goes through this module.
+// No raw invoke() calls elsewhere in the codebase.
+
+import { invoke } from "@tauri-apps/api/core";
+import type {
+  FileEntry,
+  GitInfo,
+  ProjectStats,
+  CliTool,
+  Project,
+  TerminalSession,
+  NewSession,
+  HistoryEntry,
+  NewHistoryEntry,
+  Snippet,
+  NewSnippet,
+} from "./types";
+
+// ── Terminal ─────────────────────────────────────────────
+export const terminal = {
+  spawn: (opts: { command?: string | null; cwd?: string | null; shell?: string | null }) =>
+    invoke<string>("spawn_terminal", opts),
+  write: (id: string, data: string) => invoke<void>("write_to_pty", { id, data }),
+  resize: (id: string, cols: number, rows: number) => invoke<void>("resize_pty", { id, cols, rows }),
+  close: (id: string) => invoke<void>("close_terminal", { id }),
+};
+
+// ── Filesystem ───────────────────────────────────────────
+export const fs = {
+  readDir: (path: string) => invoke<FileEntry[]>("read_dir", { path }),
+  readFile: (path: string) => invoke<string>("read_file", { path }),
+};
+
+// ── Git ──────────────────────────────────────────────────
+export const git = {
+  getInfo: (path: string) => invoke<GitInfo>("get_git_info", { path }),
+  getStats: (path: string) => invoke<ProjectStats>("get_project_stats", { path }),
+};
+
+// ── CLI ──────────────────────────────────────────────────
+export const cli = {
+  detectTools: () => invoke<CliTool[]>("detect_cli_tools"),
+};
+
+// ── Database — Projects ──────────────────────────────────
+export const db = {
+  projects: {
+    list: () => invoke<Project[]>("db_list_projects"),
+    create: (name: string, path: string) => invoke<Project>("db_create_project", { name, path }),
+    touch: (path: string) => invoke<void>("db_touch_project", { path }),
+    update: (id: string, patch: { name?: string; default_cli?: string | null; settings?: string | null }) =>
+      invoke<void>("db_update_project", { id, patch }),
+  },
+
+  // ── Database — Settings ──────────────────────────────────
+  settings: {
+    get: (key: string) => invoke<string | null>("db_get_setting", { key }),
+    set: (key: string, value: string) => invoke<void>("db_set_setting", { key, value }),
+    getAll: () => invoke<Record<string, string>>("db_get_all_settings"),
+  },
+
+  // ── Database — Sessions ──────────────────────────────────
+  sessions: {
+    list: (projectId: string) => invoke<TerminalSession[]>("db_list_sessions", { projectId }),
+    save: (session: NewSession) => invoke<void>("db_save_session", { session }),
+    close: (id: string) => invoke<void>("db_close_session", { id }),
+  },
+
+  // ── Database — History ───────────────────────────────────
+  history: {
+    search: (query: string, projectId?: string | null) =>
+      invoke<HistoryEntry[]>("db_search_history", { query, projectId: projectId ?? null }),
+    add: (entry: NewHistoryEntry) => invoke<void>("db_add_history", { entry }),
+  },
+
+  // ── Database — Snippets ──────────────────────────────────
+  snippets: {
+    list: (cliName?: string | null) => invoke<Snippet[]>("db_list_snippets", { cliName: cliName ?? null }),
+    create: (snippet: NewSnippet) => invoke<Snippet>("db_create_snippet", { snippet }),
+    use: (id: string) => invoke<Snippet>("db_use_snippet", { id }),
+  },
+};
