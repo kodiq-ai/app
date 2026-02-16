@@ -342,6 +342,7 @@ All primitives available. Most used: `Button`, `Dialog`, `Tooltip`, `Input`, `Co
 | `Cmd+K` | Command palette |
 | `Cmd+T` | New terminal |
 | `Cmd+W` | Close active tab |
+| `Cmd+Shift+T` | Reopen closed tab |
 | `Cmd+B` | Toggle sidebar |
 | `Cmd+P` | File search |
 | `Cmd+,` | Settings |

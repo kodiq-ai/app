@@ -74,18 +74,18 @@ Estimated: 3-4 weeks.
 ### Terminal Session Restore
 - [x] Save open tabs to SQLite on close (already have `terminal_sessions` table)
 - [x] Restore tabs on next launch (label, command, cwd, sort order)
-- [ ] "Reopen closed tab" action (Cmd+Shift+T)
+- [x] "Reopen closed tab" action (Cmd+Shift+T)
 
 ### Quick Launch Improvements
 - [x] Show only installed CLIs (filter by `installed` flag)
 - [x] Per-project default CLI (stored in `projects.default_cli`, context menu UI)
-- [ ] Recent commands quick-pick
+- [x] Recent commands quick-pick
 
-### CLI Output Intelligence — Phase 1
+### CLI Output Intelligence — Phase 1 *(deferred — revisit after launch)*
 - [ ] Port detection → auto-open preview (already have port parser, needs UI trigger)
-- [ ] Detect code blocks in CLI output (fenced ``` blocks)
-- [ ] "Copy code" button overlay on detected code blocks
+- [ ] Project activity log — what the AI agent changed per session (diffs, files, commands)
 - [ ] Detect file paths in output → make clickable (open in file viewer)
+- [ ] Collapsible long outputs (tool results, file contents)
 
 ### Auto-Update UI
 - [x] Generate signing keypair, configure `tauri.conf.json` pubkey

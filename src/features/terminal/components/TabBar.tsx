@@ -18,9 +18,10 @@ import { t } from "@/lib/i18n";
 interface TabBarProps {
   onSpawnTab: (command?: string, label?: string) => Promise<string | null>;
   onCloseTab: (id: string) => void;
+  onReopenTab: () => void;
 }
 
-export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
+export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
   const tabs = useAppStore((s) => s.tabs);
   const activeTab = useAppStore((s) => s.activeTab);
   const setActiveTab = useAppStore((s) => s.setActiveTab);
@@ -28,6 +29,7 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
   const notifiedTabs = useAppStore((s) => s.notifiedTabs);
   const renameTab = useAppStore((s) => s.renameTab);
   const reorderTabs = useAppStore((s) => s.reorderTabs);
+  const closedTabs = useAppStore((s) => s.closedTabs);
   const cliTools = useAppStore((s) => s.cliTools);
   const installedCli = useMemo(() => cliTools.filter((t) => t.installed), [cliTools]);
 
@@ -292,6 +294,9 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
                   disabled={tabs.indexOf(tab) === tabs.length - 1}
                 >
                   {t("closeToRight")}
+                </ContextMenuItem>
+                <ContextMenuItem onClick={onReopenTab} disabled={closedTabs.length === 0}>
+                  {t("reopenClosedTab")}
                 </ContextMenuItem>
                 <ContextMenuSeparator />
                 <ContextMenuItem onClick={() => onSpawnTab(undefined, t("terminal"))}>

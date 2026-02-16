@@ -10,6 +10,7 @@
   "close": "Close",
   "closeOthers": "Close others",
   "closeToRight": "Close tabs to the right",
+  "reopenClosedTab": "Reopen closed tab",
 
   "show": "Show",
   "hide": "Hide",
@@ -151,5 +152,7 @@
 
   "setDefaultCli": "Set as default",
   "clearDefaultCli": "Clear default",
-  "defaultCliSet": "Default CLI set"
+  "defaultCliSet": "Default CLI set",
+
+  "recentCommands": "Recent"
 }

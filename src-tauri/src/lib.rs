@@ -62,6 +62,7 @@ pub fn run() {
             db::sessions::db_close_all_sessions,
             // Database — History
             db::history::db_search_history,
+            db::history::db_recent_history,
             db::history::db_add_history,
             // Database — Snippets
             db::snippets::db_list_snippets,

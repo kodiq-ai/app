@@ -4,9 +4,10 @@ import { useAppStore } from "@/lib/store";
 interface ShortcutActions {
   spawnTab: (command?: string, label?: string) => Promise<string | null>;
   closeTab: (id: string) => void;
+  reopenTab: () => void;
 }
 
-export function useKeyboardShortcuts({ spawnTab, closeTab }: ShortcutActions) {
+export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: ShortcutActions) {
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
   const toggleCommandPalette = useAppStore((s) => s.toggleCommandPalette);
   const toggleSettings = useAppStore((s) => s.toggleSettings);
@@ -40,6 +41,18 @@ export function useKeyboardShortcuts({ spawnTab, closeTab }: ShortcutActions) {
       e.preventDefault();
       const { projectPath, activeTab } = useAppStore.getState();
       if (projectPath && activeTab) closeTab(activeTab);
+    },
+    { enableOnFormTags: true },
+  );
+
+  // ⌘⇧T — reopen closed tab
+  useHotkeys(
+    "mod+shift+t",
+    (e) => {
+      e.preventDefault();
+      if (useAppStore.getState().projectPath) {
+        reopenTab();
+      }
     },
     { enableOnFormTags: true },
   );

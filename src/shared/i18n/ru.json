@@ -10,6 +10,7 @@
   "close": "Закрыть",
   "closeOthers": "Закрыть остальные",
   "closeToRight": "Закрыть вкладки справа",
+  "reopenClosedTab": "Открыть закрытую вкладку",
 
   "show": "Показать",
   "hide": "Скрыть",
@@ -151,5 +152,7 @@
 
   "setDefaultCli": "Установить по умолчанию",
   "clearDefaultCli": "Сбросить по умолчанию",
-  "defaultCliSet": "CLI по умолчанию установлен"
+  "defaultCliSet": "CLI по умолчанию установлен",
+
+  "recentCommands": "Недавние"
 }

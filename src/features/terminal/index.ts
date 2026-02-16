@@ -1,1 +1,1 @@
-export { createTerminalSlice, type TerminalSlice } from "./store/terminalSlice";
+export { createTerminalSlice, type TerminalSlice, type ClosedTab } from "./store/terminalSlice";

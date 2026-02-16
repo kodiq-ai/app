@@ -111,6 +111,15 @@ export default function App() {
     [removeTab],
   );
 
+  const reopenTab = useCallback(() => {
+    const closed = useAppStore.getState().popClosedTab();
+    if (!closed) {
+      return;
+    }
+    const cmd = closed.command === "shell" || !closed.command ? undefined : closed.command;
+    spawnTab(cmd, closed.label);
+  }, [spawnTab]);
+
   const openProject = (path: string) => {
     const name = path.split("/").pop() || "project";
     setProject(path, name);
@@ -179,7 +188,7 @@ export default function App() {
   };
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────
-  useKeyboardShortcuts({ spawnTab, closeTab });
+  useKeyboardShortcuts({ spawnTab, closeTab, reopenTab });
 
   // ── Init: detect CLI tools, hydrate from DB, restore project ──────
   useEffect(() => {
@@ -349,7 +358,7 @@ export default function App() {
                 style={{ width: previewOpen ? `${splitRatio * 100}%` : "100%" }}
               >
                 <ErrorBoundary name="terminal" fallbackTitle={t("terminalError")}>
-                  <TabBar onSpawnTab={spawnTab} onCloseTab={closeTab} />
+                  <TabBar onSpawnTab={spawnTab} onCloseTab={closeTab} onReopenTab={reopenTab} />
                 </ErrorBoundary>
                 <FileViewer />
               </div>

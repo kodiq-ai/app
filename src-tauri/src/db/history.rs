@@ -77,6 +77,30 @@ pub fn add(
     Ok(())
 }
 
+pub fn recent(
+    conn: &rusqlite::Connection,
+    project_id: Option<&str>,
+    limit: u32,
+) -> Result<Vec<HistoryEntry>, rusqlite::Error> {
+    if let Some(pid) = project_id {
+        let mut stmt = conn.prepare(
+            "SELECT id, project_id, session_id, command, cli_name, exit_code, duration_ms, timestamp
+             FROM command_history WHERE project_id = ?1
+             GROUP BY command ORDER BY MAX(timestamp) DESC LIMIT ?2",
+        )?;
+        let rows = stmt.query_map(rusqlite::params![pid, limit], map_row)?;
+        rows.collect()
+    } else {
+        let mut stmt = conn.prepare(
+            "SELECT id, project_id, session_id, command, cli_name, exit_code, duration_ms, timestamp
+             FROM command_history
+             GROUP BY command ORDER BY MAX(timestamp) DESC LIMIT ?1",
+        )?;
+        let rows = stmt.query_map(rusqlite::params![limit], map_row)?;
+        rows.collect()
+    }
+}
+
 fn map_row(row: &rusqlite::Row) -> Result<HistoryEntry, rusqlite::Error> {
     Ok(HistoryEntry {
         id: row.get(0)?,
@@ -100,6 +124,17 @@ pub fn db_search_history(
 ) -> Result<Vec<HistoryEntry>, String> {
     let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
     search(&conn, &query, project_id.as_deref()).map_err(|e| format!("DB error: {}", e))
+}
+
+#[tauri::command]
+pub fn db_recent_history(
+    db: tauri::State<DbState>,
+    project_id: Option<String>,
+    limit: Option<u32>,
+) -> Result<Vec<HistoryEntry>, String> {
+    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
+    recent(&conn, project_id.as_deref(), limit.unwrap_or(20))
+        .map_err(|e| format!("DB error: {}", e))
 }
 
 #[tauri::command]

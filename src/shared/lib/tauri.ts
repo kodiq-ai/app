@@ -78,6 +78,11 @@ export const db = {
   history: {
     search: (query: string, projectId?: string | null) =>
       invoke<HistoryEntry[]>("db_search_history", { query, projectId: projectId ?? null }),
+    recent: (projectId?: string | null, limit?: number) =>
+      invoke<HistoryEntry[]>("db_recent_history", {
+        projectId: projectId ?? null,
+        limit: limit ?? 20,
+      }),
     add: (entry: NewHistoryEntry) => invoke<void>("db_add_history", { entry }),
   },
 

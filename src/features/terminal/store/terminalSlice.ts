@@ -2,12 +2,21 @@
 import type { StateCreator } from "zustand";
 import type { TerminalTab } from "@shared/lib/types";
 
+/** Info needed to reopen a closed tab */
+export interface ClosedTab {
+  label: string;
+  command?: string;
+}
+
+const MAX_CLOSED_TABS = 10;
+
 export interface TerminalSlice {
   // State
   tabs: TerminalTab[];
   activeTab: string;
   exitedTabs: Set<string>;
   notifiedTabs: Set<string>;
+  closedTabs: ClosedTab[];
 
   // Actions
   addTab: (tab: TerminalTab) => void;
@@ -18,13 +27,18 @@ export interface TerminalSlice {
   markExited: (id: string) => void;
   clearNotification: (id: string) => void;
   clearTabs: () => void;
+  popClosedTab: () => ClosedTab | null;
 }
 
-export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSlice> = (set) => ({
+export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSlice> = (
+  set,
+  get,
+) => ({
   tabs: [],
   activeTab: "",
   exitedTabs: new Set<string>(),
   notifiedTabs: new Set<string>(),
+  closedTabs: [],
 
   addTab: (tab) =>
     set((s) => ({
@@ -34,6 +48,7 @@ export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSl
 
   removeTab: (id) =>
     set((s) => {
+      const closed = s.tabs.find((t) => t.id === id);
       const next = s.tabs.filter((t) => t.id !== id);
       const nextExited = new Set(s.exitedTabs);
       nextExited.delete(id);
@@ -41,11 +56,19 @@ export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSl
       nextNotified.delete(id);
       const newActive =
         s.activeTab === id && next.length > 0 ? (next[next.length - 1]?.id ?? "") : s.activeTab;
+      // Push to closed tabs stack for reopen
+      const nextClosed = closed
+        ? [{ label: closed.label, command: closed.command }, ...s.closedTabs].slice(
+            0,
+            MAX_CLOSED_TABS,
+          )
+        : s.closedTabs;
       return {
         tabs: next,
         activeTab: next.length === 0 ? "" : newActive,
         exitedTabs: nextExited,
         notifiedTabs: nextNotified,
+        closedTabs: nextClosed,
       };
     }),
 
@@ -95,5 +118,16 @@ export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSl
       activeTab: "",
       exitedTabs: new Set<string>(),
       notifiedTabs: new Set<string>(),
+      closedTabs: [],
     }),
+
+  popClosedTab: () => {
+    const { closedTabs } = get();
+    if (closedTabs.length === 0) {
+      return null;
+    }
+    const [top, ...rest] = closedTabs;
+    set({ closedTabs: rest });
+    return top ?? null;
+  },
 });
