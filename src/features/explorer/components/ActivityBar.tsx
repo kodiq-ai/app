@@ -33,14 +33,12 @@ function ActivityIcon({
           size="icon-xs"
           onClick={onClick}
           className={cn(
-            "size-7 relative",
-            active
-              ? "text-[#e4e4e7]"
-              : "text-[#52525c] hover:text-[#a1a1aa]"
+            "relative size-7",
+            active ? "text-[#e4e4e7]" : "text-[#52525c] hover:text-[#a1a1aa]",
           )}
         >
           {active && (
-            <div className="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-r bg-[#14b8a6]" />
+            <div className="absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-r bg-[#14b8a6]" />
           )}
           <Icon className="size-4" />
         </Button>
@@ -85,14 +83,14 @@ export function ActivityBar() {
       {/* Panel (slides in/out) */}
       <div
         className={cn(
-          "flex flex-col border-l border-white/[0.06] overflow-hidden",
+          "flex flex-col overflow-hidden border-l border-white/[0.06]",
           "motion-safe:transition-[width,opacity] motion-safe:duration-200 motion-safe:ease-out",
-          sidebarOpen ? "w-52 opacity-100" : "w-0 opacity-0"
+          sidebarOpen ? "w-52 opacity-100" : "w-0 opacity-0",
         )}
       >
         {/* Panel header */}
-        <div className="flex items-center h-9 px-2.5 shrink-0 min-w-[13rem]">
-          <span className="text-[11px] text-[#71717a] font-medium truncate flex-1 uppercase tracking-wider">
+        <div className="flex h-9 min-w-[13rem] shrink-0 items-center px-2.5">
+          <span className="flex-1 truncate text-[11px] font-medium tracking-wider text-[#71717a] uppercase">
             {sidebarTab === "files" ? projectName : t("projectInfo")}
           </span>
         </div>
@@ -120,7 +118,7 @@ export function ActivityBar() {
       </div>
 
       {/* Activity Bar — always visible */}
-      <div className="flex flex-col items-center w-10 border-l border-white/[0.06] shrink-0 pt-1 gap-0.5">
+      <div className="flex w-10 shrink-0 flex-col items-center gap-0.5 border-l border-white/[0.06] pt-1">
         <ActivityIcon
           icon={FolderOpen}
           label={t("files")}

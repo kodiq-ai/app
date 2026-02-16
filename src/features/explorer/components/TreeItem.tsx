@@ -59,14 +59,14 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
   const copyPath = () => {
     navigator.clipboard.writeText(entry.path).then(
       () => toast.success(t("pathCopied")),
-      () => toast.error(t("failedToCopyPath"))
+      () => toast.error(t("failedToCopyPath")),
     );
   };
 
   const copyName = () => {
     navigator.clipboard.writeText(entry.name).then(
       () => toast.success(t("nameCopied")),
-      () => toast.error(t("failedToCopyName"))
+      () => toast.error(t("failedToCopyName")),
     );
   };
 
@@ -86,30 +86,32 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
             variant="ghost"
             onClick={handleClick}
             className={cn(
-              "w-full justify-start gap-1.5 h-[26px] text-[11px] rounded-none px-0",
-              isActive ? "bg-white/[0.04] text-[#e4e4e7]" : "hover:bg-white/[0.025]"
+              "h-[26px] w-full justify-start gap-1.5 rounded-none px-0 text-[11px]",
+              isActive ? "bg-white/[0.04] text-[#e4e4e7]" : "hover:bg-white/[0.025]",
             )}
             style={{ paddingLeft: pl }}
           >
-            {entry.isDir ? (
-              loading ? (
-                <Loader size="sm" className="size-2.5 shrink-0" />
-              ) : (
-                <ChevronRight
-                  className={cn(
-                    "size-2.5 shrink-0 text-[#3f3f46] transition-transform duration-150",
-                    isOpen && "rotate-90"
-                  )}
-                />
-              )
-            ) : (
-              <span className="w-2.5 shrink-0" />
+            {!entry.isDir && <span className="w-2.5 shrink-0" />}
+            {entry.isDir && loading && (
+              <Loader size="sm" className="size-2.5 shrink-0" />
+            )}
+            {entry.isDir && !loading && (
+              <ChevronRight
+                className={cn(
+                  "size-2.5 shrink-0 text-[#3f3f46] transition-transform duration-150",
+                  isOpen && "rotate-90",
+                )}
+              />
             )}
             <FileIcon name={entry.name} isDir={entry.isDir} />
-            <span className={cn(
-              "truncate text-left",
-              isActive ? "text-[#e4e4e7]" : entry.isDir ? "text-[#a1a1aa]" : "text-[#71717a]"
-            )}>
+            <span
+              className={cn(
+                "truncate text-left",
+                isActive && "text-[#e4e4e7]",
+                !isActive && entry.isDir && "text-[#a1a1aa]",
+                !isActive && !entry.isDir && "text-[#71717a]",
+              )}
+            >
               {entry.name}
             </span>
           </Button>
@@ -118,27 +120,29 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
           {entry.isDir && (
             <>
               <ContextMenuItem onClick={revealInSidebar}>
-                <FolderOpen className="size-3.5 mr-2" />
+                <FolderOpen className="mr-2 size-3.5" />
                 {t("openFolder")}
               </ContextMenuItem>
               <ContextMenuSeparator />
             </>
           )}
           <ContextMenuItem onClick={copyPath}>
-            <Copy className="size-3.5 mr-2" />
+            <Copy className="mr-2 size-3.5" />
             {t("copyPath")}
           </ContextMenuItem>
           <ContextMenuItem onClick={copyName}>
-            <TerminalSquare className="size-3.5 mr-2" />
+            <TerminalSquare className="mr-2 size-3.5" />
             {t("copyName")}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
       {(isOpen || loaded) && (
-        <div className={cn(
-          "grid motion-safe:transition-[grid-template-rows] motion-safe:duration-200",
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        )}>
+        <div
+          className={cn(
+            "grid motion-safe:transition-[grid-template-rows] motion-safe:duration-200",
+            isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+          )}
+        >
           <div className="overflow-hidden">
             {children.map((c) => (
               <TreeItem key={c.path || c.name} entry={c} depth={depth + 1} onExpand={onExpand} />

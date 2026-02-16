@@ -25,7 +25,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error(`[ErrorBoundary${this.props.name ? `:${this.props.name}` : ""}]`, error, info.componentStack);
+    console.error(
+      `[ErrorBoundary${this.props.name ? `:${this.props.name}` : ""}]`,
+      error,
+      info.componentStack,
+    );
   }
 
   handleReset = () => {
@@ -35,15 +39,15 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full w-full gap-4 p-6">
-          <div className="flex flex-col items-center gap-2 max-w-[280px] text-center">
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-              <span className="text-red-400 text-lg">!</span>
+        <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-6">
+          <div className="flex max-w-[280px] flex-col items-center gap-2 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10">
+              <span className="text-lg text-red-400">!</span>
             </div>
-            <p className="text-[13px] text-[#e4e4e7] font-medium">
+            <p className="text-[13px] font-medium text-[#e4e4e7]">
               {this.props.fallbackTitle || t("somethingWentWrong")}
             </p>
-            <p className="text-[11px] text-[#52525c] leading-relaxed">
+            <p className="text-[11px] leading-relaxed text-[#52525c]">
               {this.state.error?.message || t("unknownError")}
             </p>
           </div>
@@ -51,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
             variant="ghost"
             size="sm"
             onClick={this.handleReset}
-            className="text-[11px] text-[#71717a] hover:text-[#a1a1aa] gap-1.5"
+            className="gap-1.5 text-[11px] text-[#71717a] hover:text-[#a1a1aa]"
           >
             <RotateCcw className="size-3" />
             {t("reload")}

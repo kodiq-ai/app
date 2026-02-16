@@ -52,7 +52,9 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
   setDefaultCli: (cli) =>
     set((s) => {
       if (s.projectId) {
-        db.projects.update(s.projectId, { default_cli: cli }).catch((e) => console.error("[DB] setDefaultCli:", e));
+        db.projects
+          .update(s.projectId, { default_cli: cli })
+          .catch((e) => console.error("[DB] setDefaultCli:", e));
       }
       return { defaultCli: cli };
     }),

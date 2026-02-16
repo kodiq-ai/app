@@ -20,10 +20,7 @@ export function handleError(error: unknown, context?: string): void {
  * Wrap an async operation with error handling.
  * Returns the result or null if an error occurs.
  */
-export async function trySafe<T>(
-  fn: () => Promise<T>,
-  context?: string,
-): Promise<T | null> {
+export async function trySafe<T>(fn: () => Promise<T>, context?: string): Promise<T | null> {
   try {
     return await fn();
   } catch (e) {

@@ -3,7 +3,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { X, Copy, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,7 +32,7 @@ export function FileViewer() {
 
   const lines = useMemo(
     () => (openFileContent ? openFileContent.split("\n") : []),
-    [openFileContent]
+    [openFileContent],
   );
 
   const fileName = openFilePath?.split("/").pop() || "file";
@@ -42,13 +41,9 @@ export function FileViewer() {
   // Syntax highlighting via shiki (must be called before conditional returns)
   const highlight = useHighlighter(openFileContent || "", ext);
 
-  if (!openFilePath || openFileContent === null) return null;
-
-  const lineCount = lines.length;
-  const gutterWidth = String(lineCount).length;
-
-  // Build breadcrumb segments relative to project
+  // Build breadcrumb segments relative to project (before conditional return for hooks rules)
   const breadcrumbs = useMemo(() => {
+    if (!openFilePath) return [];
     if (!projectPath) return [{ name: fileName, path: openFilePath, isLast: true }];
     const relative = openFilePath.startsWith(projectPath)
       ? openFilePath.slice(projectPath.length + 1)
@@ -56,10 +51,15 @@ export function FileViewer() {
     const parts = relative.split("/");
     let accumulated = projectPath;
     return parts.map((part, i) => {
-      accumulated += "/" + part;
+      accumulated += `/${part}`;
       return { name: part, path: accumulated, isLast: i === parts.length - 1 };
     });
-  }, [openFilePath, projectPath]);
+  }, [openFilePath, projectPath, fileName]);
+
+  if (!openFilePath || openFileContent === null) return null;
+
+  const lineCount = lines.length;
+  const gutterWidth = String(lineCount).length;
 
   const navigateToDir = async (dirPath: string) => {
     // Open file from breadcrumb directory click — for now just copy path
@@ -74,20 +74,23 @@ export function FileViewer() {
   const copyContent = () => {
     navigator.clipboard.writeText(openFileContent).then(
       () => toast.success(t("contentCopied")),
-      () => toast.error(t("failedToCopy"))
+      () => toast.error(t("failedToCopy")),
     );
   };
 
   return (
-    <div className="absolute inset-0 z-20 bg-[var(--bg-base)] flex flex-col motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-200">
+    <div className="motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 absolute inset-0 z-20 flex flex-col bg-[var(--bg-base)] motion-safe:duration-200">
       {/* Breadcrumb Header */}
-      <div className="flex items-center h-9 px-3 border-b border-white/[0.06] shrink-0 gap-1">
-        <div className="flex items-center gap-0.5 flex-1 min-w-0 overflow-hidden">
+      <div className="flex h-9 shrink-0 items-center gap-1 border-b border-white/[0.06] px-3">
+        <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden">
           {breadcrumbs.map((crumb, i) => (
-            <div key={crumb.path} className="flex items-center gap-0.5 shrink-0 last:shrink min-w-0">
-              {i > 0 && <ChevronRight className="size-2.5 text-[#27272a] shrink-0" />}
+            <div
+              key={crumb.path}
+              className="flex min-w-0 shrink-0 items-center gap-0.5 last:shrink"
+            >
+              {i > 0 && <ChevronRight className="size-2.5 shrink-0 text-[#27272a]" />}
               {crumb.isLast ? (
-                <span className="flex items-center gap-1.5 text-[11px] text-[#e4e4e7] font-medium truncate">
+                <span className="flex items-center gap-1.5 truncate text-[11px] font-medium text-[#e4e4e7]">
                   <FileIcon name={crumb.name} isDir={false} />
                   {crumb.name}
                 </span>
@@ -96,7 +99,7 @@ export function FileViewer() {
                   variant="ghost"
                   size="xs"
                   onClick={() => navigateToDir(crumb.path)}
-                  className="h-5 px-1 text-[11px] text-[#52525c] hover:text-[#a1a1aa] font-normal"
+                  className="h-5 px-1 text-[11px] font-normal text-[#52525c] hover:text-[#a1a1aa]"
                 >
                   {crumb.name}
                 </Button>
@@ -104,7 +107,7 @@ export function FileViewer() {
             </div>
           ))}
         </div>
-        <span className="text-[10px] text-[#3f3f46] font-mono shrink-0">{ext}</span>
+        <span className="shrink-0 font-mono text-[10px] text-[#3f3f46]">{ext}</span>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -130,9 +133,10 @@ export function FileViewer() {
 
       {/* Content with line numbers */}
       <ScrollArea className="flex-1">
-        <div className="flex text-[12px] leading-[1.6] font-mono overflow-x-auto">
+        <div className="flex overflow-x-auto font-mono text-[12px] leading-[1.6]">
           {/* Line numbers gutter */}
-          <div className="sticky left-0 shrink-0 select-none text-right pr-3 pl-3 py-4 text-[#27272a] bg-[var(--bg-base)] border-r border-white/[0.03]"
+          <div
+            className="sticky left-0 shrink-0 border-r border-white/[0.03] bg-[var(--bg-base)] py-4 pr-3 pl-3 text-right text-[#27272a] select-none"
             style={{ minWidth: `${gutterWidth + 3}ch` }}
           >
             {lines.map((_, i) => (
@@ -140,7 +144,7 @@ export function FileViewer() {
             ))}
           </div>
           {/* Code */}
-          <pre className="flex-1 py-4 pl-4 pr-4 text-[#c8c8d0] whitespace-pre">
+          <pre className="flex-1 py-4 pr-4 pl-4 whitespace-pre text-[#c8c8d0]">
             {highlight.ready ? (
               <code>
                 {highlight.lines.map((html, i) => (
@@ -159,9 +163,9 @@ export function FileViewer() {
       </ScrollArea>
 
       {/* Footer */}
-      <div className="flex items-center h-6 px-3 border-t border-white/[0.06] shrink-0 gap-3">
-        <span className="text-[10px] text-[#3f3f46] font-mono truncate">{openFilePath}</span>
-        <span className="text-[10px] text-[#3f3f46] font-mono ml-auto shrink-0">
+      <div className="flex h-6 shrink-0 items-center gap-3 border-t border-white/[0.06] px-3">
+        <span className="truncate font-mono text-[10px] text-[#3f3f46]">{openFilePath}</span>
+        <span className="ml-auto shrink-0 font-mono text-[10px] text-[#3f3f46]">
           {lineCount} {t("lines")}
         </span>
       </div>

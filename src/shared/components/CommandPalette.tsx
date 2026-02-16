@@ -67,9 +67,14 @@ export function CommandPalette({ onSpawnTab, onOpenFolder, onCloseProject }: Com
             <CommandShortcut>⌘T</CommandShortcut>
           </CommandItem>
           {installedCli.map((tool) => (
-            <CommandItem key={tool.bin} onSelect={() => runAndClose(() => onSpawnTab(tool.bin, tool.name))}>
+            <CommandItem
+              key={tool.bin}
+              onSelect={() => runAndClose(() => onSpawnTab(tool.bin, tool.name))}
+            >
               <TerminalSquare className="size-4" />
-              <span>{t("run")} {tool.name}</span>
+              <span>
+                {t("run")} {tool.name}
+              </span>
             </CommandItem>
           ))}
         </CommandGroup>
@@ -96,7 +101,11 @@ export function CommandPalette({ onSpawnTab, onOpenFolder, onCloseProject }: Com
             <span>{t("mobile")}</span>
           </CommandItem>
           {previewUrl && (
-            <CommandItem onSelect={() => runAndClose(() => setPreviewUrl(previewUrl.split("?")[0] + "?_r=" + Date.now()))}>
+            <CommandItem
+              onSelect={() =>
+                runAndClose(() => setPreviewUrl(`${previewUrl.split("?")[0]}?_r=${Date.now()}`))
+              }
+            >
               <RotateCcw className="size-4" />
               <span>{t("refreshPreview")}</span>
             </CommandItem>

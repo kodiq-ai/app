@@ -62,7 +62,13 @@
 body {
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: "JetBrains Mono", -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  font-family:
+    "JetBrains Mono",
+    -apple-system,
+    "SF Pro Text",
+    "Helvetica Neue",
+    system-ui,
+    sans-serif;
   overflow: hidden;
   height: 100vh;
   width: 100vw;
@@ -127,25 +133,50 @@ body {
 }
 
 @keyframes subtle-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
-.anim-1 { animation: fade-rise 0.5s ease both; }
-.anim-2 { animation: fade-rise 0.5s ease 0.08s both; }
-.anim-3 { animation: fade-rise 0.5s ease 0.16s both; }
-.anim-4 { animation: fade-rise 0.5s ease 0.24s both; }
-.anim-5 { animation: fade-rise 0.5s ease 0.32s both; }
+.anim-1 {
+  animation: fade-rise 0.5s ease both;
+}
+.anim-2 {
+  animation: fade-rise 0.5s ease 0.08s both;
+}
+.anim-3 {
+  animation: fade-rise 0.5s ease 0.16s both;
+}
+.anim-4 {
+  animation: fade-rise 0.5s ease 0.24s both;
+}
+.anim-5 {
+  animation: fade-rise 0.5s ease 0.32s both;
+}
 
 .animate-float {
   animation: subtle-float 4s ease-in-out infinite;
@@ -162,17 +193,31 @@ body {
 /* ─── Block 2: UX Polish ──────────────────────────────────────────────────── */
 
 @keyframes step-slide-left {
-  from { transform: translateX(24px); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes step-slide-right {
-  from { transform: translateX(-24px); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(-24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes spinner-rotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .kodiq-spinner {
@@ -180,7 +225,9 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kodiq-spinner { animation: none !important; }
+  .kodiq-spinner {
+    animation: none !important;
+  }
 }
 
 /* ─── Shiki syntax highlighting ────────────────────────────────────────────── */

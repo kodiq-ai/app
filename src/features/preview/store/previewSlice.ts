@@ -24,7 +24,9 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   setPreviewUrl: (previewUrl) => set({ previewUrl }),
 
   setPreviewOpen: (previewOpen) => {
-    db.settings.set("previewOpen", String(previewOpen)).catch((e) => console.error("[DB] setting:", e));
+    db.settings
+      .set("previewOpen", String(previewOpen))
+      .catch((e) => console.error("[DB] setting:", e));
     set({ previewOpen });
   },
 

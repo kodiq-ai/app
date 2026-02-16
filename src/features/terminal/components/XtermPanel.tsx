@@ -50,7 +50,11 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     }
 
     requestAnimationFrame(() => {
-      try { fit.fit(); } catch { /* ok */ }
+      try {
+        fit.fit();
+      } catch {
+        /* ok */
+      }
     });
 
     termRef.current = term;
@@ -80,7 +84,9 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
               body: `${t("processFinished")}: ${tab?.label || t("terminal")}`,
               silent: false,
             });
-          } catch { /* notification API not available */ }
+          } catch {
+            /* notification API not available */
+          }
         }
       }
     });
@@ -92,6 +98,7 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
       termRef.current = null;
       fitRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Terminal is created once; font settings are read at init only
   }, [termId]);
 
   useEffect(() => {
@@ -104,7 +111,9 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
         if (term) {
           invoke("resize_pty", { id: termId, cols: term.cols, rows: term.rows }).catch(() => {});
         }
-      } catch { /* ok */ }
+      } catch {
+        /* ok */
+      }
     };
 
     requestAnimationFrame(doFit);
@@ -119,9 +128,9 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     <div
       ref={containerRef}
       className={cn(
-        "flex-1 overflow-hidden xterm-container absolute inset-0",
+        "xterm-container absolute inset-0 flex-1 overflow-hidden",
         "motion-safe:transition-opacity motion-safe:duration-150",
-        isActive ? "opacity-100 visible z-10" : "opacity-0 invisible z-0"
+        isActive ? "visible z-10 opacity-100" : "invisible z-0 opacity-0",
       )}
     />
   );

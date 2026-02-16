@@ -3,7 +3,6 @@ import { Plus, X, TerminalSquare, Search } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
   ContextMenu,
@@ -35,17 +34,20 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
   // ── Tab close animation ────────────────────────────────────────────
   const [closingTabs, setClosingTabs] = useState<Set<string>>(new Set());
 
-  const handleAnimatedClose = useCallback((id: string) => {
-    setClosingTabs((prev) => new Set(prev).add(id));
-    setTimeout(() => {
-      setClosingTabs((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-      onCloseTab(id);
-    }, 150);
-  }, [onCloseTab]);
+  const handleAnimatedClose = useCallback(
+    (id: string) => {
+      setClosingTabs((prev) => new Set(prev).add(id));
+      setTimeout(() => {
+        setClosingTabs((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+        onCloseTab(id);
+      }, 150);
+    },
+    [onCloseTab],
+  );
 
   // ── New terminal popover ──────────────────────────────────────────
   const [newTermOpen, setNewTermOpen] = useState(false);
@@ -53,8 +55,9 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
   // ── Search filter ───────────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const filteredTabs = useMemo(
-    () => search ? tabs.filter((tb) => tb.label.toLowerCase().includes(search.toLowerCase())) : tabs,
-    [tabs, search]
+    () =>
+      search ? tabs.filter((tb) => tb.label.toLowerCase().includes(search.toLowerCase())) : tabs,
+    [tabs, search],
   );
 
   // ── Inline rename ────────────────────────────────────────────────────
@@ -91,15 +94,18 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
     setDragOverIndex(idx);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent, toIdx: number) => {
-    e.preventDefault();
-    const fromIdx = dragIndexRef.current;
-    if (fromIdx !== null && fromIdx !== toIdx) {
-      reorderTabs(fromIdx, toIdx);
-    }
-    dragIndexRef.current = null;
-    setDragOverIndex(null);
-  }, [reorderTabs]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent, toIdx: number) => {
+      e.preventDefault();
+      const fromIdx = dragIndexRef.current;
+      if (fromIdx !== null && fromIdx !== toIdx) {
+        reorderTabs(fromIdx, toIdx);
+      }
+      dragIndexRef.current = null;
+      setDragOverIndex(null);
+    },
+    [reorderTabs],
+  );
 
   const handleDragEnd = useCallback(() => {
     dragIndexRef.current = null;
@@ -120,31 +126,34 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
   };
 
   return (
-    <div className="relative overflow-hidden flex flex-1" style={{ background: "#0a0a0c" }}>
+    <div className="relative flex flex-1 overflow-hidden" style={{ background: "#0a0a0c" }}>
       {/* Vertical tab sidebar — left */}
-      <div className="flex flex-col w-44 shrink-0 border-r border-white/[0.06] overflow-hidden">
+      <div className="flex w-44 shrink-0 flex-col overflow-hidden border-r border-white/[0.06]">
         {/* New terminal button with tool picker */}
-        <div className="px-2 pt-2 pb-1 shrink-0">
+        <div className="shrink-0 px-2 pt-2 pb-1">
           <Popover open={newTermOpen} onOpenChange={setNewTermOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-2 h-8 px-2.5 text-[11px] rounded-lg border border-white/[0.06] bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/[0.1] text-[#71717a] hover:text-[#a1a1aa] transition-all"
+                className="h-8 w-full justify-start gap-2 rounded-lg border border-white/[0.06] bg-white/[0.01] px-2.5 text-[11px] text-[#71717a] transition-all hover:border-white/[0.1] hover:bg-white/[0.04] hover:text-[#a1a1aa]"
               >
                 <Plus className="size-3" />
                 <span>{t("newTerminal")}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-[200px] p-1 bg-[#141517] border-white/[0.06] shadow-xl"
+              className="w-[200px] border-white/[0.06] bg-[#141517] p-1 shadow-xl"
               side="right"
               sideOffset={8}
               align="start"
             >
               {/* Shell */}
               <button
-                onClick={() => { onSpawnTab(undefined, t("terminal")); setNewTermOpen(false); }}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left hover:bg-white/[0.04] transition-colors"
+                onClick={() => {
+                  onSpawnTab(undefined, t("terminal"));
+                  setNewTermOpen(false);
+                }}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
               >
                 <TabIconSvg icon="shell" size={14} />
                 <span className="text-[12px] text-[#a1a1aa]">{t("terminal")}</span>
@@ -153,12 +162,15 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
               {/* AI tools */}
               {installedCli.length > 0 && (
                 <>
-                  <div className="h-px bg-white/[0.06] mx-1 my-1" />
+                  <div className="mx-1 my-1 h-px bg-white/[0.06]" />
                   {installedCli.map((tool) => (
                     <button
                       key={tool.bin}
-                      onClick={() => { onSpawnTab(tool.bin, tool.name); setNewTermOpen(false); }}
-                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left hover:bg-white/[0.04] transition-colors"
+                      onClick={() => {
+                        onSpawnTab(tool.bin, tool.name);
+                        setNewTermOpen(false);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
                     >
                       <TabIconSvg icon={tool.bin} size={14} />
                       <span className="text-[12px] text-[#a1a1aa]">{tool.name}</span>
@@ -172,14 +184,14 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
 
         {/* Search */}
         {tabs.length > 1 && (
-          <div className="px-2 pb-1 shrink-0">
-            <div className="flex items-center gap-1.5 h-7 px-2 rounded-md bg-white/[0.02] border border-white/[0.04]">
-              <Search className="size-3 text-[#3f3f46] shrink-0" />
+          <div className="shrink-0 px-2 pb-1">
+            <div className="flex h-7 items-center gap-1.5 rounded-md border border-white/[0.04] bg-white/[0.02] px-2">
+              <Search className="size-3 shrink-0 text-[#3f3f46]" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("searchTerminals")}
-                className="flex-1 bg-transparent text-[11px] text-[#a1a1aa] placeholder:text-[#3f3f46] outline-none h-full min-w-0"
+                className="h-full min-w-0 flex-1 bg-transparent text-[11px] text-[#a1a1aa] outline-none placeholder:text-[#3f3f46]"
               />
             </div>
           </div>
@@ -198,8 +210,10 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
                   onDragEnd={handleDragEnd}
                   className={cn(
                     "relative",
-                    dragOverIndex === idx && "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[#14b8a6]",
-                    closingTabs.has(tab.id) && "motion-safe:animate-out motion-safe:fade-out-0 motion-safe:zoom-out-95 motion-safe:duration-150 overflow-hidden"
+                    dragOverIndex === idx &&
+                      "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[#14b8a6]",
+                    closingTabs.has(tab.id) &&
+                      "motion-safe:animate-out motion-safe:fade-out-0 motion-safe:zoom-out-95 overflow-hidden motion-safe:duration-150",
                   )}
                 >
                   <Button
@@ -207,10 +221,10 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
                     onClick={() => setActiveTab(tab.id)}
                     onDoubleClick={() => startRename(tab.id, tab.label)}
                     className={cn(
-                      "group w-full justify-start gap-1.5 h-8 px-2.5 text-[11px] rounded-none",
+                      "group h-8 w-full justify-start gap-1.5 rounded-none px-2.5 text-[11px]",
                       activeTab === tab.id
-                        ? "text-[#e4e4e7] bg-white/[0.04]"
-                        : "text-[#52525c] hover:text-[#a1a1aa] hover:bg-white/[0.02]"
+                        ? "bg-white/[0.04] text-[#e4e4e7]"
+                        : "text-[#52525c] hover:bg-white/[0.02] hover:text-[#a1a1aa]",
                     )}
                   >
                     <TabIconSvg icon={tab.command || "shell"} size={12} />
@@ -225,22 +239,37 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
                           if (e.key === "Escape") setEditingId(null);
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 bg-transparent border-b border-[#14b8a6]/40 text-[11px] text-[#e4e4e7] outline-none px-0 py-0 h-auto min-w-0"
+                        className="h-auto min-w-0 flex-1 border-b border-[#14b8a6]/40 bg-transparent px-0 py-0 text-[11px] text-[#e4e4e7] outline-none"
                         autoFocus
                       />
                     ) : (
-                      <span className={cn("truncate flex-1 text-left", exitedTabs.has(tab.id) && "opacity-50")}>
+                      <span
+                        className={cn(
+                          "flex-1 truncate text-left",
+                          exitedTabs.has(tab.id) && "opacity-50",
+                        )}
+                      >
                         {tab.label}
                       </span>
                     )}
-                    {notifiedTabs.has(tab.id) ? (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#14b8a6] shrink-0 animate-pulse" title={t("processFinished")} />
-                    ) : exitedTabs.has(tab.id) ? (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#3f3f46] shrink-0" title={t("processExited")} />
-                    ) : null}
+                    {notifiedTabs.has(tab.id) && (
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#14b8a6]"
+                        title={t("processFinished")}
+                      />
+                    )}
+                    {!notifiedTabs.has(tab.id) && exitedTabs.has(tab.id) && (
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#3f3f46]"
+                        title={t("processExited")}
+                      />
+                    )}
                     <span
-                      onClick={(e) => { e.stopPropagation(); handleAnimatedClose(tab.id); }}
-                      className="w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-white/[0.08] text-[#52525c] hover:text-[#a1a1aa] transition-all cursor-pointer shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAnimatedClose(tab.id);
+                      }}
+                      className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded text-[#52525c] opacity-0 transition-all group-hover:opacity-100 hover:bg-white/[0.08] hover:text-[#a1a1aa]"
                     >
                       <X className="size-2.5" />
                     </span>
@@ -258,7 +287,10 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
                 <ContextMenuItem onClick={() => closeOtherTabs(tab.id)} disabled={tabs.length <= 1}>
                   {t("closeOthers")}
                 </ContextMenuItem>
-                <ContextMenuItem onClick={() => closeTabsToRight(tab.id)} disabled={tabs.indexOf(tab) === tabs.length - 1}>
+                <ContextMenuItem
+                  onClick={() => closeTabsToRight(tab.id)}
+                  disabled={tabs.indexOf(tab) === tabs.length - 1}
+                >
                   {t("closeToRight")}
                 </ContextMenuItem>
                 <ContextMenuSeparator />
@@ -272,34 +304,33 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
 
         {/* Empty state */}
         {tabs.length === 0 && (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-1 items-center justify-center">
             <Button
               variant="ghost"
               onClick={() => onSpawnTab(undefined, t("terminal"))}
-              className="flex flex-col items-center gap-2 h-auto text-[11px] text-[#3f3f46] hover:text-[#14b8a6]"
+              className="flex h-auto flex-col items-center gap-2 text-[11px] text-[#3f3f46] hover:text-[#14b8a6]"
             >
               <TerminalSquare className="size-4" />
               <span>{t("open")}</span>
             </Button>
           </div>
         )}
-
       </div>
 
       {/* Terminal area — right */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="relative flex-1 overflow-hidden">
         {tabs.map((tab) => (
           <XtermPanel key={tab.id} termId={tab.id} isActive={activeTab === tab.id} />
         ))}
         {tabs.length === 0 && (
-          <div className="flex-1 flex items-center justify-center h-full">
-            <div className="text-center flex flex-col items-center gap-3">
+          <div className="flex h-full flex-1 items-center justify-center">
+            <div className="flex flex-col items-center gap-3 text-center">
               <TerminalSquare className="size-5 text-[#3f3f46]" />
               <p className="text-[11px] text-[#3f3f46]">{t("noOpenTerminals")}</p>
               <Button
                 variant="link"
                 onClick={() => onSpawnTab(undefined, t("terminal"))}
-                className="text-[11px] text-[#14b8a6] hover:text-[#2dd4bf] h-auto p-0"
+                className="h-auto p-0 text-[11px] text-[#14b8a6] hover:text-[#2dd4bf]"
               >
                 {t("openTerminal")}
               </Button>

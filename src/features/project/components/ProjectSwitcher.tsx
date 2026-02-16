@@ -27,58 +27,67 @@ export function ProjectSwitcher({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-white/[0.04] transition-colors">
+        <button className="flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.04]">
           <KodiqDot size={16} />
-          <span className="text-[12px] text-[#52525c] font-medium">Kodiq</span>
+          <span className="text-[12px] font-medium text-[#52525c]">Kodiq</span>
           <ChevronRight className="size-2.5 text-[#27272a]" />
-          <span className="text-[12px] text-[#a1a1aa] font-medium">
+          <span className="text-[12px] font-medium text-[#a1a1aa]">
             {projectName || t("selectProject")}
           </span>
-          <ChevronDown className="size-2.5 text-[#3f3f46] ml-0.5" />
+          <ChevronDown className="ml-0.5 size-2.5 text-[#3f3f46]" />
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[280px] p-0 bg-[#141517] border-white/[0.06] shadow-xl"
+        className="w-[280px] border-white/[0.06] bg-[#141517] p-0 shadow-xl"
         sideOffset={8}
         align="center"
       >
         {recentProjects.length > 0 && (
           <div className="px-1 pt-1">
-            <div className="text-[10px] text-[#3f3f46] font-medium uppercase tracking-[0.08em] px-2 py-1.5">
+            <div className="px-2 py-1.5 text-[10px] font-medium tracking-[0.08em] text-[#3f3f46] uppercase">
               {t("recent")}
             </div>
             {recentProjects.map((p) => (
               <button
                 key={p.path}
-                onClick={() => { onOpenProject(p.path); setOpen(false); }}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left hover:bg-white/[0.04] group transition-colors"
+                onClick={() => {
+                  onOpenProject(p.path);
+                  setOpen(false);
+                }}
+                className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
               >
-                <Folder className="size-3 fill-[#3f3f46] text-[#3f3f46] shrink-0" />
-                <span className="text-[12px] text-[#71717a] group-hover:text-[#a1a1aa] truncate flex-1 transition-colors">
+                <Folder className="size-3 shrink-0 fill-[#3f3f46] text-[#3f3f46]" />
+                <span className="flex-1 truncate text-[12px] text-[#71717a] transition-colors group-hover:text-[#a1a1aa]">
                   {p.name}
                 </span>
                 {p.path === projectPath && (
-                  <div className="size-1.5 rounded-full bg-[#14b8a6] shrink-0" />
+                  <div className="size-1.5 shrink-0 rounded-full bg-[#14b8a6]" />
                 )}
               </button>
             ))}
           </div>
         )}
 
-        <div className="h-px bg-white/[0.06] mx-2 my-1" />
+        <div className="mx-2 my-1 h-px bg-white/[0.06]" />
 
         <div className="px-1 pb-1">
           <button
-            onClick={() => { onOpenFolder(); setOpen(false); }}
-            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/[0.04] text-left transition-colors"
+            onClick={() => {
+              onOpenFolder();
+              setOpen(false);
+            }}
+            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
           >
             <FolderOpen className="size-3 text-[#52525c]" />
             <span className="text-[12px] text-[#a1a1aa]">{t("openProject")}...</span>
           </button>
           {projectPath && (
             <button
-              onClick={() => { onCloseProject(); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/[0.04] text-left transition-colors"
+              onClick={() => {
+                onCloseProject();
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
             >
               <X className="size-3 text-[#52525c]" />
               <span className="text-[12px] text-[#71717a]">{t("closeProject")}</span>

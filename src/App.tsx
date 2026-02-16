@@ -69,43 +69,49 @@ export default function App() {
     }
   };
 
-  const spawnTab = useCallback(async (command?: string, label?: string) => {
-    try {
-      const { projectPath, projectId, settings, tabs: currentTabs } = useAppStore.getState();
-      const id = await invoke<string>("spawn_terminal", {
-        command: command || null,
-        cwd: projectPath,
-        shell: settings.shell || null,
-      });
-      const tabLabel = label || (command ? command : t("terminal"));
-      addTab({ id, label: tabLabel, command: command || "shell" });
-      // Persist session to SQLite
-      if (projectId) {
-        db.sessions
-          .save({
-            id,
-            project_id: projectId,
-            label: tabLabel,
-            command: command || null,
-            cwd: projectPath,
-            sort_order: currentTabs.length,
-          })
-          .catch((e) => console.error("[DB] save session:", e));
+  const spawnTab = useCallback(
+    async (command?: string, label?: string) => {
+      try {
+        const { projectPath, projectId, settings, tabs: currentTabs } = useAppStore.getState();
+        const id = await invoke<string>("spawn_terminal", {
+          command: command || null,
+          cwd: projectPath,
+          shell: settings.shell || null,
+        });
+        const tabLabel = label || (command ? command : t("terminal"));
+        addTab({ id, label: tabLabel, command: command || "shell" });
+        // Persist session to SQLite
+        if (projectId) {
+          db.sessions
+            .save({
+              id,
+              project_id: projectId,
+              label: tabLabel,
+              command: command || null,
+              cwd: projectPath,
+              sort_order: currentTabs.length,
+            })
+            .catch((e) => console.error("[DB] save session:", e));
+        }
+        return id;
+      } catch (e) {
+        toast.error(t("failedToSpawnTerminal"), { description: String(e) });
+        return null;
       }
-      return id;
-    } catch (e) {
-      toast.error(t("failedToSpawnTerminal"), { description: String(e) });
-      return null;
-    }
-  }, [addTab]);
+    },
+    [addTab],
+  );
 
-  const closeTab = useCallback((id: string) => {
-    invoke("close_terminal", { id }).catch(() => {});
-    removeTab(id);
-    db.sessions.close(id).catch((e) => console.error("[DB] close session:", e));
-  }, [removeTab]);
+  const closeTab = useCallback(
+    (id: string) => {
+      invoke("close_terminal", { id }).catch(() => {});
+      removeTab(id);
+      db.sessions.close(id).catch((e) => console.error("[DB] close session:", e));
+    },
+    [removeTab],
+  );
 
-  const openProject = async (path: string) => {
+  const openProject = (path: string) => {
     const name = path.split("/").pop() || "project";
     setProject(path, name);
     setPreviewUrl(null);
@@ -135,7 +141,9 @@ export default function App() {
       // Default: use project's default CLI or plain terminal
       const { defaultCli } = useAppStore.getState();
       if (defaultCli) {
-        const tool = useAppStore.getState().cliTools.find((t) => t.bin === defaultCli && t.installed);
+        const tool = useAppStore
+          .getState()
+          .cliTools.find((t) => t.bin === defaultCli && t.installed);
         await spawnTab(defaultCli, tool?.name || defaultCli);
       } else {
         await spawnTab(undefined, t("terminal"));
@@ -177,8 +185,12 @@ export default function App() {
   useEffect(() => {
     const init = async () => {
       // 1. CLI detection (non-blocking)
-      invoke<CliTool[]>("detect_cli_tools").then(setCliTools).catch(() => {});
-      invoke<string>("detect_default_shell").then(setDefaultShell).catch(() => {});
+      invoke<CliTool[]>("detect_cli_tools")
+        .then(setCliTools)
+        .catch(() => {});
+      invoke<string>("detect_default_shell")
+        .then(setDefaultShell)
+        .catch(() => {});
 
       // 2. Request notification permission
       if ("Notification" in window && Notification.permission === "default") {
@@ -188,16 +200,22 @@ export default function App() {
       // 3. Hydrate settings & projects from SQLite (await to prevent race)
       try {
         await useAppStore.getState().loadSettingsFromDB?.();
-      } catch {}
+      } catch {
+        // DB not ready — defaults used
+      }
       try {
         await useAppStore.getState().loadProjectFromDB?.();
-      } catch {}
+      } catch {
+        // DB not ready — defaults used
+      }
 
       // 4. Restore last project (DB first → localStorage fallback)
       let lastPath: string | null = null;
       try {
         lastPath = await db.settings.get("lastProjectPath");
-      } catch {}
+      } catch {
+        // DB not ready
+      }
       if (!lastPath) {
         lastPath = localStorage.getItem("kodiq-project-path");
       }
@@ -206,7 +224,7 @@ export default function App() {
       }
     };
     init();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Port detection ────────────────────────────────────────────────────
@@ -214,8 +232,10 @@ export default function App() {
     const unlisten = listen<{ id: string; port: number; url: string }>("port-detected", (event) => {
       setPreviewUrl(event.payload.url);
     });
-    return () => { unlisten.then((fn) => fn()); };
-  }, []);
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [setPreviewUrl]);
 
   // ── Update dialog listener (from toast action) ──────────────────────
   useEffect(() => {
@@ -227,7 +247,7 @@ export default function App() {
   // ─── Layout ─────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[var(--bg-base)]">
+    <div className="flex h-screen w-screen flex-col bg-[var(--bg-base)]">
       {/* Modals */}
       <CommandPalette
         onSpawnTab={spawnTab}
@@ -239,9 +259,12 @@ export default function App() {
       <FileSearch />
 
       {/* Title bar */}
-      <header className="flex items-center h-[52px] px-4 border-b border-white/[0.06] shrink-0 select-none" data-tauri-drag-region>
+      <header
+        className="flex h-[52px] shrink-0 items-center border-b border-white/[0.06] px-4 select-none"
+        data-tauri-drag-region
+      >
         <div className="w-[80px] shrink-0" />
-        <div className="flex-1 flex items-center justify-center" data-tauri-drag-region>
+        <div className="flex flex-1 items-center justify-center" data-tauri-drag-region>
           <ProjectSwitcher
             projectName={projectName}
             projectPath={projectPath}
@@ -251,7 +274,7 @@ export default function App() {
             onCloseProject={closeProject}
           />
         </div>
-        <div className="w-[140px] flex items-center justify-end gap-1">
+        <div className="flex w-[140px] items-center justify-end gap-1">
           <UpdateBadge onClick={() => setUpdateDialogOpen(true)} />
           {projectPath && (
             <Tooltip>
@@ -262,13 +285,19 @@ export default function App() {
                   onClick={togglePreview}
                   className={cn(
                     "text-[#52525c] hover:text-[#a1a1aa]",
-                    previewOpen && "text-[#a1a1aa]"
+                    previewOpen && "text-[#a1a1aa]",
                   )}
                 >
-                  {previewOpen ? <PanelRightClose className="size-3.5" /> : <PanelRightOpen className="size-3.5" />}
+                  {previewOpen ? (
+                    <PanelRightClose className="size-3.5" />
+                  ) : (
+                    <PanelRightOpen className="size-3.5" />
+                  )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="bottom">{previewOpen ? t("hidePreviewShort") : t("showPreviewShort")}</TooltipContent>
+              <TooltipContent side="bottom">
+                {previewOpen ? t("hidePreviewShort") : t("showPreviewShort")}
+              </TooltipContent>
             </Tooltip>
           )}
           <Tooltip>
@@ -306,12 +335,19 @@ export default function App() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {projectPath ? (
+        {projectPath && (
           <>
             {/* Panels */}
-            <div ref={panelsRef} className="flex flex-1 overflow-hidden" style={{ cursor: isDragging ? "col-resize" : undefined }}>
+            <div
+              ref={panelsRef}
+              className="flex flex-1 overflow-hidden"
+              style={{ cursor: isDragging ? "col-resize" : undefined }}
+            >
               {/* Terminal panel */}
-              <div className="flex overflow-hidden relative" style={{ width: previewOpen ? `${splitRatio * 100}%` : "100%" }}>
+              <div
+                className="relative flex overflow-hidden"
+                style={{ width: previewOpen ? `${splitRatio * 100}%` : "100%" }}
+              >
                 <ErrorBoundary name="terminal" fallbackTitle={t("terminalError")}>
                   <TabBar onSpawnTab={spawnTab} onCloseTab={closeTab} />
                 </ErrorBoundary>
@@ -322,17 +358,23 @@ export default function App() {
               {previewOpen && (
                 <>
                   <div
-                    className="w-px cursor-col-resize shrink-0 group relative"
+                    className="group relative w-px shrink-0 cursor-col-resize"
                     onMouseDown={startDrag}
                   >
-                    <div className={cn(
-                      "absolute inset-y-0 -left-[2px] w-[5px] transition-all",
-                      isDragging ? "bg-[#14b8a6]/30" : "bg-transparent group-hover:bg-white/[0.04]"
-                    )} />
-                    <div className={cn(
-                      "absolute inset-0 transition-colors",
-                      isDragging ? "bg-[#14b8a6]" : "bg-white/[0.06]"
-                    )} />
+                    <div
+                      className={cn(
+                        "absolute inset-y-0 -left-[2px] w-[5px] transition-all",
+                        isDragging
+                          ? "bg-[#14b8a6]/30"
+                          : "bg-transparent group-hover:bg-white/[0.04]",
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        "absolute inset-0 transition-colors",
+                        isDragging ? "bg-[#14b8a6]" : "bg-white/[0.06]",
+                      )}
+                    />
                   </div>
 
                   <ErrorBoundary name="preview" fallbackTitle={t("previewError")}>
@@ -347,7 +389,8 @@ export default function App() {
               <ActivityBar />
             </ErrorBoundary>
           </>
-        ) : !onboardingComplete ? (
+        )}
+        {!projectPath && !onboardingComplete && (
           <OnboardingWizard
             cliTools={cliTools}
             defaultShell={defaultShell}
@@ -358,7 +401,8 @@ export default function App() {
             }}
             onOpenFolder={pickFolder}
           />
-        ) : (
+        )}
+        {!projectPath && onboardingComplete && (
           <EmptyState onOpenFolder={handleOpenFolder} onOpenProject={openProject} />
         )}
       </div>

@@ -70,8 +70,8 @@ export function extToLang(ext: string): string | null {
 let highlighterPromise: Promise<HighlighterCore> | null = null;
 let highlighterInstance: HighlighterCore | null = null;
 
-async function getHighlighter(): Promise<HighlighterCore> {
-  if (highlighterInstance) return highlighterInstance;
+function getHighlighter(): Promise<HighlighterCore> {
+  if (highlighterInstance) return Promise.resolve(highlighterInstance);
   if (highlighterPromise) return highlighterPromise;
 
   highlighterPromise = (async () => {

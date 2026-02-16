@@ -5,8 +5,12 @@ import { useAppStore } from "@/store";
 import { t } from "@shared/i18n";
 
 // Dynamic imports to avoid errors if plugins aren't available at dev time
-let checkModule: typeof import("@tauri-apps/plugin-updater") | null = null;
-let processModule: typeof import("@tauri-apps/plugin-process") | null = null;
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- dynamic import() type needed for lazy plugin loading
+type UpdaterModule = typeof import("@tauri-apps/plugin-updater");
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- dynamic import() type needed for lazy plugin loading
+type ProcessModule = typeof import("@tauri-apps/plugin-process");
+let checkModule: UpdaterModule | null = null;
+let processModule: ProcessModule | null = null;
 
 async function loadModules() {
   try {

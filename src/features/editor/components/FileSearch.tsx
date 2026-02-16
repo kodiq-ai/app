@@ -31,10 +31,7 @@ export function FileSearch() {
 
   const [query, setQuery] = useState("");
 
-  const allFiles = useMemo(
-    () => flattenTree(fileTree).filter((e) => !e.isDir),
-    [fileTree]
-  );
+  const allFiles = useMemo(() => flattenTree(fileTree).filter((e) => !e.isDir), [fileTree]);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return allFiles.slice(0, 50);
@@ -44,16 +41,19 @@ export function FileSearch() {
       .slice(0, 50);
   }, [allFiles, query]);
 
-  const openFile = useCallback(async (entry: FileEntry) => {
-    try {
-      const content = await invoke<string>("read_file", { path: entry.path });
-      setOpenFile(entry.path, content);
-    } catch (e) {
-      toast.error(t("failedToOpenFile"), { description: String(e) });
-    }
-    setOpen(false);
-    setQuery("");
-  }, [setOpenFile, setOpen]);
+  const openFile = useCallback(
+    async (entry: FileEntry) => {
+      try {
+        const content = await invoke<string>("read_file", { path: entry.path });
+        setOpenFile(entry.path, content);
+      } catch (e) {
+        toast.error(t("failedToOpenFile"), { description: String(e) });
+      }
+      setOpen(false);
+      setQuery("");
+    },
+    [setOpenFile, setOpen],
+  );
 
   const getRelativePath = (fullPath: string) => {
     if (projectPath && fullPath.startsWith(projectPath)) {
@@ -73,24 +73,15 @@ export function FileSearch() {
       description={t("findFile")}
       showCloseButton={false}
     >
-      <CommandInput
-        placeholder={t("fileName")}
-        value={query}
-        onValueChange={setQuery}
-      />
+      <CommandInput placeholder={t("fileName")} value={query} onValueChange={setQuery} />
       <CommandList>
         <CommandEmpty>{t("fileNotFound")}</CommandEmpty>
         <CommandGroup heading={query ? `${t("found")}: ${filtered.length}` : t("files")}>
           {filtered.map((f) => (
-            <CommandItem
-              key={f.path}
-              value={f.path}
-              onSelect={() => openFile(f)}
-              className="gap-2"
-            >
+            <CommandItem key={f.path} value={f.path} onSelect={() => openFile(f)} className="gap-2">
               <FileIcon name={f.name} isDir={false} />
-              <span className="truncate flex-1">{f.name}</span>
-              <span className="text-[10px] text-[#3f3f46] font-mono truncate max-w-[200px]">
+              <span className="flex-1 truncate">{f.name}</span>
+              <span className="max-w-[200px] truncate font-mono text-[10px] text-[#3f3f46]">
                 {getRelativePath(f.path)}
               </span>
             </CommandItem>

@@ -40,7 +40,7 @@ export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSl
       const nextNotified = new Set(s.notifiedTabs);
       nextNotified.delete(id);
       const newActive =
-        s.activeTab === id && next.length > 0 ? next[next.length - 1].id : s.activeTab;
+        s.activeTab === id && next.length > 0 ? (next[next.length - 1]?.id ?? "") : s.activeTab;
       return {
         tabs: next,
         activeTab: next.length === 0 ? "" : newActive,
@@ -65,7 +65,9 @@ export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSl
     set((s) => {
       const next = [...s.tabs];
       const [moved] = next.splice(fromIndex, 1);
-      next.splice(toIndex, 0, moved);
+      if (moved) {
+        next.splice(toIndex, 0, moved);
+      }
       return { tabs: next };
     }),
 

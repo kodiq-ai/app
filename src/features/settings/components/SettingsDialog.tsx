@@ -26,7 +26,7 @@ export function SettingsDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[420px] bg-[#141517] border-white/[0.06]">
+      <DialogContent className="border-white/[0.06] bg-[#141517] sm:max-w-[420px]">
         <DialogHeader>
           <DialogTitle className="text-[14px] text-[#e4e4e7]">{t("settings")}</DialogTitle>
           <DialogDescription className="text-[12px] text-[#52525c]">
@@ -34,10 +34,12 @@ export function SettingsDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-5 mt-2">
+        <div className="mt-2 flex flex-col gap-5">
           {/* Shell */}
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] text-[#71717a] font-medium uppercase tracking-[0.06em]">{t("shell")}</label>
+            <label className="text-[11px] font-medium tracking-[0.06em] text-[#71717a] uppercase">
+              {t("shell")}
+            </label>
             <div className="flex flex-wrap gap-1.5">
               {shells.map((s) => (
                 <Button
@@ -45,7 +47,7 @@ export function SettingsDialog() {
                   variant={settings.shell === s.value ? "secondary" : "ghost"}
                   size="sm"
                   onClick={() => updateSettings({ shell: s.value })}
-                  className="text-[11px] h-7"
+                  className="h-7 text-[11px]"
                 >
                   {s.label}
                 </Button>
@@ -57,7 +59,9 @@ export function SettingsDialog() {
 
           {/* Font size */}
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] text-[#71717a] font-medium uppercase tracking-[0.06em]">{t("fontSize")}</label>
+            <label className="text-[11px] font-medium tracking-[0.06em] text-[#71717a] uppercase">
+              {t("fontSize")}
+            </label>
             <div className="flex items-center gap-1.5">
               {fontSizes.map((size) => (
                 <Button
@@ -65,7 +69,7 @@ export function SettingsDialog() {
                   variant={settings.fontSize === size ? "secondary" : "ghost"}
                   size="sm"
                   onClick={() => updateSettings({ fontSize: size })}
-                  className="text-[11px] h-7 w-9 font-mono"
+                  className="h-7 w-9 font-mono text-[11px]"
                 >
                   {size}
                 </Button>

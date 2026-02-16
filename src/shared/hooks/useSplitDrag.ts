@@ -24,7 +24,7 @@ export function useSplitDrag() {
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     };
-  }, [isDragging]);
+  }, [isDragging, setSplitRatio]);
 
   const startDrag = (e: React.MouseEvent) => {
     e.preventDefault();

@@ -23,7 +23,7 @@ describe("terminalSlice", () => {
     store.getState().addTab({ id: "t1", label: "Terminal 1" });
     const state = store.getState();
     expect(state.tabs).toHaveLength(1);
-    expect(state.tabs[0].id).toBe("t1");
+    expect(state.tabs[0]?.id).toBe("t1");
     expect(state.activeTab).toBe("t1");
   });
 
@@ -51,7 +51,7 @@ describe("terminalSlice", () => {
     store.getState().addTab({ id: "t1", label: "Terminal 1" });
     store.getState().renameTab("t1", "Renamed");
 
-    expect(store.getState().tabs[0].label).toBe("Renamed");
+    expect(store.getState().tabs[0]?.label).toBe("Renamed");
   });
 
   it("reorderTabs moves tabs correctly", () => {

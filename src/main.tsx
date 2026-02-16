@@ -6,7 +6,9 @@ import { t } from "@/lib/i18n";
 import App from "./App";
 import "./app.css";
 
-createRoot(document.getElementById("root")!).render(
+const rootEl = document.getElementById("root");
+if (!rootEl) throw new Error("Root element not found");
+createRoot(rootEl).render(
   <ErrorBoundary fallbackTitle={t("criticalError")}>
     <TooltipProvider delayDuration={300}>
       <App />
@@ -25,5 +27,5 @@ createRoot(document.getElementById("root")!).render(
         }}
       />
     </TooltipProvider>
-  </ErrorBoundary>
+  </ErrorBoundary>,
 );

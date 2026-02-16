@@ -92,11 +92,21 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
     // Helper: values were stored via JSON.stringify, so "\"zsh\"" needs unwrapping
     const parse = (v: string | undefined): string | undefined => {
       if (!v) return undefined;
-      try { const p = JSON.parse(v); return typeof p === "string" ? p : v; } catch { return v; }
+      try {
+        const p = JSON.parse(v);
+        return typeof p === "string" ? p : v;
+      } catch {
+        return v;
+      }
     };
     const parseNum = (v: string | undefined): number | undefined => {
       if (!v) return undefined;
-      try { const p = JSON.parse(v); return typeof p === "number" ? p : parseFloat(v); } catch { return parseFloat(v) || undefined; }
+      try {
+        const p = JSON.parse(v);
+        return typeof p === "number" ? p : parseFloat(v);
+      } catch {
+        return parseFloat(v) || undefined;
+      }
     };
 
     try {
@@ -112,12 +122,12 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
       if (locale === "en" || locale === "ru") patch.locale = locale;
       const splitVal = parseNum(all["splitRatio"]);
       const onboarding = all["onboardingComplete"] === "true" ? true : undefined;
-      const previewOpen = all["previewOpen"] != null ? all["previewOpen"] === "true" : undefined;
+      const previewOpen = all["previewOpen"] !== undefined && all["previewOpen"] !== null ? all["previewOpen"] === "true" : undefined;
       set((s) => ({
         settings: { ...s.settings, ...patch },
-        ...(splitVal != null ? { splitRatio: splitVal } : {}),
-        ...(onboarding != null ? { onboardingComplete: onboarding } : {}),
-        ...(previewOpen != null ? { previewOpen } : {}),
+        ...(splitVal !== undefined && splitVal !== null ? { splitRatio: splitVal } : {}),
+        ...(onboarding !== undefined && onboarding !== null ? { onboardingComplete: onboarding } : {}),
+        ...(previewOpen !== undefined && previewOpen !== null ? { previewOpen } : {}),
       }));
     } catch {
       // DB not ready yet — defaults used
@@ -125,7 +135,9 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   },
 
   setOnboardingComplete: (onboardingComplete) => {
-    db.settings.set("onboardingComplete", String(onboardingComplete)).catch((e) => console.error("[DB]", e));
+    db.settings
+      .set("onboardingComplete", String(onboardingComplete))
+      .catch((e) => console.error("[DB]", e));
     set({ onboardingComplete });
   },
 

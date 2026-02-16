@@ -22,7 +22,8 @@ export const terminal = {
   spawn: (opts: { command?: string | null; cwd?: string | null; shell?: string | null }) =>
     invoke<string>("spawn_terminal", opts),
   write: (id: string, data: string) => invoke<void>("write_to_pty", { id, data }),
-  resize: (id: string, cols: number, rows: number) => invoke<void>("resize_pty", { id, cols, rows }),
+  resize: (id: string, cols: number, rows: number) =>
+    invoke<void>("resize_pty", { id, cols, rows }),
   close: (id: string) => invoke<void>("close_terminal", { id }),
 };
 
@@ -50,8 +51,10 @@ export const db = {
     list: () => invoke<Project[]>("db_list_projects"),
     create: (name: string, path: string) => invoke<Project>("db_create_project", { name, path }),
     touch: (path: string) => invoke<void>("db_touch_project", { path }),
-    update: (id: string, patch: { name?: string; default_cli?: string | null; settings?: string | null }) =>
-      invoke<void>("db_update_project", { id, patch }),
+    update: (
+      id: string,
+      patch: { name?: string; default_cli?: string | null; settings?: string | null },
+    ) => invoke<void>("db_update_project", { id, patch }),
     getOrCreate: (name: string, path: string) =>
       invoke<Project>("db_get_or_create_project", { name, path }),
   },
@@ -80,7 +83,8 @@ export const db = {
 
   // ── Database — Snippets ──────────────────────────────────
   snippets: {
-    list: (cliName?: string | null) => invoke<Snippet[]>("db_list_snippets", { cliName: cliName ?? null }),
+    list: (cliName?: string | null) =>
+      invoke<Snippet[]>("db_list_snippets", { cliName: cliName ?? null }),
     create: (snippet: NewSnippet) => invoke<Snippet>("db_create_snippet", { snippet }),
     use: (id: string) => invoke<Snippet>("db_use_snippet", { id }),
   },

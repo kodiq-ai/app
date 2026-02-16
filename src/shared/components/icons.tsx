@@ -17,11 +17,26 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
       </defs>
       {/* Background */}
       <rect width="1024" height="1024" rx="228" fill="url(#ki-bg)" />
-      <rect x="2" y="2" width="1020" height="1020" rx="226" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="4" />
+      <rect
+        x="2"
+        y="2"
+        width="1020"
+        height="1020"
+        rx="226"
+        fill="none"
+        stroke="rgba(255,255,255,0.04)"
+        strokeWidth="4"
+      />
       {/* K — vertical stroke */}
       <path d="M310 260L310 764" stroke="#e4e4e7" strokeWidth="56" strokeLinecap="round" />
       {/* K — upper diagonal */}
-      <path d="M338 512L600 280" stroke="#e4e4e7" strokeWidth="56" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M338 512L600 280"
+        stroke="#e4e4e7"
+        strokeWidth="56"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       {/* Lightning bolt (replaces K lower diagonal) */}
       <path d="M440 500L580 500L500 620L680 620L400 800L470 650L338 650Z" fill="url(#ki-bolt)" />
     </svg>
@@ -41,7 +56,13 @@ export function KodiqDot({ size = 16 }: { size?: number }) {
       </defs>
       <rect width="1024" height="1024" rx="228" fill="#141517" />
       <path d="M310 260L310 764" stroke="#e4e4e7" strokeWidth="56" strokeLinecap="round" />
-      <path d="M338 512L600 280" stroke="#e4e4e7" strokeWidth="56" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M338 512L600 280"
+        stroke="#e4e4e7"
+        strokeWidth="56"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <path d="M440 500L580 500L500 620L680 620L400 800L470 650L338 650Z" fill="url(#kd-bolt)" />
     </svg>
   );
@@ -53,19 +74,73 @@ export function TabIconSvg({ icon, size = 12 }: { icon: string; size?: number })
   const s = { width: size, height: size };
   switch (icon) {
     case "shell":
-      return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 17l6-5-6-5" /><path d="M12 19h8" /></svg>;
+      return (
+        <svg
+          {...s}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <path d="M4 17l6-5-6-5" />
+          <path d="M12 19h8" />
+        </svg>
+      );
     case "claude":
-      return <svg {...s} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#D97757" /><path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2" fill="none" /></svg>;
+      return (
+        <svg {...s} viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#D97757" />
+          <path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2" fill="none" />
+        </svg>
+      );
     case "gemini":
-      return <svg {...s} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#4285F4" /><path d="M12 6v12M7 9l5 3 5-3M7 15l5-3 5 3" stroke="#fff" strokeWidth="1.5" fill="none" /></svg>;
+      return (
+        <svg {...s} viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#4285F4" />
+          <path d="M12 6v12M7 9l5 3 5-3M7 15l5-3 5 3" stroke="#fff" strokeWidth="1.5" fill="none" />
+        </svg>
+      );
     case "codex":
-      return <svg {...s} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#10A37F" /><path d="M8 12h8M12 8v8" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>;
+      return (
+        <svg {...s} viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#10A37F" />
+          <path
+            d="M8 12h8M12 8v8"
+            stroke="#fff"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
     case "aider":
-      return <svg {...s} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#8B5CF6" /><path d="M9 16l3-8 3 8M10 14h4" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" /></svg>;
+      return (
+        <svg {...s} viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#8B5CF6" />
+          <path
+            d="M9 16l3-8 3 8M10 14h4"
+            stroke="#fff"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
     case "ollama":
-      return <svg {...s} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#333" /><circle cx="12" cy="11" r="4" stroke="#fff" strokeWidth="1.5" fill="none" /><path d="M10 17h4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" /></svg>;
+      return (
+        <svg {...s} viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#333" />
+          <circle cx="12" cy="11" r="4" stroke="#fff" strokeWidth="1.5" fill="none" />
+          <path d="M10 17h4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      );
     default:
-      return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="4" width="16" height="16" rx="2" /></svg>;
+      return (
+        <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+        </svg>
+      );
   }
 }
 
@@ -75,9 +150,19 @@ export function FileIcon({ name, isDir }: { name: string; isDir: boolean }) {
   if (isDir) return <Folder className="size-3 fill-[#52525c] text-[#52525c]" />;
   const ext = name.split(".").pop()?.toLowerCase() || "";
   const colors: Record<string, string> = {
-    ts: "#3b82f6", tsx: "#3b82f6", js: "#eab308", jsx: "#eab308", json: "#a3a3a3",
-    css: "#a855f7", html: "#f97316", md: "#52525c", rs: "#f97316",
-    toml: "#52525c", lock: "#3f3f46", gitignore: "#3f3f46", svg: "#60a5fa",
+    ts: "#3b82f6",
+    tsx: "#3b82f6",
+    js: "#eab308",
+    jsx: "#eab308",
+    json: "#a3a3a3",
+    css: "#a855f7",
+    html: "#f97316",
+    md: "#52525c",
+    rs: "#f97316",
+    toml: "#52525c",
+    lock: "#3f3f46",
+    gitignore: "#3f3f46",
+    svg: "#60a5fa",
   };
   return <FileText className="size-3" style={{ color: colors[ext] || "#3f3f46" }} />;
 }

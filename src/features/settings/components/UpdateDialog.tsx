@@ -26,7 +26,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] bg-[#141517] border-white/[0.06]">
+      <DialogContent className="border-white/[0.06] bg-[#141517] sm:max-w-[420px]">
         <DialogHeader>
           <DialogTitle className="text-[14px] text-[#e4e4e7]">
             {t("updateAvailable") ?? "Update Available"}
@@ -36,20 +36,22 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 mt-2">
+        <div className="mt-2 flex flex-col gap-4">
           {/* Version info */}
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-[#71717a]">{t("currentVersion") ?? "Current"}: v{updateAvailable.currentVersion}</span>
-            <span className="text-[#14b8a6] font-medium">→ v{updateAvailable.version}</span>
+            <span className="text-[#71717a]">
+              {t("currentVersion") ?? "Current"}: v{updateAvailable.currentVersion}
+            </span>
+            <span className="font-medium text-[#14b8a6]">→ v{updateAvailable.version}</span>
           </div>
 
           {/* Changelog */}
           {updateAvailable.body && (
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] text-[#52525c] font-medium uppercase tracking-[0.06em]">
+              <span className="text-[10px] font-medium tracking-[0.06em] text-[#52525c] uppercase">
                 {t("whatsNew") ?? "What's new"}
               </span>
-              <div className="text-[11px] text-[#a1a1aa] leading-relaxed max-h-[200px] overflow-y-auto px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+              <div className="max-h-[200px] overflow-y-auto rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2 text-[11px] leading-relaxed text-[#a1a1aa]">
                 {updateAvailable.body}
               </div>
             </div>
@@ -58,13 +60,13 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
           {/* Progress bar */}
           {downloading && (
             <div className="flex flex-col gap-1.5">
-              <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.04]">
                 <div
                   className="h-full rounded-full bg-[#14b8a6] transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <span className="text-[10px] text-[#52525c] text-center">{progress}%</span>
+              <span className="text-center text-[10px] text-[#52525c]">{progress}%</span>
             </div>
           )}
 
@@ -83,9 +85,11 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
               size="sm"
               onClick={installUpdate}
               disabled={downloading}
-              className="text-[11px] bg-[#14b8a6] hover:bg-[#0d9488] text-white"
+              className="bg-[#14b8a6] text-[11px] text-white hover:bg-[#0d9488]"
             >
-              {downloading ? `${t("downloading") ?? "Downloading"}...` : t("updateNow") ?? "Update now"}
+              {downloading
+                ? `${t("downloading") ?? "Downloading"}...`
+                : (t("updateNow") ?? "Update now")}
             </Button>
           </div>
         </div>
