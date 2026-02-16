@@ -1,6 +1,8 @@
 // ── Update Checker Hook ──────────────────────────────────────────────────────
-import { useState, useEffect, useCallback } from "react";
-import type { UpdateInfo } from "@shared/lib/types";
+import { useEffect, useCallback, useRef } from "react";
+import { toast } from "sonner";
+import { useAppStore } from "@/store";
+import { t } from "@shared/i18n";
 
 // Dynamic imports to avoid errors if plugins aren't available at dev time
 let checkModule: typeof import("@tauri-apps/plugin-updater") | null = null;
@@ -16,9 +18,17 @@ async function loadModules() {
 }
 
 export function useUpdateChecker() {
-  const [updateAvailable, setUpdateAvailable] = useState<UpdateInfo | null>(null);
-  const [downloading, setDownloading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const updateAvailable = useAppStore((s) => s.updateAvailable);
+  const downloading = useAppStore((s) => s.downloading);
+  const progress = useAppStore((s) => s.downloadProgress);
+  const toastDismissed = useAppStore((s) => s.toastDismissed);
+
+  const setUpdateAvailable = useAppStore((s) => s.setUpdateAvailable);
+  const setDownloading = useAppStore((s) => s.setDownloading);
+  const setDownloadProgress = useAppStore((s) => s.setDownloadProgress);
+  const setToastDismissed = useAppStore((s) => s.setToastDismissed);
+
+  const toastShownRef = useRef(false);
 
   const checkForUpdate = useCallback(async () => {
     try {
@@ -38,7 +48,7 @@ export function useUpdateChecker() {
       console.error("Update check failed:", e);
       // Silently fail — user shouldn't be bothered if offline
     }
-  }, []);
+  }, [setUpdateAvailable]);
 
   // Check on app start + every 4 hours
   useEffect(() => {
@@ -46,6 +56,25 @@ export function useUpdateChecker() {
     const interval = setInterval(checkForUpdate, 4 * 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, [checkForUpdate]);
+
+  // Show toast on first detection
+  useEffect(() => {
+    if (updateAvailable && !toastDismissed && !toastShownRef.current) {
+      toastShownRef.current = true;
+      toast(t("updateAvailable"), {
+        description: `v${updateAvailable.version} ${t("updateReady")}`,
+        duration: 8000,
+        action: {
+          label: t("viewDetails"),
+          onClick: () => {
+            // Will be handled by the component that opens UpdateDialog
+            window.dispatchEvent(new CustomEvent("kodiq:open-update-dialog"));
+          },
+        },
+        onDismiss: () => setToastDismissed(true),
+      });
+    }
+  }, [updateAvailable, toastDismissed, setToastDismissed]);
 
   const installUpdate = useCallback(async () => {
     try {
@@ -65,7 +94,7 @@ export function useUpdateChecker() {
         } else if (event.event === "Progress") {
           downloaded += event.data.chunkLength;
           if (totalSize > 0) {
-            setProgress(Math.round((downloaded / totalSize) * 100));
+            setDownloadProgress(Math.round((downloaded / totalSize) * 100));
           }
         }
       });
@@ -79,7 +108,7 @@ export function useUpdateChecker() {
       console.error("Update install failed:", e);
       setDownloading(false);
     }
-  }, []);
+  }, [setDownloading, setDownloadProgress]);
 
   return { updateAvailable, downloading, progress, installUpdate, checkForUpdate };
 }

@@ -7,7 +7,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { t } from "@/lib/i18n";
+import { t } from "@shared/i18n";
+import { useAppStore } from "@/store";
 import { useUpdateChecker } from "../hooks/useUpdateChecker";
 
 interface UpdateDialogProps {
@@ -16,7 +17,10 @@ interface UpdateDialogProps {
 }
 
 export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
-  const { updateAvailable, downloading, progress, installUpdate } = useUpdateChecker();
+  const updateAvailable = useAppStore((s) => s.updateAvailable);
+  const downloading = useAppStore((s) => s.downloading);
+  const progress = useAppStore((s) => s.downloadProgress);
+  const { installUpdate } = useUpdateChecker();
 
   if (!updateAvailable) return null;
 

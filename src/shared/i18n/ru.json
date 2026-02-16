@@ -128,6 +128,8 @@
   "remindLater": "Напомнить позже",
   "updateNow": "Обновить",
   "downloading": "Загрузка",
+  "updateReady": "готово к установке",
+  "viewDetails": "Подробнее",
   "onboardingWelcome": "Добро пожаловать в Kodiq",
   "onboardingWelcomeDesc": "AI Terminal IDE для разработчиков",
   "onboardingCliTitle": "Ваши AI-инструменты",

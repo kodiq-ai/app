@@ -26,6 +26,8 @@ import { FileSearch } from "@/components/FileSearch";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { EmptyState } from "@/components/EmptyState";
 import { OnboardingWizard } from "@features/settings/components/OnboardingWizard";
+import { UpdateBadge } from "@features/settings/components/UpdateBadge";
+import { UpdateDialog } from "@features/settings/components/UpdateDialog";
 
 // ─── Main App ───────────────────────────────────────────────────────────────
 
@@ -52,6 +54,7 @@ export default function App() {
   const cliTools = useAppStore((s) => s.cliTools);
 
   const [defaultShell, setDefaultShell] = useState("");
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 
   const { panelsRef, isDragging, startDrag } = useSplitDrag();
 
@@ -218,6 +221,13 @@ export default function App() {
     return () => { unlisten.then((fn) => fn()); };
   }, []);
 
+  // ── Update dialog listener (from toast action) ──────────────────────
+  useEffect(() => {
+    const handler = () => setUpdateDialogOpen(true);
+    window.addEventListener("kodiq:open-update-dialog", handler);
+    return () => window.removeEventListener("kodiq:open-update-dialog", handler);
+  }, []);
+
   // ─── Layout ─────────────────────────────────────────────────────────
 
   return (
@@ -229,6 +239,7 @@ export default function App() {
         onCloseProject={closeProject}
       />
       <SettingsDialog />
+      <UpdateDialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen} />
       <FileSearch />
 
       {/* Title bar */}
@@ -244,7 +255,8 @@ export default function App() {
             onCloseProject={closeProject}
           />
         </div>
-        <div className="w-[100px] flex items-center justify-end gap-1">
+        <div className="w-[140px] flex items-center justify-end gap-1">
+          <UpdateBadge onClick={() => setUpdateDialogOpen(true)} />
           {projectPath && (
             <Tooltip>
               <TooltipTrigger asChild>

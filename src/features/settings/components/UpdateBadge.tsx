@@ -1,12 +1,12 @@
 // ── Update Badge ─────────────────────────────────────────────────────────────
-import { useUpdateChecker } from "../hooks/useUpdateChecker";
+import { useAppStore } from "@/store";
 
 interface UpdateBadgeProps {
   onClick?: () => void;
 }
 
 export function UpdateBadge({ onClick }: UpdateBadgeProps) {
-  const { updateAvailable } = useUpdateChecker();
+  const updateAvailable = useAppStore((s) => s.updateAvailable);
 
   if (!updateAvailable) return null;
 
