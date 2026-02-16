@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { create } from "zustand";
 import { createSettingsSlice, type SettingsSlice } from "./settingsSlice";
+import { db } from "@shared/lib/tauri";
 
 // Mock the Tauri bridge DB module
 vi.mock("@shared/lib/tauri", () => ({
@@ -62,12 +63,9 @@ describe("settingsSlice", () => {
     expect(store.getState().settings.shell).toBe(""); // unchanged
   });
 
-  it("updateSettings persists to localStorage", () => {
+  it("updateSettings persists to SQLite", () => {
     store.getState().updateSettings({ shell: "/bin/zsh" });
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
-      "kodiq-settings",
-      expect.stringContaining("/bin/zsh"),
-    );
+    expect(db.settings.set).toHaveBeenCalledWith("shell", JSON.stringify("/bin/zsh"));
   });
 
   it("toggleSettings flips settingsOpen", () => {
@@ -84,10 +82,10 @@ describe("settingsSlice", () => {
     expect(store.getState().commandPaletteOpen).toBe(true);
   });
 
-  it("setSplitRatio updates and persists", () => {
+  it("setSplitRatio updates and persists to SQLite", () => {
     store.getState().setSplitRatio(0.7);
     expect(store.getState().splitRatio).toBe(0.7);
-    expect(localStorageMock.setItem).toHaveBeenCalledWith("kodiq-split-ratio", "0.7");
+    expect(db.settings.set).toHaveBeenCalledWith("splitRatio", "0.7");
   });
 
   it("update state management works", () => {

@@ -66,19 +66,19 @@ Goal: **ship a usable product** for developers who already have AI CLIs installe
 Estimated: 3-4 weeks.
 
 ### Onboarding & First Run
-- [ ] CLI detection screen on first launch — show which tools are installed
-- [ ] "Install missing CLI" buttons (open brew/npm install instructions)
-- [ ] Quick start wizard: select project folder → detect tools → open terminal
-- [ ] Smart default shell: detect user's preferred shell (zsh/bash/fish)
+- [x] CLI detection screen on first launch — show which tools are installed
+- [x] "Install missing CLI" buttons (open brew/npm install instructions)
+- [x] Quick start wizard: select project folder → detect tools → open terminal
+- [x] Smart default shell: detect user's preferred shell (zsh/bash/fish)
 
 ### Terminal Session Restore
-- [ ] Save open tabs to SQLite on close (already have `terminal_sessions` table)
-- [ ] Restore tabs on next launch (label, command, cwd, sort order)
+- [x] Save open tabs to SQLite on close (already have `terminal_sessions` table)
+- [x] Restore tabs on next launch (label, command, cwd, sort order)
 - [ ] "Reopen closed tab" action (Cmd+Shift+T)
 
 ### Quick Launch Improvements
-- [ ] Show only installed CLIs (currently shows all)
-- [ ] Per-project default CLI (stored in `projects.default_cli`)
+- [x] Show only installed CLIs (filter by `installed` flag)
+- [x] Per-project default CLI (stored in `projects.default_cli`, context menu UI)
 - [ ] Recent commands quick-pick
 
 ### CLI Output Intelligence — Phase 1
@@ -88,20 +88,20 @@ Estimated: 3-4 weeks.
 - [ ] Detect file paths in output → make clickable (open in file viewer)
 
 ### Auto-Update UI
-- [ ] Generate signing keypair, configure `tauri.conf.json` pubkey
-- [ ] UpdateBadge component in title bar (persistent dot + version)
-- [ ] UpdateDialog with changelog + progress bar
-- [ ] Toast notification on first detection
+- [x] Generate signing keypair, configure `tauri.conf.json` pubkey
+- [x] UpdateBadge component in title bar (persistent dot + version)
+- [x] UpdateDialog with changelog + progress bar
+- [x] Toast notification on first detection
 
 ### Cross-Platform Polish
-- [ ] Test and fix Windows build (path separators, shell detection)
-- [ ] Linux .deb + .AppImage builds
-- [ ] macOS: code signing + notarization for Gatekeeper
+- [x] Test and fix Windows build (path separators, shell detection, `where` vs `which`)
+- [x] Linux .deb + .AppImage builds (Tauri bundler auto-generates via release.yml)
+- [ ] macOS: code signing + notarization for Gatekeeper (needs Apple Developer account)
 
 ### Settings Persistence
-- [ ] Migrate remaining localStorage keys to SQLite
-- [ ] Settings load from DB on startup → Zustand hydration
-- [ ] Settings write to both Zustand + DB on change
+- [x] Migrate remaining localStorage keys to SQLite (all 7 keys migrated, localStorage removed)
+- [x] Settings load from DB on startup → Zustand hydration (`loadSettingsFromDB`)
+- [x] Settings write to both Zustand + DB on change (dual-write removed, DB-only now)
 
 ---
 
@@ -214,4 +214,4 @@ The roadmap is shaped by competitive analysis (see [COMPETITIVE-BRIEF.md](./COMP
 
 ---
 
-*Last updated: 2026-02-15*
+*Last updated: 2026-02-16*

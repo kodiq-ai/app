@@ -38,27 +38,51 @@ pub fn spawn_terminal(
         cmd.arg(arg);
     }
 
-    // Environment variables
-    cmd.env("TERM", "xterm-256color");
-    cmd.env("COLORTERM", "truecolor");
+    // Environment variables — common
     cmd.env("TERM_PROGRAM", "Kodiq");
-    cmd.env("TERM_PROGRAM_VERSION", "0.1.0");
-    cmd.env("__CFBundleIdentifier", "com.kodiq.app");
-    cmd.env("BASH_SILENCE_DEPRECATION_WARNING", "1");
-
-    // Set working directory
-    if let Some(ref dir) = cwd {
-        cmd.cwd(dir);
-    } else if let Ok(home) = std::env::var("HOME") {
-        cmd.cwd(&home);
-    }
+    cmd.env("TERM_PROGRAM_VERSION", "0.2.0");
 
     // Inherit PATH so CLI tools are found
     if let Ok(path) = std::env::var("PATH") {
         cmd.env("PATH", &path);
     }
-    if let Ok(home) = std::env::var("HOME") {
-        cmd.env("HOME", &home);
+
+    // Platform-specific env vars
+    #[cfg(not(target_os = "windows"))]
+    {
+        cmd.env("TERM", "xterm-256color");
+        cmd.env("COLORTERM", "truecolor");
+        cmd.env("BASH_SILENCE_DEPRECATION_WARNING", "1");
+        if let Ok(home) = std::env::var("HOME") {
+            cmd.env("HOME", &home);
+        }
+    }
+    #[cfg(target_os = "macos")]
+    {
+        cmd.env("__CFBundleIdentifier", "com.kodiq.app");
+    }
+    #[cfg(target_os = "windows")]
+    {
+        if let Ok(profile) = std::env::var("USERPROFILE") {
+            cmd.env("USERPROFILE", &profile);
+        }
+        if let Ok(appdata) = std::env::var("APPDATA") {
+            cmd.env("APPDATA", &appdata);
+        }
+    }
+
+    // Set working directory
+    if let Some(ref dir) = cwd {
+        cmd.cwd(dir);
+    } else {
+        #[cfg(not(target_os = "windows"))]
+        if let Ok(home) = std::env::var("HOME") {
+            cmd.cwd(&home);
+        }
+        #[cfg(target_os = "windows")]
+        if let Ok(profile) = std::env::var("USERPROFILE") {
+            cmd.cwd(&profile);
+        }
     }
 
     let _child = pair

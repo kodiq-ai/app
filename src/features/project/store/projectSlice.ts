@@ -8,11 +8,13 @@ export interface ProjectSlice {
   projectPath: string | null;
   projectName: string;
   projectId: string | null;
+  defaultCli: string | null;
   recentProjects: RecentProject[];
   cliTools: CliTool[];
 
   // Actions
   setProject: (path: string | null, name?: string) => void;
+  setDefaultCli: (cli: string | null) => void;
   addRecent: (project: RecentProject) => void;
   setRecentProjects: (projects: RecentProject[]) => void;
   setCliTools: (tools: CliTool[]) => void;
@@ -21,48 +23,45 @@ export interface ProjectSlice {
   loadProjectFromDB: () => Promise<void>;
 }
 
-const loadRecentProjects = (): RecentProject[] => {
-  try {
-    const saved = localStorage.getItem("kodiq-recent-projects");
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
-};
-
 export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice> = (set) => ({
   projectPath: null,
   projectName: "",
   projectId: null,
-  recentProjects: loadRecentProjects(),
+  defaultCli: null,
+  recentProjects: [],
   cliTools: [],
 
   setProject: (path, name) => {
     if (path) {
       const n = name || path.split("/").pop() || "project";
-      localStorage.setItem("kodiq-project-path", path);
       set({ projectPath: path, projectName: n });
-      // Resolve projectId from DB + dual-write lastProjectPath
+      // Resolve projectId + default_cli from DB
       db.projects
         .getOrCreate(n, path)
         .then((project) => {
-          set({ projectId: project.id });
+          set({ projectId: project.id, defaultCli: project.default_cli ?? null });
           db.settings.set("lastProjectPath", path).catch((e) => console.error("[DB] setting:", e));
         })
         .catch((e) => console.error("[DB] getOrCreate:", e));
     } else {
-      localStorage.removeItem("kodiq-project-path");
-      set({ projectPath: null, projectName: "", projectId: null });
+      set({ projectPath: null, projectName: "", projectId: null, defaultCli: null });
       db.settings.set("lastProjectPath", "").catch((e) => console.error("[DB] setting:", e));
     }
   },
+
+  setDefaultCli: (cli) =>
+    set((s) => {
+      if (s.projectId) {
+        db.projects.update(s.projectId, { default_cli: cli }).catch((e) => console.error("[DB] setDefaultCli:", e));
+      }
+      return { defaultCli: cli };
+    }),
 
   addRecent: (project) =>
     set((s) => {
       const filtered = s.recentProjects.filter((p) => p.path !== project.path);
       const next = [project, ...filtered].slice(0, 5);
-      localStorage.setItem("kodiq-recent-projects", JSON.stringify(next));
-      // Also persist to SQLite (idempotent)
+      // Persist to SQLite (idempotent)
       db.projects.getOrCreate(project.name, project.path).catch((e) => console.error("[DB]", e));
       return { recentProjects: next };
     }),

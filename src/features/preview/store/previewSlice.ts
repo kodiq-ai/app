@@ -16,24 +16,14 @@ export interface PreviewSlice {
   setViewport: (v: Viewport) => void;
 }
 
-const loadPreviewOpen = (): boolean => {
-  try {
-    const saved = localStorage.getItem("kodiq-preview-open");
-    return saved !== null ? saved === "true" : true;
-  } catch {
-    return true;
-  }
-};
-
 export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice> = (set) => ({
   previewUrl: null,
-  previewOpen: loadPreviewOpen(),
+  previewOpen: true, // Default; hydrated from DB via loadSettingsFromDB
   viewport: "desktop",
 
   setPreviewUrl: (previewUrl) => set({ previewUrl }),
 
   setPreviewOpen: (previewOpen) => {
-    localStorage.setItem("kodiq-preview-open", String(previewOpen));
     db.settings.set("previewOpen", String(previewOpen)).catch((e) => console.error("[DB] setting:", e));
     set({ previewOpen });
   },
@@ -41,7 +31,6 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   togglePreview: () =>
     set((s) => {
       const next = !s.previewOpen;
-      localStorage.setItem("kodiq-preview-open", String(next));
       db.settings.set("previewOpen", String(next)).catch((e) => console.error("[DB] setting:", e));
       return { previewOpen: next };
     }),

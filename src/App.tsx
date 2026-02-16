@@ -4,7 +4,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 
 import { toast } from "sonner";
-import { useAppStore, loadSavedTabs, type FileEntry, type CliTool } from "@/lib/store";
+import { useAppStore, type FileEntry, type CliTool } from "@/lib/store";
 import { db } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -132,18 +132,14 @@ export default function App() {
         console.error("[DB] restore sessions:", e);
       }
 
-      // One-time migration fallback from localStorage
-      const lsTabs = loadSavedTabs(path);
-      if (lsTabs.length > 0) {
-        for (const st of lsTabs) {
-          const cmd = st.command === "shell" ? undefined : st.command;
-          await spawnTab(cmd, st.label);
-        }
-        return;
+      // Default: use project's default CLI or plain terminal
+      const { defaultCli } = useAppStore.getState();
+      if (defaultCli) {
+        const tool = useAppStore.getState().cliTools.find((t) => t.bin === defaultCli && t.installed);
+        await spawnTab(defaultCli, tool?.name || defaultCli);
+      } else {
+        await spawnTab(undefined, t("terminal"));
       }
-
-      // Default: single terminal tab
-      await spawnTab(undefined, t("terminal"));
     }, 100);
   };
 

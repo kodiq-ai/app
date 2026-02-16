@@ -147,5 +147,9 @@
   "onboardingNext": "Continue",
   "onboardingBack": "Back",
   "onboardingSkip": "Skip",
-  "onboardingStep": "Step"
+  "onboardingStep": "Step",
+
+  "setDefaultCli": "Set as default",
+  "clearDefaultCli": "Clear default",
+  "defaultCliSet": "Default CLI set"
 }

@@ -147,5 +147,9 @@
   "onboardingNext": "Далее",
   "onboardingBack": "Назад",
   "onboardingSkip": "Пропустить",
-  "onboardingStep": "Шаг"
+  "onboardingStep": "Шаг",
+
+  "setDefaultCli": "Установить по умолчанию",
+  "clearDefaultCli": "Сбросить по умолчанию",
+  "defaultCliSet": "CLI по умолчанию установлен"
 }
