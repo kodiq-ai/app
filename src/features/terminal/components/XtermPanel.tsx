@@ -8,6 +8,7 @@ import { WebglAddon } from "@xterm/addon-webgl";
 import "@xterm/xterm/css/xterm.css";
 import { XTERM_THEME } from "@/lib/constants";
 import { useAppStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 
 interface XtermPanelProps {
@@ -117,8 +118,11 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-hidden xterm-container"
-      style={{ display: isActive ? "block" : "none" }}
+      className={cn(
+        "flex-1 overflow-hidden xterm-container absolute inset-0",
+        "motion-safe:transition-opacity motion-safe:duration-150",
+        isActive ? "opacity-100 visible z-10" : "opacity-0 invisible z-0"
+      )}
     />
   );
 }

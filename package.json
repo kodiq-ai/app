@@ -16,20 +16,29 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:rust": "cd src-tauri && cargo test",
-    "test:all": "npm run test && npm run test:rust",
+    "test:all": "pnpm run test && pnpm run test:rust",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,json,css}'",
     "format:check": "prettier --check 'src/**/*.{ts,tsx,json,css}'",
     "lint:rust": "cd src-tauri && cargo clippy -- -D warnings",
     "format:rust": "cd src-tauri && cargo fmt",
-    "check:all": "npm run lint && npm run format:check && npm run lint:rust && npm run test:all"
+    "check:all": "pnpm run lint && pnpm run format:check && pnpm run lint:rust && pnpm run test:all"
   },
+  "packageManager": "pnpm@10.29.3",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/artemboev7-web/kodiq.git"
+    "url": "git+https://github.com/kodiq-ai/app.git"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "msw"
+    ]
   },
   "dependencies": {
+    "@kodiq/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.95.3",
     "@tauri-apps/api": "^2.10.1",
     "@tauri-apps/plugin-dialog": "^2.6.0",
     "@tauri-apps/plugin-process": "^2.2.0",

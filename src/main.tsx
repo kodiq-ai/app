@@ -12,12 +12,15 @@ createRoot(document.getElementById("root")!).render(
       <App />
       <Toaster
         position="bottom-right"
+        offset={16}
+        gap={8}
         toastOptions={{
           style: {
             background: "#1a1b1e",
             border: "1px solid rgba(255,255,255,0.06)",
             color: "#e4e4e7",
             fontSize: "12px",
+            fontFamily: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
           },
         }}
       />

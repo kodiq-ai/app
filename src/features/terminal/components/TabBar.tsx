@@ -32,6 +32,21 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
   const cliTools = useAppStore((s) => s.cliTools);
   const installedCli = useMemo(() => cliTools.filter((t) => t.installed), [cliTools]);
 
+  // ── Tab close animation ────────────────────────────────────────────
+  const [closingTabs, setClosingTabs] = useState<Set<string>>(new Set());
+
+  const handleAnimatedClose = useCallback((id: string) => {
+    setClosingTabs((prev) => new Set(prev).add(id));
+    setTimeout(() => {
+      setClosingTabs((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      onCloseTab(id);
+    }, 150);
+  }, [onCloseTab]);
+
   // ── New terminal popover ──────────────────────────────────────────
   const [newTermOpen, setNewTermOpen] = useState(false);
 
@@ -176,14 +191,15 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
             <ContextMenu key={tab.id}>
               <ContextMenuTrigger asChild>
                 <div
-                  draggable
+                  draggable={!closingTabs.has(tab.id)}
                   onDragStart={(e) => handleDragStart(e, idx)}
                   onDragOver={(e) => handleDragOver(e, idx)}
                   onDrop={(e) => handleDrop(e, idx)}
                   onDragEnd={handleDragEnd}
                   className={cn(
                     "relative",
-                    dragOverIndex === idx && "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[#14b8a6]"
+                    dragOverIndex === idx && "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[#14b8a6]",
+                    closingTabs.has(tab.id) && "motion-safe:animate-out motion-safe:fade-out-0 motion-safe:zoom-out-95 motion-safe:duration-150 overflow-hidden"
                   )}
                 >
                   <Button
@@ -223,7 +239,7 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
                       <span className="w-1.5 h-1.5 rounded-full bg-[#3f3f46] shrink-0" title={t("processExited")} />
                     ) : null}
                     <span
-                      onClick={(e) => { e.stopPropagation(); onCloseTab(tab.id); }}
+                      onClick={(e) => { e.stopPropagation(); handleAnimatedClose(tab.id); }}
                       className="w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-white/[0.08] text-[#52525c] hover:text-[#a1a1aa] transition-all cursor-pointer shrink-0"
                     >
                       <X className="size-2.5" />
@@ -236,7 +252,7 @@ export function TabBar({ onSpawnTab, onCloseTab }: TabBarProps) {
                   {t("rename")}
                 </ContextMenuItem>
                 <ContextMenuSeparator />
-                <ContextMenuItem onClick={() => onCloseTab(tab.id)}>
+                <ContextMenuItem onClick={() => handleAnimatedClose(tab.id)}>
                   {t("close")}
                 </ContextMenuItem>
                 <ContextMenuItem onClick={() => closeOtherTabs(tab.id)} disabled={tabs.length <= 1}>

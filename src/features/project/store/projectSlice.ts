@@ -7,6 +7,7 @@ export interface ProjectSlice {
   // State
   projectPath: string | null;
   projectName: string;
+  projectId: string | null;
   recentProjects: RecentProject[];
   cliTools: CliTool[];
 
@@ -32,6 +33,7 @@ const loadRecentProjects = (): RecentProject[] => {
 export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice> = (set) => ({
   projectPath: null,
   projectName: "",
+  projectId: null,
   recentProjects: loadRecentProjects(),
   cliTools: [],
 
@@ -40,10 +42,18 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
       const n = name || path.split("/").pop() || "project";
       localStorage.setItem("kodiq-project-path", path);
       set({ projectPath: path, projectName: n });
-      db.projects.touch(path).catch((e) => console.error("[DB]", e));
+      // Resolve projectId from DB + dual-write lastProjectPath
+      db.projects
+        .getOrCreate(n, path)
+        .then((project) => {
+          set({ projectId: project.id });
+          db.settings.set("lastProjectPath", path).catch((e) => console.error("[DB] setting:", e));
+        })
+        .catch((e) => console.error("[DB] getOrCreate:", e));
     } else {
       localStorage.removeItem("kodiq-project-path");
-      set({ projectPath: null, projectName: "" });
+      set({ projectPath: null, projectName: "", projectId: null });
+      db.settings.set("lastProjectPath", "").catch((e) => console.error("[DB] setting:", e));
     }
   },
 
@@ -52,8 +62,8 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
       const filtered = s.recentProjects.filter((p) => p.path !== project.path);
       const next = [project, ...filtered].slice(0, 5);
       localStorage.setItem("kodiq-recent-projects", JSON.stringify(next));
-      // Also persist to SQLite
-      db.projects.create(project.name, project.path).catch((e) => console.error("[DB]", e));
+      // Also persist to SQLite (idempotent)
+      db.projects.getOrCreate(project.name, project.path).catch((e) => console.error("[DB]", e));
       return { recentProjects: next };
     }),
 

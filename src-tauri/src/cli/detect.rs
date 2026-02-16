@@ -1,3 +1,25 @@
+/// Detect user's default shell from $SHELL or fallback to common shells.
+#[tauri::command]
+pub fn detect_default_shell() -> String {
+    // 1. Try $SHELL env var
+    if let Ok(shell) = std::env::var("SHELL") {
+        if !shell.is_empty() {
+            return shell;
+        }
+    }
+
+    // 2. Fallback: check common shells
+    let candidates = ["/bin/zsh", "/bin/bash", "/bin/fish", "/bin/sh"];
+    for candidate in &candidates {
+        if std::path::Path::new(candidate).exists() {
+            return candidate.to_string();
+        }
+    }
+
+    // 3. Last resort
+    "/bin/sh".to_string()
+}
+
 /// Detect which AI CLI tools are installed on the system.
 /// Checks for: Claude Code, Gemini CLI, Codex, Aider, Ollama.
 #[tauri::command]

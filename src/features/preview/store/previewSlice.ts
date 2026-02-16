@@ -1,6 +1,7 @@
 // ── Preview Slice ────────────────────────────────────────────────────────────
 import type { StateCreator } from "zustand";
 import type { Viewport } from "@shared/lib/types";
+import { db } from "@shared/lib/tauri";
 
 export interface PreviewSlice {
   // State
@@ -33,6 +34,7 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
 
   setPreviewOpen: (previewOpen) => {
     localStorage.setItem("kodiq-preview-open", String(previewOpen));
+    db.settings.set("previewOpen", String(previewOpen)).catch((e) => console.error("[DB] setting:", e));
     set({ previewOpen });
   },
 
@@ -40,6 +42,7 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
     set((s) => {
       const next = !s.previewOpen;
       localStorage.setItem("kodiq-preview-open", String(next));
+      db.settings.set("previewOpen", String(next)).catch((e) => console.error("[DB] setting:", e));
       return { previewOpen: next };
     }),
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Kodiq Dev Launcher — запускает tauri dev в фоне, терминал можно закрыть
-# Использование: ./scripts/dev.sh  или  npm run dev:bg
+# Использование: ./scripts/dev.sh  или  pnpm run dev:bg
 
 cd "$(dirname "$0")/.." || exit 1
 
@@ -15,10 +15,10 @@ fi
 
 echo "🚀 Запуск Kodiq dev..."
 echo "   Логи: $LOG_FILE"
-echo "   Стоп: npm run dev:stop"
+echo "   Стоп: pnpm run dev:stop"
 
 # Запуск в фоне, отвязываем от терминала
-nohup npm run tauri:dev > "$LOG_FILE" 2>&1 &
+nohup pnpm run tauri:dev > "$LOG_FILE" 2>&1 &
 DEV_PID=$!
 echo "$DEV_PID" > /tmp/kodiq-dev.pid
 

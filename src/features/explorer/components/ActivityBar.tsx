@@ -9,6 +9,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TreeItem } from "@/components/TreeItem";
 import { ProjectOverview } from "@/components/ProjectOverview";
+import { Loader } from "@/components/Loader";
 import { t } from "@/lib/i18n";
 
 // ── Activity Bar Icon ────────────────────────────────────────────────────────
@@ -81,25 +82,34 @@ export function ActivityBar() {
 
   return (
     <div className="flex shrink-0">
-      {/* Panel (slides out left of activity bar) */}
-      {sidebarOpen && (
-        <div className="flex flex-col w-52 border-l border-white/[0.06] overflow-hidden">
-          {/* Panel header */}
-          <div className="flex items-center h-9 px-2.5 shrink-0">
-            <span className="text-[11px] text-[#71717a] font-medium truncate flex-1 uppercase tracking-wider">
-              {sidebarTab === "files" ? projectName : t("projectInfo")}
-            </span>
-          </div>
+      {/* Panel (slides in/out) */}
+      <div
+        className={cn(
+          "flex flex-col border-l border-white/[0.06] overflow-hidden",
+          "motion-safe:transition-[width,opacity] motion-safe:duration-200 motion-safe:ease-out",
+          sidebarOpen ? "w-52 opacity-100" : "w-0 opacity-0"
+        )}
+      >
+        {/* Panel header */}
+        <div className="flex items-center h-9 px-2.5 shrink-0 min-w-[13rem]">
+          <span className="text-[11px] text-[#71717a] font-medium truncate flex-1 uppercase tracking-wider">
+            {sidebarTab === "files" ? projectName : t("projectInfo")}
+          </span>
+        </div>
 
-          {/* Panel content */}
+        {/* Panel content */}
+        <div className="min-w-[13rem] flex-1 overflow-hidden">
           {sidebarTab === "files" ? (
-            <ScrollArea className="flex-1">
+            <ScrollArea className="h-full">
               <div className="py-0.5">
                 {fileTree.map((e) => (
                   <TreeItem key={e.path || e.name} entry={e} depth={0} onExpand={expandDir} />
                 ))}
                 {fileTree.length === 0 && (
-                  <div className="px-3 py-4 text-[11px] text-[#3f3f46]">{t("loading")}</div>
+                  <div className="flex items-center gap-2 px-3 py-4">
+                    <Loader size="sm" />
+                    <span className="text-[11px] text-[#3f3f46]">{t("loading")}</span>
+                  </div>
                 )}
               </div>
             </ScrollArea>
@@ -107,7 +117,7 @@ export function ActivityBar() {
             <ProjectOverview />
           )}
         </div>
-      )}
+      </div>
 
       {/* Activity Bar — always visible */}
       <div className="flex flex-col items-center w-10 border-l border-white/[0.06] shrink-0 pt-1 gap-0.5">

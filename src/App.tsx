@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 
 import { toast } from "sonner";
 import { useAppStore, loadSavedTabs, type FileEntry, type CliTool } from "@/lib/store";
+import { db } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import { SettingsDialog } from "@/components/SettingsDialog";
 import { FileSearch } from "@/components/FileSearch";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { EmptyState } from "@/components/EmptyState";
+import { OnboardingWizard } from "@features/settings/components/OnboardingWizard";
 
 // ─── Main App ───────────────────────────────────────────────────────────────
 
@@ -45,6 +47,11 @@ export default function App() {
   const togglePreview = useAppStore((s) => s.togglePreview);
   const setPreviewUrl = useAppStore((s) => s.setPreviewUrl);
   const setSettingsOpen = useAppStore((s) => s.setSettingsOpen);
+  const onboardingComplete = useAppStore((s) => s.onboardingComplete);
+  const setOnboardingComplete = useAppStore((s) => s.setOnboardingComplete);
+  const cliTools = useAppStore((s) => s.cliTools);
+
+  const [defaultShell, setDefaultShell] = useState("");
 
   const { panelsRef, isDragging, startDrag } = useSplitDrag();
 
@@ -61,17 +68,27 @@ export default function App() {
 
   const spawnTab = useCallback(async (command?: string, label?: string) => {
     try {
-      const { projectPath, settings } = useAppStore.getState();
+      const { projectPath, projectId, settings, tabs: currentTabs } = useAppStore.getState();
       const id = await invoke<string>("spawn_terminal", {
         command: command || null,
         cwd: projectPath,
         shell: settings.shell || null,
       });
-      addTab({
-        id,
-        label: label || (command ? command : t("terminal")),
-        command: command || "shell",
-      });
+      const tabLabel = label || (command ? command : t("terminal"));
+      addTab({ id, label: tabLabel, command: command || "shell" });
+      // Persist session to SQLite
+      if (projectId) {
+        db.sessions
+          .save({
+            id,
+            project_id: projectId,
+            label: tabLabel,
+            command: command || null,
+            cwd: projectPath,
+            sort_order: currentTabs.length,
+          })
+          .catch((e) => console.error("[DB] save session:", e));
+      }
       return id;
     } catch (e) {
       toast.error(t("failedToSpawnTerminal"), { description: String(e) });
@@ -82,6 +99,7 @@ export default function App() {
   const closeTab = useCallback((id: string) => {
     invoke("close_terminal", { id }).catch(() => {});
     removeTab(id);
+    db.sessions.close(id).catch((e) => console.error("[DB] close session:", e));
   }, [removeTab]);
 
   const openProject = async (path: string) => {
@@ -92,23 +110,46 @@ export default function App() {
     addRecent({ name, path });
     loadFileTree(path);
 
-    // Restore saved tabs or create a default one
-    const saved = loadSavedTabs(path);
-    if (saved.length > 0) {
-      // Re-spawn terminals for each saved tab (sequentially to keep order)
-      setTimeout(async () => {
-        for (const st of saved) {
+    // Restore sessions from SQLite, fallback to localStorage, then default
+    setTimeout(async () => {
+      try {
+        const project = await db.projects.getOrCreate(name, path);
+        const saved = await db.sessions.list(project.id);
+        // Mark old sessions as closed (will be re-created with new PTY ids)
+        await db.sessions.closeAll(project.id);
+
+        if (saved.length > 0) {
+          for (const s of saved) {
+            const cmd = s.command === "shell" || !s.command ? undefined : s.command;
+            await spawnTab(cmd, s.label);
+          }
+          return;
+        }
+      } catch (e) {
+        console.error("[DB] restore sessions:", e);
+      }
+
+      // One-time migration fallback from localStorage
+      const lsTabs = loadSavedTabs(path);
+      if (lsTabs.length > 0) {
+        for (const st of lsTabs) {
           const cmd = st.command === "shell" ? undefined : st.command;
           await spawnTab(cmd, st.label);
         }
-      }, 100);
-    } else {
-      setTimeout(() => spawnTab(undefined, t("terminal")), 100);
-    }
+        return;
+      }
+
+      // Default: single terminal tab
+      await spawnTab(undefined, t("terminal"));
+    }, 100);
   };
 
   const closeProject = () => {
-    tabs.forEach((t) => invoke("close_terminal", { id: t.id }).catch(() => {}));
+    const { projectId } = useAppStore.getState();
+    tabs.forEach((tab) => invoke("close_terminal", { id: tab.id }).catch(() => {}));
+    if (projectId) {
+      db.sessions.closeAll(projectId).catch((e) => console.error("[DB] closeAll:", e));
+    }
     clearTabs();
     setFileTree([]);
     setProject(null);
@@ -124,26 +165,49 @@ export default function App() {
     }
   };
 
+  /** Returns selected path without opening the project (for onboarding). */
+  const pickFolder = async (): Promise<string | null> => {
+    const selected = await open({ directory: true, title: t("selectProjectFolder") });
+    return selected && typeof selected === "string" ? selected : null;
+  };
+
   // ── Keyboard shortcuts ─────────────────────────────────────────────────
   useKeyboardShortcuts({ spawnTab, closeTab });
 
-  // ── Init: detect CLI tools, restore project, request notifications ──────
+  // ── Init: detect CLI tools, hydrate from DB, restore project ──────
   useEffect(() => {
-    invoke<CliTool[]>("detect_cli_tools").then(setCliTools).catch(() => {});
+    const init = async () => {
+      // 1. CLI detection (non-blocking)
+      invoke<CliTool[]>("detect_cli_tools").then(setCliTools).catch(() => {});
+      invoke<string>("detect_default_shell").then(setDefaultShell).catch(() => {});
 
-    // Hydrate from SQLite (overrides localStorage snapshot)
-    useAppStore.getState().loadSettingsFromDB?.();
-    useAppStore.getState().loadProjectFromDB?.();
+      // 2. Request notification permission
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
 
-    // Request notification permission for terminal exit alerts
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission().catch(() => {});
-    }
+      // 3. Hydrate settings & projects from SQLite (await to prevent race)
+      try {
+        await useAppStore.getState().loadSettingsFromDB?.();
+      } catch {}
+      try {
+        await useAppStore.getState().loadProjectFromDB?.();
+      } catch {}
 
-    const savedPath = localStorage.getItem("kodiq-project-path");
-    if (savedPath) {
-      openProject(savedPath);
-    }
+      // 4. Restore last project (DB first → localStorage fallback)
+      let lastPath: string | null = null;
+      try {
+        lastPath = await db.settings.get("lastProjectPath");
+      } catch {}
+      if (!lastPath) {
+        lastPath = localStorage.getItem("kodiq-project-path");
+      }
+      if (lastPath) {
+        openProject(lastPath);
+      }
+    };
+    init();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Port detection ────────────────────────────────────────────────────
@@ -275,6 +339,17 @@ export default function App() {
               <ActivityBar />
             </ErrorBoundary>
           </>
+        ) : !onboardingComplete ? (
+          <OnboardingWizard
+            cliTools={cliTools}
+            defaultShell={defaultShell}
+            recentProjects={recentProjects}
+            onComplete={(selectedPath) => {
+              setOnboardingComplete(true);
+              if (selectedPath) openProject(selectedPath);
+            }}
+            onOpenFolder={pickFolder}
+          />
         ) : (
           <EmptyState onOpenFolder={handleOpenFolder} onOpenProject={openProject} />
         )}

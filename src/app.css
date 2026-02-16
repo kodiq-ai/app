@@ -159,6 +159,30 @@ body {
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
+/* ─── Block 2: UX Polish ──────────────────────────────────────────────────── */
+
+@keyframes step-slide-left {
+  from { transform: translateX(24px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes step-slide-right {
+  from { transform: translateX(-24px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.kodiq-spinner {
+  animation: spinner-rotate 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodiq-spinner { animation: none !important; }
+}
+
 /* ─── Shiki syntax highlighting ────────────────────────────────────────────── */
 
 .shiki-line {

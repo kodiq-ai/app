@@ -5,19 +5,19 @@ Tauri 2 desktop app: Rust backend + React 19 frontend. Dark-only theme, English/
 ## Quick Start
 
 ```bash
-npm run tauri:dev          # dev with terminal output
-npm run dev:bg             # dev in background (no terminal)
-npm run dev:logs           # tail dev logs
-npm run dev:stop           # stop background dev
-npm run tauri:build        # production .app
+pnpm run tauri:dev          # dev with terminal output
+pnpm run dev:bg             # dev in background (no terminal)
+pnpm run dev:logs           # tail dev logs
+pnpm run dev:stop           # stop background dev
+pnpm run tauri:build        # production .app
 
 # Quality
-npm run test               # Vitest (frontend)
-npm run test:rust          # cargo test (backend)
-npm run test:all           # both
-npm run lint               # ESLint
-npm run format:check       # Prettier check
-npm run check:all          # lint + format + test (everything)
+pnpm run test               # Vitest (frontend)
+pnpm run test:rust          # cargo test (backend)
+pnpm run test:all           # both
+pnpm run lint               # ESLint
+pnpm run format:check       # Prettier check
+pnpm run check:all          # lint + format + test (everything)
 ```
 
 ## Architecture
@@ -118,7 +118,8 @@ src-tauri/                     # Rust backend (modular)
 | i18n | JSON locale files (English default) |
 | Testing | Vitest + Testing Library (frontend), cargo test (backend) |
 | Linting | ESLint 9 + Prettier (frontend), rustfmt + clippy (backend) |
-| Build | Vite 7, bun/npm |
+| Package Manager | pnpm 10 |
+| Build | Vite 7 |
 | CI/CD | GitHub Actions (cross-platform builds, auto-update) |
 | Icons | Lucide React + custom SVG (`components/icons.tsx`) |
 
@@ -354,9 +355,9 @@ Implemented in `hooks/useKeyboardShortcuts.ts` via `react-hotkeys-hook`.
 ### Frontend (Vitest)
 
 ```bash
-npm run test              # single run
-npm run test:watch        # watch mode
-npm run test:coverage     # with coverage
+pnpm run test              # single run
+pnpm run test:watch        # watch mode
+pnpm run test:coverage     # with coverage
 ```
 
 Config in `vitest.config.ts`. Setup file `src/test/setup.ts` mocks all Tauri APIs.
@@ -367,7 +368,7 @@ Tests live next to source: `featureName.test.ts` inside the feature's store dire
 ### Backend (cargo test)
 
 ```bash
-npm run test:rust         # or: cd src-tauri && cargo test
+pnpm run test:rust         # or: cd src-tauri && cargo test
 ```
 
 **Current tests**: 23 passing (db migrations, projects, settings, sessions, history, snippets, port parser).
@@ -377,10 +378,10 @@ npm run test:rust         # or: cd src-tauri && cargo test
 ### Frontend
 
 ```bash
-npm run lint              # ESLint 9 (TypeScript + React hooks + React Refresh)
-npm run lint:fix          # ESLint with auto-fix
-npm run format            # Prettier write
-npm run format:check      # Prettier check
+pnpm run lint              # ESLint 9 (TypeScript + React hooks + React Refresh)
+pnpm run lint:fix          # ESLint with auto-fix
+pnpm run format            # Prettier write
+pnpm run format:check      # Prettier check
 ```
 
 Config: `eslint.config.js` (flat config), `.prettierrc`, `.prettierignore`.
@@ -389,8 +390,8 @@ Ignores: `dist/`, `src-tauri/`, `src/components/ui/` (shadcn generated).
 ### Backend
 
 ```bash
-npm run lint:rust         # clippy
-npm run format:rust       # rustfmt
+pnpm run lint:rust         # clippy
+pnpm run format:rust       # rustfmt
 ```
 
 ## CI/CD
@@ -470,7 +471,7 @@ Selection: rgba(20, 184, 166, 0.25)
 5. Call from React via the typed bridge (e.g., `terminal.spawn(...)`)
 
 ### Add a new component
-1. For shadcn: `npx shadcn@latest add <component>`
+1. For shadcn: `pnpm dlx shadcn@latest add <component>`
 2. For custom: create in the appropriate `features/<domain>/components/`
 3. All text through `t()`, add keys to `shared/i18n/en.json` and `shared/i18n/ru.json`
 
@@ -493,7 +494,7 @@ Selection: rgba(20, 184, 166, 0.25)
 1. Create `<name>.test.ts` next to the source file
 2. Use Vitest: `describe`, `it`, `expect`
 3. For store tests, create isolated Zustand store: `create<SliceType>()(createSlice)`
-4. Run: `npm run test`
+4. Run: `pnpm run test`
 
 ## Database
 

@@ -41,6 +41,7 @@ export const git = {
 // ── CLI ──────────────────────────────────────────────────
 export const cli = {
   detectTools: () => invoke<CliTool[]>("detect_cli_tools"),
+  detectShell: () => invoke<string>("detect_default_shell"),
 };
 
 // ── Database — Projects ──────────────────────────────────
@@ -51,6 +52,8 @@ export const db = {
     touch: (path: string) => invoke<void>("db_touch_project", { path }),
     update: (id: string, patch: { name?: string; default_cli?: string | null; settings?: string | null }) =>
       invoke<void>("db_update_project", { id, patch }),
+    getOrCreate: (name: string, path: string) =>
+      invoke<Project>("db_get_or_create_project", { name, path }),
   },
 
   // ── Database — Settings ──────────────────────────────────
@@ -65,6 +68,7 @@ export const db = {
     list: (projectId: string) => invoke<TerminalSession[]>("db_list_sessions", { projectId }),
     save: (session: NewSession) => invoke<void>("db_save_session", { session }),
     close: (id: string) => invoke<void>("db_close_session", { id }),
+    closeAll: (projectId: string) => invoke<void>("db_close_all_sessions", { projectId }),
   },
 
   // ── Database — History ───────────────────────────────────

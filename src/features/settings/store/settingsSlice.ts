@@ -16,6 +16,9 @@ export interface SettingsSlice {
   // Split ratio
   splitRatio: number;
 
+  // Onboarding
+  onboardingComplete: boolean;
+
   // Update state
   updateAvailable: UpdateInfo | null;
   toastDismissed: boolean;
@@ -38,6 +41,9 @@ export interface SettingsSlice {
 
   // DB hydration
   loadSettingsFromDB: () => Promise<void>;
+
+  // Onboarding actions
+  setOnboardingComplete: (complete: boolean) => void;
 
   // Update actions
   setUpdateAvailable: (info: UpdateInfo | null) => void;
@@ -70,6 +76,7 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   commandPaletteOpen: false,
   fileSearchOpen: false,
   splitRatio: loadSplitRatio(),
+  onboardingComplete: localStorage.getItem("kodiq-onboarding-complete") === "true",
   updateAvailable: null,
   toastDismissed: false,
   downloading: false,
@@ -111,13 +118,21 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
       if (all["locale"]) patch.locale = all["locale"] as "en" | "ru";
       const splitStr = all["splitRatio"];
       const splitVal = splitStr ? parseFloat(splitStr) : undefined;
+      const onboarding = all["onboardingComplete"] === "true" ? true : undefined;
       set((s) => ({
         settings: { ...s.settings, ...patch },
         ...(splitVal != null ? { splitRatio: splitVal } : {}),
+        ...(onboarding != null ? { onboardingComplete: onboarding } : {}),
       }));
     } catch {
       // DB not ready yet — localStorage values already loaded
     }
+  },
+
+  setOnboardingComplete: (onboardingComplete) => {
+    localStorage.setItem("kodiq-onboarding-complete", String(onboardingComplete));
+    db.settings.set("onboardingComplete", String(onboardingComplete)).catch((e) => console.error("[DB]", e));
+    set({ onboardingComplete });
   },
 
   setUpdateAvailable: (updateAvailable) => set({ updateAvailable, toastDismissed: false }),

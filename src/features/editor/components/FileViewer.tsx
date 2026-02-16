@@ -79,7 +79,7 @@ export function FileViewer() {
   };
 
   return (
-    <div className="absolute inset-0 z-20 bg-[var(--bg-base)] flex flex-col">
+    <div className="absolute inset-0 z-20 bg-[var(--bg-base)] flex flex-col motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-200">
       {/* Breadcrumb Header */}
       <div className="flex items-center h-9 px-3 border-b border-white/[0.06] shrink-0 gap-1">
         <div className="flex items-center gap-0.5 flex-1 min-w-0 overflow-hidden">

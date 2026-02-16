@@ -44,11 +44,13 @@ pub fn run() {
             git::info::get_project_stats,
             // CLI
             cli::detect::detect_cli_tools,
+            cli::detect::detect_default_shell,
             // Database — Projects
             db::projects::db_list_projects,
             db::projects::db_create_project,
             db::projects::db_touch_project,
             db::projects::db_update_project,
+            db::projects::db_get_or_create_project,
             // Database — Settings
             db::settings::db_get_setting,
             db::settings::db_set_setting,
@@ -57,6 +59,7 @@ pub fn run() {
             db::sessions::db_list_sessions,
             db::sessions::db_save_session,
             db::sessions::db_close_session,
+            db::sessions::db_close_all_sessions,
             // Database — History
             db::history::db_search_history,
             db::history::db_add_history,

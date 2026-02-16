@@ -2,6 +2,7 @@ import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { ChevronRight, Copy, FolderOpen, TerminalSquare } from "lucide-react";
+import { Loader } from "@/components/Loader";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<FileEntry[]>(entry.children || []);
   const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
   const setOpenFile = useAppStore((s) => s.setOpenFile);
   const openFilePath = useAppStore((s) => s.openFilePath);
   const pl = 12 + depth * 14;
@@ -32,12 +34,15 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
   const handleClick = async () => {
     if (entry.isDir) {
       if (!loaded) {
+        setLoading(true);
         try {
           const ch = await onExpand(entry.path);
           setChildren(ch);
           setLoaded(true);
         } catch (e) {
           toast.error(t("failedToOpenFolder"), { description: String(e) });
+        } finally {
+          setLoading(false);
         }
       }
       setIsOpen(!isOpen);
@@ -87,12 +92,16 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
             style={{ paddingLeft: pl }}
           >
             {entry.isDir ? (
-              <ChevronRight
-                className={cn(
-                  "size-2.5 shrink-0 text-[#3f3f46] transition-transform duration-150",
-                  isOpen && "rotate-90"
-                )}
-              />
+              loading ? (
+                <Loader size="sm" className="size-2.5 shrink-0" />
+              ) : (
+                <ChevronRight
+                  className={cn(
+                    "size-2.5 shrink-0 text-[#3f3f46] transition-transform duration-150",
+                    isOpen && "rotate-90"
+                  )}
+                />
+              )
             ) : (
               <span className="w-2.5 shrink-0" />
             )}
@@ -125,10 +134,18 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      {isOpen &&
-        children.map((c) => (
-          <TreeItem key={c.path || c.name} entry={c} depth={depth + 1} onExpand={onExpand} />
-        ))}
+      {(isOpen || loaded) && (
+        <div className={cn(
+          "grid motion-safe:transition-[grid-template-rows] motion-safe:duration-200",
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        )}>
+          <div className="overflow-hidden">
+            {children.map((c) => (
+              <TreeItem key={c.path || c.name} entry={c} depth={depth + 1} onExpand={onExpand} />
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }

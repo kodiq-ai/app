@@ -110,7 +110,56 @@ pub fn update(
     Ok(())
 }
 
+pub fn get_or_create(
+    conn: &rusqlite::Connection,
+    name: &str,
+    path: &str,
+) -> Result<Project, rusqlite::Error> {
+    use rusqlite::OptionalExtension;
+
+    let existing: Option<Project> = conn
+        .query_row(
+            "SELECT id, name, path, created_at, last_opened, open_count, default_cli, settings
+             FROM projects WHERE path = ?1",
+            rusqlite::params![path],
+            |row| {
+                Ok(Project {
+                    id: row.get(0)?,
+                    name: row.get(1)?,
+                    path: row.get(2)?,
+                    created_at: row.get(3)?,
+                    last_opened: row.get(4)?,
+                    open_count: row.get(5)?,
+                    default_cli: row.get(6)?,
+                    settings: row.get(7)?,
+                })
+            },
+        )
+        .optional()?;
+
+    match existing {
+        Some(p) => {
+            touch(conn, path)?;
+            Ok(Project {
+                open_count: p.open_count + 1,
+                ..p
+            })
+        }
+        None => create(conn, name, path),
+    }
+}
+
 // ── Tauri Commands ───────────────────────────────────────────────────
+
+#[tauri::command]
+pub fn db_get_or_create_project(
+    db: tauri::State<DbState>,
+    name: String,
+    path: String,
+) -> Result<Project, String> {
+    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
+    get_or_create(&conn, &name, &path).map_err(|e| format!("DB error: {}", e))
+}
 
 #[tauri::command]
 pub fn db_list_projects(db: tauri::State<DbState>) -> Result<Vec<Project>, String> {
@@ -207,5 +256,29 @@ mod tests {
         let projects = list(&conn).unwrap();
         assert_eq!(projects[0].name, "new-name");
         assert_eq!(projects[0].default_cli, Some("claude".to_string()));
+    }
+
+    #[test]
+    fn test_get_or_create_new() {
+        let conn = test_db();
+        let p = get_or_create(&conn, "new-proj", "/tmp/new").unwrap();
+        assert_eq!(p.name, "new-proj");
+        assert_eq!(p.path, "/tmp/new");
+        assert_eq!(p.open_count, 1);
+
+        let projects = list(&conn).unwrap();
+        assert_eq!(projects.len(), 1);
+    }
+
+    #[test]
+    fn test_get_or_create_existing() {
+        let conn = test_db();
+        create(&conn, "existing", "/tmp/existing").unwrap();
+
+        let p = get_or_create(&conn, "existing", "/tmp/existing").unwrap();
+        assert_eq!(p.open_count, 2); // touched
+
+        let projects = list(&conn).unwrap();
+        assert_eq!(projects.len(), 1); // no duplicate
     }
 }
