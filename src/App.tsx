@@ -134,6 +134,9 @@ export default function App() {
     addRecent({ name, path });
     loadFileTree(path);
 
+    // Start native filesystem watcher
+    invoke("start_watching", { path }).catch((e) => console.warn("[Watcher] failed to start:", e));
+
     // Capture initial git state for activity log diff
     useAppStore.getState().clearActivity();
     invoke<GitInfo>("get_git_info", { path })
@@ -211,6 +214,7 @@ export default function App() {
     if (projectId) {
       db.sessions.closeAll(projectId).catch((e) => console.error("[DB] closeAll:", e));
     }
+    invoke("stop_watching").catch(() => {});
     clearTabs();
     setFileTree([]);
     setProject(null);
@@ -279,6 +283,18 @@ export default function App() {
       }
     };
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Filesystem watcher events ─────────────────────────────────────────
+  useEffect(() => {
+    const unlistenFs = listen<string>("fs-changed", () => {
+      const path = useAppStore.getState().projectPath;
+      if (path) loadFileTree(path);
+    });
+    return () => {
+      unlistenFs.then((fn) => fn());
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { TerminalSquare, FileEdit, Plus, Minus, FileQuestion, RefreshCw } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -57,12 +58,14 @@ export function ActivityPanel() {
       .catch(() => setFileChanges([]));
   }, [projectPath, sessionStartFiles]);
 
-  // Poll git changes every 10s when activity tab is visible
+  // Refresh git on native filesystem events (replaces 10s polling)
   useEffect(() => {
     if (sidebarTab !== "activity" || !projectPath) return;
     refreshGit();
-    const interval = setInterval(refreshGit, 10_000);
-    return () => clearInterval(interval);
+    const unlisten = listen<string>("git-changed", refreshGit);
+    return () => {
+      unlisten.then((fn) => fn());
+    };
   }, [sidebarTab, projectPath, refreshGit]);
 
   const hasContent = activityLog.length > 0 || fileChanges.length > 0;

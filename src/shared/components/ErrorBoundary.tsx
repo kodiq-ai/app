@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import * as Sentry from "@sentry/browser";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { t } from "@/lib/i18n";
@@ -30,6 +31,9 @@ export class ErrorBoundary extends Component<Props, State> {
       error,
       info.componentStack,
     );
+    Sentry.captureException(error, {
+      extra: { componentStack: info.componentStack },
+    });
   }
 
   handleReset = () => {

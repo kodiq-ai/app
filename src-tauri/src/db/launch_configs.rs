@@ -1,6 +1,7 @@
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 
+use crate::error::KodiqError;
 use crate::state::DbState;
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -45,36 +46,31 @@ fn now() -> i64 {
 // ── CRUD ─────────────────────────────────────────────────────────────────────
 
 /// List launch configs: global (project_id IS NULL) + project-specific.
-pub fn list(conn: &Connection, project_id: Option<&str>) -> Result<Vec<LaunchConfig>, String> {
-    let mut stmt = conn
-        .prepare(
-            "SELECT id, cli_name, profile_name, config, is_default, project_id, created_at, updated_at
-             FROM cli_profiles
-             WHERE project_id IS NULL OR project_id = ?1
-             ORDER BY is_default DESC, profile_name ASC",
-        )
-        .map_err(|e| e.to_string())?;
+pub fn list(conn: &Connection, project_id: Option<&str>) -> Result<Vec<LaunchConfig>, rusqlite::Error> {
+    let mut stmt = conn.prepare(
+        "SELECT id, cli_name, profile_name, config, is_default, project_id, created_at, updated_at
+         FROM cli_profiles
+         WHERE project_id IS NULL OR project_id = ?1
+         ORDER BY is_default DESC, profile_name ASC",
+    )?;
 
-    let rows = stmt
-        .query_map(rusqlite::params![project_id], |row| {
-            Ok(LaunchConfig {
-                id: row.get(0)?,
-                cli_name: row.get(1)?,
-                profile_name: row.get(2)?,
-                config: row.get(3)?,
-                is_default: row.get::<_, i32>(4)? != 0,
-                project_id: row.get(5)?,
-                created_at: row.get(6)?,
-                updated_at: row.get(7)?,
-            })
+    let rows = stmt.query_map(rusqlite::params![project_id], |row| {
+        Ok(LaunchConfig {
+            id: row.get(0)?,
+            cli_name: row.get(1)?,
+            profile_name: row.get(2)?,
+            config: row.get(3)?,
+            is_default: row.get::<_, i32>(4)? != 0,
+            project_id: row.get(5)?,
+            created_at: row.get(6)?,
+            updated_at: row.get(7)?,
         })
-        .map_err(|e| e.to_string())?;
+    })?;
 
-    rows.collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())
+    rows.collect()
 }
 
-pub fn create(conn: &Connection, cfg: NewLaunchConfig) -> Result<LaunchConfig, String> {
+pub fn create(conn: &Connection, cfg: NewLaunchConfig) -> Result<LaunchConfig, rusqlite::Error> {
     let id = uuid::Uuid::new_v4().to_string();
     let ts = now();
     let is_default = cfg.is_default.unwrap_or(false) as i32;
@@ -83,8 +79,7 @@ pub fn create(conn: &Connection, cfg: NewLaunchConfig) -> Result<LaunchConfig, S
         "INSERT INTO cli_profiles (id, cli_name, profile_name, config, is_default, project_id, created_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
         rusqlite::params![id, cfg.cli_name, cfg.profile_name, cfg.config, is_default, cfg.project_id, ts, ts],
-    )
-    .map_err(|e| e.to_string())?;
+    )?;
 
     Ok(LaunchConfig {
         id,
@@ -98,7 +93,7 @@ pub fn create(conn: &Connection, cfg: NewLaunchConfig) -> Result<LaunchConfig, S
     })
 }
 
-pub fn update(conn: &Connection, id: &str, patch: UpdateLaunchConfig) -> Result<(), String> {
+pub fn update(conn: &Connection, id: &str, patch: UpdateLaunchConfig) -> Result<(), rusqlite::Error> {
     let ts = now();
     let mut sets = vec!["updated_at = ?1".to_string()];
     let mut params: Vec<Box<dyn rusqlite::types::ToSql>> = vec![Box::new(ts)];
@@ -131,18 +126,16 @@ pub fn update(conn: &Connection, id: &str, patch: UpdateLaunchConfig) -> Result<
     conn.execute(
         &sql,
         rusqlite::params_from_iter(params.iter().map(|p| p.as_ref())),
-    )
-    .map_err(|e| e.to_string())?;
+    )?;
 
     Ok(())
 }
 
-pub fn delete(conn: &Connection, id: &str) -> Result<(), String> {
+pub fn delete(conn: &Connection, id: &str) -> Result<(), rusqlite::Error> {
     conn.execute(
         "DELETE FROM cli_profiles WHERE id = ?1",
         rusqlite::params![id],
-    )
-    .map_err(|e| e.to_string())?;
+    )?;
     Ok(())
 }
 
@@ -152,18 +145,18 @@ pub fn delete(conn: &Connection, id: &str) -> Result<(), String> {
 pub fn db_list_launch_configs(
     project_id: Option<String>,
     db: tauri::State<'_, DbState>,
-) -> Result<Vec<LaunchConfig>, String> {
-    let conn = db.connection.lock().map_err(|e| e.to_string())?;
-    list(&conn, project_id.as_deref())
+) -> Result<Vec<LaunchConfig>, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(list(&conn, project_id.as_deref())?)
 }
 
 #[tauri::command]
 pub fn db_create_launch_config(
     config: NewLaunchConfig,
     db: tauri::State<'_, DbState>,
-) -> Result<LaunchConfig, String> {
-    let conn = db.connection.lock().map_err(|e| e.to_string())?;
-    create(&conn, config)
+) -> Result<LaunchConfig, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(create(&conn, config)?)
 }
 
 #[tauri::command]
@@ -171,18 +164,18 @@ pub fn db_update_launch_config(
     id: String,
     patch: UpdateLaunchConfig,
     db: tauri::State<'_, DbState>,
-) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| e.to_string())?;
-    update(&conn, &id, patch)
+) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(update(&conn, &id, patch)?)
 }
 
 #[tauri::command]
 pub fn db_delete_launch_config(
     id: String,
     db: tauri::State<'_, DbState>,
-) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| e.to_string())?;
-    delete(&conn, &id)
+) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(delete(&conn, &id)?)
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────

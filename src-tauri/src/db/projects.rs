@@ -1,3 +1,4 @@
+use crate::error::KodiqError;
 use crate::state::DbState;
 use serde::{Deserialize, Serialize};
 
@@ -143,15 +144,15 @@ pub fn db_get_or_create_project(
     db: tauri::State<DbState>,
     name: String,
     path: String,
-) -> Result<Project, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    get_or_create(&conn, &name, &path).map_err(|e| format!("DB error: {}", e))
+) -> Result<Project, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(get_or_create(&conn, &name, &path)?)
 }
 
 #[tauri::command]
-pub fn db_list_projects(db: tauri::State<DbState>) -> Result<Vec<Project>, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    list(&conn).map_err(|e| format!("DB error: {}", e))
+pub fn db_list_projects(db: tauri::State<DbState>) -> Result<Vec<Project>, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(list(&conn)?)
 }
 
 #[tauri::command]
@@ -159,15 +160,15 @@ pub fn db_create_project(
     db: tauri::State<DbState>,
     name: String,
     path: String,
-) -> Result<Project, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    create(&conn, &name, &path).map_err(|e| format!("DB error: {}", e))
+) -> Result<Project, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(create(&conn, &name, &path)?)
 }
 
 #[tauri::command]
-pub fn db_touch_project(db: tauri::State<DbState>, path: String) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    touch(&conn, &path).map_err(|e| format!("DB error: {}", e))
+pub fn db_touch_project(db: tauri::State<DbState>, path: String) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(touch(&conn, &path)?)
 }
 
 #[tauri::command]
@@ -175,9 +176,9 @@ pub fn db_update_project(
     db: tauri::State<DbState>,
     id: String,
     patch: ProjectPatch,
-) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    update(&conn, &id, &patch).map_err(|e| format!("DB error: {}", e))
+) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(update(&conn, &id, &patch)?)
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────

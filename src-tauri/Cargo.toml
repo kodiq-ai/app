@@ -22,7 +22,6 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 # Tauri core
 tauri = { version = "2", features = [] }
-tauri-plugin-log = "2"
 tauri-plugin-shell = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-store = "2"
@@ -43,9 +42,19 @@ regex = "1"
 uuid = { version = "1", features = ["v4"] }
 chrono = "0.4"
 
+# Observability
+sentry = { version = "0.35", features = ["tracing", "panic", "debug-images", "reqwest", "rustls"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Filesystem watcher
+notify = "8"
+notify-debouncer-mini = "0.6"
+
+# Typed errors
+thiserror = "2"
+
 # Future additions (uncomment when needed):
-# notify = "8"              # File watcher (Phase 2)
-# thiserror = "2"           # Typed errors (Phase 2)
 # reqwest = { version = "0.12", optional = true }  # Pro HTTP client
 
 # Auto-update (desktop only)

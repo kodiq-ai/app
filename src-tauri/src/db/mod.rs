@@ -9,6 +9,7 @@ pub mod snippets;
 use crate::state::DbState;
 
 /// Initialize the database: open/create file, run migrations.
+#[tracing::instrument]
 pub fn init() -> Result<DbState, String> {
     let db_dir = dirs::config_dir().ok_or("Cannot find config directory")?.join("kodiq");
 
@@ -24,7 +25,7 @@ pub fn init() -> Result<DbState, String> {
 
     migrations::run_migrations(&conn)?;
 
-    log::info!("Database initialized at {:?}", db_path);
+    tracing::info!("Database initialized at {:?}", db_path);
     Ok(DbState::new(conn))
 }
 

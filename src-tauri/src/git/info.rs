@@ -1,11 +1,13 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::error::KodiqError;
+
 /// Get project statistics: file counts by extension, total size, detected stack
 #[tauri::command]
-pub fn get_project_stats(path: String) -> Result<serde_json::Value, String> {
+pub fn get_project_stats(path: String) -> Result<serde_json::Value, KodiqError> {
     let root = std::path::Path::new(&path);
     if !root.is_dir() {
-        return Err(format!("Not a directory: {}", path));
+        return Err(KodiqError::NotFound(format!("Not a directory: {}", path)));
     }
 
     let skip_dirs: HashSet<&str> = [
@@ -128,8 +130,9 @@ pub fn get_project_stats(path: String) -> Result<serde_json::Value, String> {
 }
 
 /// Get git info for a project: branch, status, changed files
+#[tracing::instrument]
 #[tauri::command]
-pub fn get_git_info(path: String) -> Result<serde_json::Value, String> {
+pub fn get_git_info(path: String) -> Result<serde_json::Value, KodiqError> {
     use std::process::Command;
 
     let run = |args: &[&str]| -> Option<String> {

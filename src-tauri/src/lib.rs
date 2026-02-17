@@ -1,30 +1,60 @@
 mod cli;
 mod db;
+pub mod error;
 mod filesystem;
 mod git;
 mod state;
 mod terminal;
 
+use tracing_subscriber::prelude::*;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Sentry — init BEFORE anything else (catches panics during setup)
+    let _guard = sentry::init(sentry::ClientOptions {
+        dsn: option_env!("SENTRY_DSN").and_then(|s| s.parse().ok()),
+        release: sentry::release_name!(),
+        environment: if cfg!(debug_assertions) {
+            Some("development".into())
+        } else {
+            Some("production".into())
+        },
+        traces_sample_rate: if cfg!(debug_assertions) { 1.0 } else { 0.2 },
+        ..Default::default()
+    });
+
+    // Tracing — structured logging + Sentry integration
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| {
+                    if cfg!(debug_assertions) {
+                        "debug".into()
+                    } else {
+                        "info".into()
+                    }
+                }),
+        )
+        .with(sentry::integrations::tracing::layer())
+        .init();
+
+    tracing::info!("Kodiq starting v{}", env!("CARGO_PKG_VERSION"));
+
     let db_state = db::init().expect("Failed to initialize database");
 
     tauri::Builder::default()
         .manage(state::new_app_state())
         .manage(db_state)
+        .manage(filesystem::watcher::WatcherState::new())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             #[cfg(desktop)]
-            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())?;
             app.handle().plugin(tauri_plugin_process::init())?;
-
-            if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default().level(log::LevelFilter::Info).build(),
-                )?;
-            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -36,6 +66,8 @@ pub fn run() {
             // Filesystem
             filesystem::read::read_dir,
             filesystem::read::read_file,
+            filesystem::watcher::start_watching,
+            filesystem::watcher::stop_watching,
             // Git
             git::info::get_git_info,
             git::info::get_project_stats,

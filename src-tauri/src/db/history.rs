@@ -1,3 +1,4 @@
+use crate::error::KodiqError;
 use crate::state::DbState;
 use serde::{Deserialize, Serialize};
 
@@ -116,9 +117,9 @@ pub fn db_search_history(
     db: tauri::State<DbState>,
     query: String,
     project_id: Option<String>,
-) -> Result<Vec<HistoryEntry>, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    search(&conn, &query, project_id.as_deref()).map_err(|e| format!("DB error: {}", e))
+) -> Result<Vec<HistoryEntry>, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(search(&conn, &query, project_id.as_deref())?)
 }
 
 #[tauri::command]
@@ -126,14 +127,13 @@ pub fn db_recent_history(
     db: tauri::State<DbState>,
     project_id: Option<String>,
     limit: Option<u32>,
-) -> Result<Vec<HistoryEntry>, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    recent(&conn, project_id.as_deref(), limit.unwrap_or(20))
-        .map_err(|e| format!("DB error: {}", e))
+) -> Result<Vec<HistoryEntry>, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(recent(&conn, project_id.as_deref(), limit.unwrap_or(20))?)
 }
 
 #[tauri::command]
-pub fn db_add_history(db: tauri::State<DbState>, entry: NewHistoryEntry) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    add(&conn, &entry).map_err(|e| format!("DB error: {}", e))
+pub fn db_add_history(db: tauri::State<DbState>, entry: NewHistoryEntry) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(add(&conn, &entry)?)
 }

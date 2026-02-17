@@ -11,6 +11,7 @@ use super::parser::resolve_command;
 /// If `command` is empty/None — spawns user's $SHELL.
 /// If `command` is "claude" — spawns claude CLI.
 /// Returns the terminal ID.
+#[tracing::instrument(skip(app, state))]
 #[tauri::command]
 pub fn spawn_terminal(
     app: tauri::AppHandle,
@@ -139,7 +140,7 @@ pub fn spawn_terminal(
                                 if port >= 1024 && !emitted_ports.contains(&port) {
                                     emitted_ports.insert(port);
                                     let url = format!("http://localhost:{}", port);
-                                    log::info!("Port detected in {}: {}", tid, url);
+                                    tracing::info!("Port detected in {}: {}", tid, url);
                                     let _ = app_handle.emit(
                                         "port-detected",
                                         serde_json::json!({
@@ -161,7 +162,7 @@ pub fn spawn_terminal(
         let _ = app_handle.emit("pty-exit", serde_json::json!({ "id": tid }));
     });
 
-    log::info!("Terminal spawned: {} ({})", terminal_id, label);
+    tracing::info!("Terminal spawned: {} ({})", terminal_id, label);
     Ok(terminal_id)
 }
 
@@ -183,8 +184,9 @@ pub fn resize_pty(id: String, cols: u16, rows: u16, state: tauri::State<'_, AppS
 }
 
 /// Close a terminal
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub fn close_terminal(id: String, state: tauri::State<'_, AppState>) {
     state.lock().unwrap().terminals.remove(&id);
-    log::info!("Terminal closed: {}", id);
+    tracing::info!("Terminal closed: {}", id);
 }

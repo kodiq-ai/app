@@ -3,8 +3,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { t } from "@/lib/i18n";
+import { initSentry } from "@/shared/lib/sentry";
 import App from "./App";
 import "./app.css";
+
+initSentry();
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");

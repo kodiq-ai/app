@@ -258,37 +258,39 @@ Both log to console and show a toast via `sonner`.
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--bg-base` | `#08080a` | Main background |
-| `--bg-raised` | `#0f1012` | Elevated surfaces |
-| `--bg-surface` | `#141517` | Cards, panels |
-| `--bg-overlay` | `#1a1b1e` | Modals, popovers |
-| `--kodiq-accent` | `#14b8a6` | Brand teal — cursor, links, focus |
-| `--accent-dim` | `rgba(20,184,166,0.12)` | Subtle accent backgrounds |
-| `--accent-glow` | `rgba(20,184,166,0.25)` | Selection, glow effects |
-| `--border-subtle` | `rgba(255,255,255,0.06)` | Primary borders |
-| `--border-dim` | `rgba(255,255,255,0.03)` | Secondary borders |
-| `--text-primary` | `#e8e8ec` | Primary text |
-| `--text-secondary` | `#8b8b96` | Secondary text |
-| `--text-tertiary` | `#52525c` | Dimmed text |
+| `--bg-base` | `#09090b` | Main background |
+| `--bg-surface` | `#111113` | Cards, panels |
+| `--bg-raised` | `#18181b` | Elevated surfaces |
+| `--bg-overlay` | `#1e1e22` | Modals, popovers |
+| `--bg-elevated` | `#27272a` | Highest elevation |
+| `--border-default` | `#3f3f46` | Default borders |
+| `--border-focus` | `#06b6d4` | Focus rings (cyan) |
+| `--kodiq-accent` | `#06b6d4` | Brand cyan — cursor, links, focus |
+| `--text-primary` | `#f4f4f5` | Primary text |
+| `--text-secondary` | `#a1a1aa` | Secondary text |
+| `--text-tertiary` | `#52525b` | Dimmed text |
 
-**Font**: `"JetBrains Mono", -apple-system, "SF Pro Text", system-ui, sans-serif`
-**Letter spacing**: `-0.011em`
+**Fonts** (loaded via CDN @import in app.css):
+- Display: `"Monaspace Krypton", monospace` (`--font-display`)
+- UI: `"Monaspace Neon", monospace` (`--font-ui`) — body default
+- Body: `"Monaspace Argon", monospace` (`--font-body`)
+- Code: `"Monaspace Neon", monospace` (`--font-code`)
+
 **Border radius**: `0.625rem` (shadcn `--radius`)
 
 ### Color Palette (inline classes)
 
 Text colors used directly in components:
-- `text-[#e4e4e7]` — bright text (labels, active items)
-- `text-[#a1a1aa]` — medium text (hover states)
-- `text-[#71717a]` — secondary text (descriptions)
-- `text-[#52525c]` — dimmed text (icons, metadata)
+- `text-[#f4f4f5]` — bright text (labels, active items)
+- `text-[#a1a1aa]` — medium text (descriptions, hover states)
+- `text-[#52525b]` — dimmed text (icons, metadata)
 - `text-[#3f3f46]` — very dim (timestamps, counts)
 - `text-[#27272a]` — barely visible (separators)
-- `text-[#14b8a6]` — accent teal (links, active indicators)
+- `text-[#06b6d4]` — accent cyan (links, active indicators)
 
 Backgrounds:
 - `bg-white/[0.01]` through `bg-white/[0.08]` — subtle layers
-- `bg-[#14b8a6]` — accent fills
+- `bg-[#06b6d4]` — accent fills
 
 ### Sizing Conventions
 
@@ -456,8 +458,8 @@ Requires secrets: `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWO
 Defined in `shared/lib/constants.ts`:
 
 ```
-Background: #0a0a0c   Foreground: #c8c8d0   Cursor: #14b8a6
-Selection: rgba(20, 184, 166, 0.25)
+Background: #09090b   Foreground: #f4f4f5   Cursor: #06b6d4
+Selection: rgba(6, 182, 212, 0.25)
 ```
 
 16 ANSI colors from Tailwind palette (red-400, green-400, yellow-400, etc.).

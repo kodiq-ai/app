@@ -2,7 +2,7 @@
 
 > Open-source desktop for AI CLI tools — one window for all your AI coding agents.
 
-Target audience: **developers who already use AI CLI tools** (Claude Code, Gemini CLI, Codex, Aider, Ollama).
+Target audience: **beginners learning to code with AI** (via Kodiq Academy) + **developers who already use AI CLI tools**. Dual-mode: beginner-friendly defaults, pro mode for power users.
 
 Framework: **Now / Next / Later** with status tracking.
 
@@ -105,31 +105,19 @@ Estimated: 3-4 weeks.
 
 ---
 
-## Next (v0.4.0) — CLI Intelligence
+## Next (v0.4.0) — Smart Workflow
 
-Goal: **Kodiq adds real value on top of raw CLI output** — the core differentiator vs plain terminals.
+Goal: **make Kodiq the easiest way to start coding with AI** — Launch Configurations + native filesystem events.
 
-Estimated: 4-6 weeks after v0.3.0.
+Estimated: 2-3 weeks after v0.3.0.
 
-### CLI Output Parsing Engine
-- [ ] `CliParser` trait in Rust — pluggable per-CLI parsers
-- [ ] Claude Code parser: detect diffs, code blocks, tool use, errors
-- [ ] Gemini CLI parser: detect responses, code blocks
-- [ ] Aider parser: detect file edits, commits
-- [ ] `ParsedBlock` enum: CodeBlock, Diff, Markdown, Error, Progress, Action
-
-### Action Buttons
-- [ ] "Apply diff" — apply parsed diff to file on disk
-- [ ] "Run command" — execute suggested command in new tab
-- [ ] "Reject" — skip suggested change
-- [ ] "Open file" — open mentioned file in file viewer
-- [ ] Button overlay rendered in xterm viewport (CSS positioned above terminal)
-
-### Rich Terminal Rendering
-- [ ] Syntax-highlighted code blocks in terminal output
-- [ ] Collapsible long outputs (tool results, file contents)
-- [ ] Diff viewer inline (side-by-side or unified)
-- [ ] Progress indicators for long AI operations
+### Launch Configurations
+- [x] SQLite-backed CLI profiles with per-project/global scope
+- [x] Auto-generate default configs for installed CLI tools on first project open
+- [x] LaunchConfigDialog — create/edit with CLI selector, args, env vars, scope
+- [x] QuickLaunch sidebar: one-click launch + context menu (Run/Edit/Delete)
+- [x] "Run last" shortcut (Cmd+Shift+L) — relaunch previous config
+- [x] Custom env vars passed to PTY on launch
 
 ### Git Event System
 - [ ] `notify` crate — replace setInterval polling with filesystem events
@@ -137,69 +125,54 @@ Estimated: 4-6 weeks after v0.3.0.
 - [ ] Auto-refresh git status on `.git/` changes
 - [ ] `thiserror` crate — typed `KodiqError` replacing raw strings
 
+---
+
+## Later — Ecosystem & Pro
+
+Features that connect Kodiq IDE with Academy and monetization. No fixed timeline.
+
+### Easy Deploy
+- [ ] "Publish" button in toolbar — deploy current project to web
+- [ ] Vercel/Netlify integration via their CLI (detect framework, auto-configure)
+- [ ] Deploy status panel: URL, build log, last deploy time
+- [ ] Custom domain setup wizard
+
 ### Git Panel
 - [ ] Sidebar tab: branch, changed files count
 - [ ] Stage/unstage individual files
 - [ ] Commit with message
 - [ ] Push/pull with progress
 
----
-
-## Later — Product Expansion
-
-Features that make Kodiq a full development environment. No fixed timeline.
-
 ### Developer Experience
 - [ ] CodeMirror 6 integration (replace read-only Shiki with editable code)
 - [ ] Multi-terminal layouts (split horizontal/vertical)
-- [ ] Task runner: detect and run package.json scripts, Makefiles
 - [ ] Command history search across all sessions (from SQLite)
 - [ ] Snippet manager with tags and search
-- [ ] SSH remote terminals
-
-### Chat Mode
-- [ ] Visual chat UI layer over terminal (messenger-like bubbles)
-- [ ] Toggle: Terminal mode / Chat mode / Hybrid
-- [ ] Markdown rendering of AI responses
-- [ ] Separate from CLI Output Intelligence — works on top of it
-
-### GitHub Integration
-- [ ] Issues: list, create, comment (via `gh` CLI)
-- [ ] Pull Requests: create, review, merge
-- [ ] Actions: view workflow status
-- [ ] Visual diff viewer with syntax highlighting
 
 ### Pro Layer (Supabase)
 - [ ] Supabase Auth (email, GitHub OAuth, Google OAuth)
 - [ ] Settings sync (SQLite ↔ Supabase)
-- [ ] Project sharing and community feed
 - [ ] Cloud deploy (Vercel/Netlify integration)
+- [ ] Academy progress integration (show course progress in IDE)
 - [ ] Team workspaces
-
-### Visual Inspector
-- [ ] Click element in preview → highlight in code
-- [ ] "This doesn't work" → send context to CLI agent
-- [ ] Drag & drop UI editing → AI updates code
-
-### Mobile
-- [ ] iOS/Android via Tauri v2
-- [ ] Sync with desktop
 
 ---
 
 ## Prioritization Rationale
 
-The roadmap is shaped by competitive analysis (see [COMPETITIVE-BRIEF.md](./COMPETITIVE-BRIEF.md)):
+The roadmap is shaped by target audience (beginners from Academy) and competitive analysis (see [COMPETITIVE-BRIEF.md](./COMPETITIVE-BRIEF.md)):
 
-1. **Now focuses on launch basics** — session restore, onboarding, auto-update. Without these, the app isn't usable for daily work.
+1. **v0.3.0 shipped launch basics** — session restore, onboarding, auto-update. Foundation is solid.
 
-2. **Next prioritizes CLI Output Intelligence** — this is Kodiq's #1 differentiator. No other terminal does this. Warp has AI built-in but requires their API. Kodiq parses output from *any* CLI tool the user already has.
+2. **v0.4.0 focuses on workflow, not parsing** — modern AI CLIs (Claude Code, Gemini CLI) already have excellent UX. Parsing their output adds complexity without proportional value. Launch Configurations make Kodiq uniquely easy for beginners. IDE-like Input Editor was removed — AI CLIs manage their own prompts, autocomplete, and interactive menus through the PTY; intercepting input would break their UX.
 
-3. **Git panel is in Next** because every competitor (Warp, Wave) already has git integration. It's table stakes, not a differentiator.
+3. **CLI Output Intelligence (parsing) was deprioritized** — it was the original differentiator plan, but AI CLIs have evolved faster than expected. They already format output well, handle diffs internally, and provide their own action prompts. Kodiq's real differentiator is the ecosystem: Academy teaches → IDE provides workspace → Deploy ships the result.
 
-4. **Chat mode is in Later** because it's a visual layer, not core functionality. CLI Output Intelligence (parsing + action buttons) delivers more value with less effort.
+4. **Git panel moved to Later** — CLI agents already handle git well. Visual git is nice-to-have, not a blocker.
 
-5. **Pro/social features are last** — monetization comes after product-market fit.
+5. **Removed from roadmap**: Chat mode (CLIs are already chat-like), Visual Inspector (AI understands text better than clicks), Mobile (not viable for coding), Social feed (Discord/Telegram solve this better).
+
+6. **Easy Deploy is the key Later feature** — "I built something → it's on the internet" is the magic moment for Academy students.
 
 ---
 
@@ -210,7 +183,7 @@ The roadmap is shaped by competitive analysis (see [COMPETITIVE-BRIEF.md](./COMP
 | v0.1.0 | 2025-01 | Initial prototype — terminal + preview |
 | v0.2.0 | 2026-02 | Foundation refactor — modular Rust, Zustand slices, SQLite, testing, CI/CD |
 | v0.3.0 | 2026-02 | Launch ready — onboarding, session restore, auto-update, basic CLI intelligence |
-| v0.4.0 | TBD | CLI Intelligence — parsers, action buttons, git panel |
+| v0.4.0 | TBD | Smart Workflow — Launch Configurations, native filesystem events |
 
 ---
 

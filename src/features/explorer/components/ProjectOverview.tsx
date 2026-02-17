@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import {
   GitBranch,
   GitCommit,
@@ -71,7 +72,7 @@ const EXT_COLORS: Record<string, string> = {
   css: "#a855f7",
   scss: "#cd6799",
   html: "#e34f26",
-  json: "#71717a",
+  json: "#a1a1aa",
   rs: "#dea584",
   py: "#3776ab",
   go: "#00add8",
@@ -102,20 +103,23 @@ export function ProjectOverview() {
 
   useEffect(() => {
     if (!projectPath) return;
-    invoke<ProjectStats>("get_project_stats", { path: projectPath })
-      .then(setStats)
-      .catch((e) => console.error("[ProjectOverview]", e));
-    invoke<GitInfo>("get_git_info", { path: projectPath })
-      .then(setGit)
-      .catch((e) => console.error("[ProjectOverview]", e));
 
-    // Refresh git every 10s
-    const interval = setInterval(() => {
+    const refreshGit = () => {
       invoke<GitInfo>("get_git_info", { path: projectPath })
         .then(setGit)
         .catch((e) => console.error("[ProjectOverview]", e));
-    }, 10_000);
-    return () => clearInterval(interval);
+    };
+
+    invoke<ProjectStats>("get_project_stats", { path: projectPath })
+      .then(setStats)
+      .catch((e) => console.error("[ProjectOverview]", e));
+    refreshGit();
+
+    // Refresh git on native filesystem events (replaces 10s polling)
+    const unlisten = listen<string>("git-changed", refreshGit);
+    return () => {
+      unlisten.then((fn) => fn());
+    };
   }, [projectPath]);
 
   if (!stats && !git) return null;

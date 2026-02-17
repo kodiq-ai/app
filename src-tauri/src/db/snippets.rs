@@ -1,3 +1,4 @@
+use crate::error::KodiqError;
 use crate::state::DbState;
 use serde::{Deserialize, Serialize};
 
@@ -107,22 +108,22 @@ fn map_row(row: &rusqlite::Row) -> Result<Snippet, rusqlite::Error> {
 pub fn db_list_snippets(
     db: tauri::State<DbState>,
     cli_name: Option<String>,
-) -> Result<Vec<Snippet>, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    list(&conn, cli_name.as_deref()).map_err(|e| format!("DB error: {}", e))
+) -> Result<Vec<Snippet>, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(list(&conn, cli_name.as_deref())?)
 }
 
 #[tauri::command]
 pub fn db_create_snippet(
     db: tauri::State<DbState>,
     snippet: NewSnippet,
-) -> Result<Snippet, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    create(&conn, &snippet).map_err(|e| format!("DB error: {}", e))
+) -> Result<Snippet, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(create(&conn, &snippet)?)
 }
 
 #[tauri::command]
-pub fn db_use_snippet(db: tauri::State<DbState>, id: String) -> Result<Snippet, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    use_snippet(&conn, &id).map_err(|e| format!("DB error: {}", e))
+pub fn db_use_snippet(db: tauri::State<DbState>, id: String) -> Result<Snippet, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(use_snippet(&conn, &id)?)
 }

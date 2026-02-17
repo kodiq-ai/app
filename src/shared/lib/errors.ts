@@ -2,6 +2,7 @@
 // No silent catch {} blocks — every error goes through here.
 
 import { toast } from "sonner";
+import * as Sentry from "@sentry/browser";
 
 /**
  * Handle any error with console logging + toast notification.
@@ -14,6 +15,9 @@ export function handleError(error: unknown, context?: string): void {
 
   console.error(`[Kodiq] ${prefix}${message}`);
   toast.error(`${prefix}${message}`);
+  Sentry.captureException(error instanceof Error ? error : new Error(message), {
+    tags: { context: context || "unknown" },
+  });
 }
 
 /**

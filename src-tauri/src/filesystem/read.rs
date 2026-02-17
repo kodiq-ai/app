@@ -1,17 +1,19 @@
+use crate::error::KodiqError;
+
 /// Read directory contents for file tree.
 /// Sorts directories first, then alphabetically by name.
 /// Skips hidden files and common noise directories.
+#[tracing::instrument]
 #[tauri::command]
-pub fn read_dir(path: String) -> Result<Vec<serde_json::Value>, String> {
+pub fn read_dir(path: String) -> Result<Vec<serde_json::Value>, KodiqError> {
     let dir = std::path::Path::new(&path);
     if !dir.is_dir() {
-        return Err(format!("Not a directory: {}", path));
+        return Err(KodiqError::NotFound(format!("Not a directory: {}", path)));
     }
 
     let mut entries: Vec<serde_json::Value> = Vec::new();
 
-    let mut items: Vec<_> = std::fs::read_dir(dir)
-        .map_err(|e| format!("Failed to read dir: {}", e))?
+    let mut items: Vec<_> = std::fs::read_dir(dir)?
         .filter_map(|e| e.ok())
         .collect();
 
@@ -53,15 +55,16 @@ pub fn read_dir(path: String) -> Result<Vec<serde_json::Value>, String> {
 }
 
 /// Read a file's content as string (up to 1MB, for file viewer)
+#[tracing::instrument]
 #[tauri::command]
-pub fn read_file(path: String) -> Result<String, String> {
+pub fn read_file(path: String) -> Result<String, KodiqError> {
     let file_path = std::path::Path::new(&path);
     if !file_path.is_file() {
-        return Err(format!("Not a file: {}", path));
+        return Err(KodiqError::NotFound(format!("Not a file: {}", path)));
     }
-    let metadata = std::fs::metadata(&path).map_err(|e| format!("Cannot read metadata: {}", e))?;
+    let metadata = std::fs::metadata(&path)?;
     if metadata.len() > 1_048_576 {
-        return Err("File too large (>1MB)".to_string());
+        return Err(KodiqError::Other("File too large (>1MB)".to_string()));
     }
-    std::fs::read_to_string(&path).map_err(|e| format!("Failed to read file: {}", e))
+    Ok(std::fs::read_to_string(&path)?)
 }

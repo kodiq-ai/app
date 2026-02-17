@@ -1,3 +1,4 @@
+use crate::error::KodiqError;
 use crate::state::DbState;
 use serde::{Deserialize, Serialize};
 
@@ -101,30 +102,30 @@ pub fn close_all_for_project(
 // ── Tauri Commands ───────────────────────────────────────────────────
 
 #[tauri::command]
-pub fn db_close_all_sessions(db: tauri::State<DbState>, project_id: String) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    close_all_for_project(&conn, &project_id).map_err(|e| format!("DB error: {}", e))
+pub fn db_close_all_sessions(db: tauri::State<DbState>, project_id: String) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(close_all_for_project(&conn, &project_id)?)
 }
 
 #[tauri::command]
 pub fn db_list_sessions(
     db: tauri::State<DbState>,
     project_id: String,
-) -> Result<Vec<TerminalSession>, String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    list_active(&conn, &project_id).map_err(|e| format!("DB error: {}", e))
+) -> Result<Vec<TerminalSession>, KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(list_active(&conn, &project_id)?)
 }
 
 #[tauri::command]
-pub fn db_save_session(db: tauri::State<DbState>, session: NewSession) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    save(&conn, &session).map_err(|e| format!("DB error: {}", e))
+pub fn db_save_session(db: tauri::State<DbState>, session: NewSession) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(save(&conn, &session)?)
 }
 
 #[tauri::command]
-pub fn db_close_session(db: tauri::State<DbState>, id: String) -> Result<(), String> {
-    let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
-    close(&conn, &id).map_err(|e| format!("DB error: {}", e))
+pub fn db_close_session(db: tauri::State<DbState>, id: String) -> Result<(), KodiqError> {
+    let conn = db.connection.lock()?;
+    Ok(close(&conn, &id)?)
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────
