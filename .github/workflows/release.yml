@@ -88,38 +88,45 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
         run: |
-          gh release upload "${{ github.ref_name }}" \
+          gh release upload "$TAG" \
             src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz \
-            --repo "${{ github.repository }}" --clobber || true
+            --repo "$REPO" --clobber || true
 
       - name: Upload updater bundle to release (Windows)
         if: matrix.platform == 'windows-latest'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
         shell: bash
         run: |
-          gh release upload "${{ github.ref_name }}" \
+          gh release upload "$TAG" \
             src-tauri/target/release/bundle/nsis/*.nsis.zip \
-            --repo "${{ github.repository }}" --clobber || true
+            --repo "$REPO" --clobber || true
 
   updater:
     needs: release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
 
       - name: Download updater bundles and sign
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
         run: |
-          TAG="${{ github.ref_name }}"
-          REPO="${{ github.repository }}"
           VER="${TAG#v}"
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
