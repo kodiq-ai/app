@@ -83,23 +83,7 @@ jobs:
           tauriScript: pnpm tauri
           args: ${{ matrix.args }}
 
-      # Upload .sig files as CI artifacts for the updater job
-      - name: Upload updater signatures (macOS)
-        if: matrix.platform == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: sig-${{ matrix.target }}
-          path: src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.sig
-          if-no-files-found: warn
-
-      - name: Upload updater signatures (Linux)
-        if: matrix.platform == 'ubuntu-22.04'
-        uses: actions/upload-artifact@v4
-        with:
-          name: sig-${{ matrix.target }}
-          path: src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig
-          if-no-files-found: warn
-
+      # Upload updater bundles that tauri-action doesn't upload
       - name: Upload updater bundle to release (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         env:
@@ -108,16 +92,6 @@ jobs:
           gh release upload "${{ github.ref_name }}" \
             src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz \
             --repo "${{ github.repository }}" --clobber || true
-
-      - name: Upload updater signatures (Windows)
-        if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: sig-${{ matrix.target }}
-          path: |
-            src-tauri/target/release/bundle/nsis/*.nsis.zip.sig
-            src-tauri/target/release/bundle/msi/*.msi.zip.sig
-          if-no-files-found: warn
 
       - name: Upload updater bundle to release (Windows)
         if: matrix.platform == 'windows-latest'
@@ -133,51 +107,86 @@ jobs:
     needs: release
     runs-on: ubuntu-latest
     steps:
-      - name: Download all signature artifacts
-        uses: actions/download-artifact@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          pattern: sig-*
-          path: sigs
-          merge-multiple: false
+          node-version: 22
 
-      - name: List downloaded signatures
-        run: find sigs -type f | sort
-
-      - name: Build and upload latest.json
+      - name: Download updater bundles and sign
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
           TAG="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
+          VER="${TAG#v}"
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
-          VER="${TAG#v}"
 
-          read_sig() { if [ -f "$1" ]; then cat "$1"; else echo ""; fi; }
+          mkdir -p bundles
 
-          MACOS_ARM_SIG=$(find sigs/sig-aarch64-apple-darwin -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
-          MACOS_X64_SIG=$(find sigs/sig-x86_64-apple-darwin -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
-          LINUX_SIG=$(find sigs/sig-x86_64-unknown-linux-gnu -name "*.AppImage.tar.gz.sig" 2>/dev/null | head -1)
-          WIN_SIG=$(find sigs/sig-x86_64-pc-windows-msvc -name "*.nsis.zip.sig" 2>/dev/null | head -1)
-          [ -z "$WIN_SIG" ] && WIN_SIG=$(find sigs/sig-x86_64-pc-windows-msvc -name "*.msi.zip.sig" 2>/dev/null | head -1)
+          # Download all updater bundles from release
+          echo "Downloading updater bundles..."
+          gh release download "$TAG" --repo "$REPO" -D bundles \
+            -p "Kodiq_aarch64.app.tar.gz" \
+            -p "Kodiq_x64.app.tar.gz" \
+            -p "Kodiq_${VER}_amd64.AppImage.tar.gz" \
+            -p "Kodiq_${VER}_x64-setup.nsis.zip" || true
 
-          echo "Sigs found:"
-          echo "  macOS arm64: $MACOS_ARM_SIG"
-          echo "  macOS x64:   $MACOS_X64_SIG"
-          echo "  Linux:       $LINUX_SIG"
-          echo "  Windows:     $WIN_SIG"
+          ls -la bundles/
 
+          # Sign each bundle using tauri CLI
+          sign_bundle() {
+            local file="$1"
+            if [ -f "$file" ]; then
+              pnpm dlx @tauri-apps/cli signer sign "$file" \
+                -k "$TAURI_SIGNING_PRIVATE_KEY" \
+                -p "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" 2>&1 || true
+              if [ -f "${file}.sig" ]; then
+                echo "✅ Signed: $(basename "$file")"
+              else
+                echo "❌ Failed to sign: $(basename "$file")"
+              fi
+            else
+              echo "⚠️  Bundle not found: $(basename "$file")"
+            fi
+          }
+
+          sign_bundle "bundles/Kodiq_aarch64.app.tar.gz"
+          sign_bundle "bundles/Kodiq_x64.app.tar.gz"
+          sign_bundle "bundles/Kodiq_${VER}_amd64.AppImage.tar.gz"
+          sign_bundle "bundles/Kodiq_${VER}_x64-setup.nsis.zip"
+
+          # Read signatures
+          read_sig() {
+            if [ -f "$1" ]; then cat "$1"; else echo ""; fi
+          }
+
+          MAC_ARM_SIG=$(read_sig "bundles/Kodiq_aarch64.app.tar.gz.sig")
+          MAC_X64_SIG=$(read_sig "bundles/Kodiq_x64.app.tar.gz.sig")
+          LINUX_SIG=$(read_sig "bundles/Kodiq_${VER}_amd64.AppImage.tar.gz.sig")
+          WIN_SIG=$(read_sig "bundles/Kodiq_${VER}_x64-setup.nsis.zip.sig")
+
+          echo ""
+          echo "Signatures:"
+          echo "  macOS arm64: ${MAC_ARM_SIG:0:30}..."
+          echo "  macOS x64:   ${MAC_X64_SIG:0:30}..."
+          echo "  Linux:       ${LINUX_SIG:0:30}..."
+          echo "  Windows:     ${WIN_SIG:0:30}..."
+
+          # Build latest.json
           jq -n \
             --arg ver "$TAG" \
             --arg notes "See the changelog for details." \
             --arg date "$DATE" \
-            --arg mac_arm_sig "$(read_sig "$MACOS_ARM_SIG")" \
+            --arg mac_arm_sig "$MAC_ARM_SIG" \
             --arg mac_arm_url "${BASE_URL}/Kodiq_aarch64.app.tar.gz" \
-            --arg mac_x64_sig "$(read_sig "$MACOS_X64_SIG")" \
+            --arg mac_x64_sig "$MAC_X64_SIG" \
             --arg mac_x64_url "${BASE_URL}/Kodiq_x64.app.tar.gz" \
-            --arg linux_sig "$(read_sig "$LINUX_SIG")" \
+            --arg linux_sig "$LINUX_SIG" \
             --arg linux_url "${BASE_URL}/Kodiq_${VER}_amd64.AppImage.tar.gz" \
-            --arg win_sig "$(read_sig "$WIN_SIG")" \
+            --arg win_sig "$WIN_SIG" \
             --arg win_url "${BASE_URL}/Kodiq_${VER}_x64-setup.nsis.zip" \
             '{
               version: $ver,
@@ -191,8 +200,12 @@ jobs:
               }
             }' > latest.json
 
+          echo ""
           echo "Generated latest.json:"
           cat latest.json
 
+          # Upload
           gh release upload "$TAG" latest.json --repo "$REPO" --clobber
+          echo ""
           echo "✅ latest.json uploaded to release $TAG"
+
