@@ -83,47 +83,73 @@ jobs:
           tauriScript: pnpm tauri
           args: ${{ matrix.args }}
 
-      # Upload updater bundles that tauri-action doesn't upload
-      - name: Upload updater bundle to release (Linux)
-        if: matrix.platform == 'ubuntu-22.04'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-          REPO: ${{ github.repository }}
+      # Collect updater bundles (.tar.gz/.nsis.zip + .sig) as artifacts
+      - name: Collect updater artifacts (macOS)
+        if: matrix.platform == 'macos-latest'
         run: |
-          gh release upload "$TAG" \
-            src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz \
-            --repo "$REPO" --clobber || true
+          mkdir -p updater-artifacts
+          find src-tauri/target -name "*.app.tar.gz" -exec cp {} updater-artifacts/ \;
+          find src-tauri/target -name "*.app.tar.gz.sig" -exec cp {} updater-artifacts/ \;
+          echo "Collected updater artifacts:"
+          ls -la updater-artifacts/
 
-      - name: Upload updater bundle to release (Windows)
+      - name: Collect updater artifacts (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          mkdir -p updater-artifacts
+          find src-tauri/target -name "*.AppImage.tar.gz" -exec cp {} updater-artifacts/ \;
+          find src-tauri/target -name "*.AppImage.tar.gz.sig" -exec cp {} updater-artifacts/ \;
+          echo "Collected updater artifacts:"
+          ls -la updater-artifacts/
+
+      - name: Collect updater artifacts (Windows)
         if: matrix.platform == 'windows-latest'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-          REPO: ${{ github.repository }}
         shell: bash
         run: |
-          gh release upload "$TAG" \
-            src-tauri/target/release/bundle/nsis/*.nsis.zip \
-            --repo "$REPO" --clobber || true
+          mkdir -p updater-artifacts
+          find src-tauri/target -name "*.nsis.zip" -exec cp {} updater-artifacts/ \;
+          find src-tauri/target -name "*.nsis.zip.sig" -exec cp {} updater-artifacts/ \;
+          echo "Collected updater artifacts:"
+          ls -la updater-artifacts/
+
+      - name: Upload updater artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: updater-${{ matrix.target }}
+          path: updater-artifacts/*
+          if-no-files-found: warn
+          retention-days: 1
 
   updater:
     needs: release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - name: Download all updater artifacts
+        uses: actions/download-artifact@v4
         with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          pattern: updater-*
+          merge-multiple: true
+          path: bundles
 
-      - name: Download updater bundles and sign
+      - name: List downloaded bundles
+        run: ls -la bundles/
+
+      - name: Upload updater bundles to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Upload .tar.gz and .nsis.zip bundles to the release
+          for f in bundles/*.tar.gz bundles/*.nsis.zip; do
+            if [ -f "$f" ]; then
+              echo "Uploading $(basename "$f")..."
+              gh release upload "$TAG" "$f" --repo "$REPO" --clobber || true
+            fi
+          done
+
+      - name: Generate latest.json
+        env:
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
         run: |
@@ -131,70 +157,47 @@ jobs:
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
 
-          mkdir -p bundles
-
-          # Download all updater bundles from release
-          echo "Downloading updater bundles..."
-          gh release download "$TAG" --repo "$REPO" -D bundles \
-            -p "Kodiq_aarch64.app.tar.gz" \
-            -p "Kodiq_x64.app.tar.gz" \
-            -p "Kodiq_${VER}_amd64.AppImage.tar.gz" \
-            -p "Kodiq_${VER}_x64-setup.nsis.zip" || true
-
-          ls -la bundles/
-
-          # Sign each bundle using tauri CLI
-          sign_bundle() {
-            local file="$1"
-            if [ -f "$file" ]; then
-              pnpm dlx @tauri-apps/cli signer sign "$file" \
-                -k "$TAURI_SIGNING_PRIVATE_KEY" \
-                -p "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" 2>&1 || true
-              if [ -f "${file}.sig" ]; then
-                echo "✅ Signed: $(basename "$file")"
-              else
-                echo "❌ Failed to sign: $(basename "$file")"
-              fi
-            else
-              echo "⚠️  Bundle not found: $(basename "$file")"
-            fi
-          }
-
-          sign_bundle "bundles/Kodiq_aarch64.app.tar.gz"
-          sign_bundle "bundles/Kodiq_x64.app.tar.gz"
-          sign_bundle "bundles/Kodiq_${VER}_amd64.AppImage.tar.gz"
-          sign_bundle "bundles/Kodiq_${VER}_x64-setup.nsis.zip"
-
-          # Read signatures
+          # Read signature files generated by tauri build
           read_sig() {
             if [ -f "$1" ]; then cat "$1"; else echo ""; fi
           }
 
-          MAC_ARM_SIG=$(read_sig "bundles/Kodiq_aarch64.app.tar.gz.sig")
-          MAC_X64_SIG=$(read_sig "bundles/Kodiq_x64.app.tar.gz.sig")
-          LINUX_SIG=$(read_sig "bundles/Kodiq_${VER}_amd64.AppImage.tar.gz.sig")
-          WIN_SIG=$(read_sig "bundles/Kodiq_${VER}_x64-setup.nsis.zip.sig")
+          # Find sig files dynamically (handles case-insensitive names)
+          MAC_ARM_SIG=$(read_sig "$(find bundles -iname '*aarch64*.app.tar.gz.sig' -print -quit)")
+          MAC_X64_SIG=$(read_sig "$(find bundles -iname '*x64*.app.tar.gz.sig' -print -quit)")
+          LINUX_SIG=$(read_sig "$(find bundles -iname '*.AppImage.tar.gz.sig' -print -quit)")
+          WIN_SIG=$(read_sig "$(find bundles -iname '*.nsis.zip.sig' -print -quit)")
 
-          echo ""
+          # Find bundle filenames for URLs
+          MAC_ARM_FILE=$(find bundles -iname '*aarch64*.app.tar.gz' ! -name '*.sig' -printf '%f\n' -quit)
+          MAC_X64_FILE=$(find bundles -iname '*x64*.app.tar.gz' ! -name '*.sig' -printf '%f\n' -quit)
+          LINUX_FILE=$(find bundles -iname '*.AppImage.tar.gz' ! -name '*.sig' -printf '%f\n' -quit)
+          WIN_FILE=$(find bundles -iname '*.nsis.zip' ! -name '*.sig' -printf '%f\n' -quit)
+
           echo "Signatures:"
           echo "  macOS arm64: ${MAC_ARM_SIG:0:30}..."
           echo "  macOS x64:   ${MAC_X64_SIG:0:30}..."
           echo "  Linux:       ${LINUX_SIG:0:30}..."
           echo "  Windows:     ${WIN_SIG:0:30}..."
+          echo ""
+          echo "Files:"
+          echo "  macOS arm64: ${MAC_ARM_FILE}"
+          echo "  macOS x64:   ${MAC_X64_FILE}"
+          echo "  Linux:       ${LINUX_FILE}"
+          echo "  Windows:     ${WIN_FILE}"
 
-          # Build latest.json
           jq -n \
             --arg ver "$TAG" \
             --arg notes "See the changelog for details." \
             --arg date "$DATE" \
             --arg mac_arm_sig "$MAC_ARM_SIG" \
-            --arg mac_arm_url "${BASE_URL}/Kodiq_aarch64.app.tar.gz" \
+            --arg mac_arm_url "${BASE_URL}/${MAC_ARM_FILE}" \
             --arg mac_x64_sig "$MAC_X64_SIG" \
-            --arg mac_x64_url "${BASE_URL}/Kodiq_x64.app.tar.gz" \
+            --arg mac_x64_url "${BASE_URL}/${MAC_X64_FILE}" \
             --arg linux_sig "$LINUX_SIG" \
-            --arg linux_url "${BASE_URL}/Kodiq_${VER}_amd64.AppImage.tar.gz" \
+            --arg linux_url "${BASE_URL}/${LINUX_FILE}" \
             --arg win_sig "$WIN_SIG" \
-            --arg win_url "${BASE_URL}/Kodiq_${VER}_x64-setup.nsis.zip" \
+            --arg win_url "${BASE_URL}/${WIN_FILE}" \
             '{
               version: $ver,
               notes: $notes,
@@ -211,8 +214,11 @@ jobs:
           echo "Generated latest.json:"
           cat latest.json
 
-          # Upload
+      - name: Upload latest.json to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
           gh release upload "$TAG" latest.json --repo "$REPO" --clobber
-          echo ""
           echo "✅ latest.json uploaded to release $TAG"
-
