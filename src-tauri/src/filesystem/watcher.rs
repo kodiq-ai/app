@@ -3,8 +3,8 @@ use notify::RecursiveMode;
 use notify_debouncer_mini::{new_debouncer, DebouncedEvent, Debouncer};
 use std::path::PathBuf;
 use std::sync::Mutex;
-use tauri::Emitter;
 use std::time::Duration;
+use tauri::Emitter;
 
 // ── State ────────────────────────────────────────────────────────────
 
@@ -16,9 +16,7 @@ pub struct WatcherState {
 
 impl WatcherState {
     pub fn new() -> Self {
-        Self {
-            debouncer: Mutex::new(None),
-        }
+        Self { debouncer: Mutex::new(None) }
     }
 }
 
@@ -62,11 +60,7 @@ fn is_git_event(path: &std::path::Path) -> bool {
 
 // ── Core logic ───────────────────────────────────────────────────────
 
-fn start(
-    app: tauri::AppHandle,
-    root: &str,
-    state: &WatcherState,
-) -> Result<(), KodiqError> {
+fn start(app: tauri::AppHandle, root: &str, state: &WatcherState) -> Result<(), KodiqError> {
     let root_path = PathBuf::from(root);
     let root_clone = root_path.clone();
 
@@ -108,8 +102,7 @@ fn start(
 
     // Start watching the project root recursively
     if let Some(ref mut d) = *guard {
-        d.watcher()
-            .watch(root_path.as_ref(), RecursiveMode::Recursive)?;
+        d.watcher().watch(root_path.as_ref(), RecursiveMode::Recursive)?;
     }
 
     tracing::info!("File watcher started for: {}", root);

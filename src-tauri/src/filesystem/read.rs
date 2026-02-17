@@ -13,9 +13,7 @@ pub fn read_dir(path: String) -> Result<Vec<serde_json::Value>, KodiqError> {
 
     let mut entries: Vec<serde_json::Value> = Vec::new();
 
-    let mut items: Vec<_> = std::fs::read_dir(dir)?
-        .filter_map(|e| e.ok())
-        .collect();
+    let mut items: Vec<_> = std::fs::read_dir(dir)?.filter_map(|e| e.ok()).collect();
 
     // Sort: directories first, then by name
     items.sort_by(|a, b| {

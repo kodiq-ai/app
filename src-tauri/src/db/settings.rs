@@ -41,19 +41,28 @@ use rusqlite::OptionalExtension;
 // ── Tauri Commands ───────────────────────────────────────────────────
 
 #[tauri::command]
-pub fn db_get_setting(db: tauri::State<DbState>, key: String) -> Result<Option<String>, KodiqError> {
+pub fn db_get_setting(
+    db: tauri::State<DbState>,
+    key: String,
+) -> Result<Option<String>, KodiqError> {
     let conn = db.connection.lock()?;
     Ok(get(&conn, &key)?)
 }
 
 #[tauri::command]
-pub fn db_set_setting(db: tauri::State<DbState>, key: String, value: String) -> Result<(), KodiqError> {
+pub fn db_set_setting(
+    db: tauri::State<DbState>,
+    key: String,
+    value: String,
+) -> Result<(), KodiqError> {
     let conn = db.connection.lock()?;
     Ok(set(&conn, &key, &value)?)
 }
 
 #[tauri::command]
-pub fn db_get_all_settings(db: tauri::State<DbState>) -> Result<HashMap<String, String>, KodiqError> {
+pub fn db_get_all_settings(
+    db: tauri::State<DbState>,
+) -> Result<HashMap<String, String>, KodiqError> {
     let conn = db.connection.lock()?;
     Ok(get_all(&conn)?)
 }

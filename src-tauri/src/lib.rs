@@ -26,16 +26,13 @@ pub fn run() {
     // Tracing — structured logging + Sentry integration
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer())
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| {
-                    if cfg!(debug_assertions) {
-                        "debug".into()
-                    } else {
-                        "info".into()
-                    }
-                }),
-        )
+        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+            if cfg!(debug_assertions) {
+                "debug".into()
+            } else {
+                "info".into()
+            }
+        }))
         .with(sentry::integrations::tracing::layer())
         .init();
 
@@ -52,8 +49,7 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             #[cfg(desktop)]
-            app.handle()
-                .plugin(tauri_plugin_updater::Builder::new().build())?;
+            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             app.handle().plugin(tauri_plugin_process::init())?;
             Ok(())
         })

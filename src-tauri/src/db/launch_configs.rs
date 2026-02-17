@@ -37,16 +37,16 @@ pub struct UpdateLaunchConfig {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 fn now() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64
 }
 
 // ── CRUD ─────────────────────────────────────────────────────────────────────
 
 /// List launch configs: global (project_id IS NULL) + project-specific.
-pub fn list(conn: &Connection, project_id: Option<&str>) -> Result<Vec<LaunchConfig>, rusqlite::Error> {
+pub fn list(
+    conn: &Connection,
+    project_id: Option<&str>,
+) -> Result<Vec<LaunchConfig>, rusqlite::Error> {
     let mut stmt = conn.prepare(
         "SELECT id, cli_name, profile_name, config, is_default, project_id, created_at, updated_at
          FROM cli_profiles
@@ -93,7 +93,11 @@ pub fn create(conn: &Connection, cfg: NewLaunchConfig) -> Result<LaunchConfig, r
     })
 }
 
-pub fn update(conn: &Connection, id: &str, patch: UpdateLaunchConfig) -> Result<(), rusqlite::Error> {
+pub fn update(
+    conn: &Connection,
+    id: &str,
+    patch: UpdateLaunchConfig,
+) -> Result<(), rusqlite::Error> {
     let ts = now();
     let mut sets = vec!["updated_at = ?1".to_string()];
     let mut params: Vec<Box<dyn rusqlite::types::ToSql>> = vec![Box::new(ts)];
@@ -116,26 +120,17 @@ pub fn update(conn: &Connection, id: &str, patch: UpdateLaunchConfig) -> Result<
     }
     let _ = idx;
 
-    let sql = format!(
-        "UPDATE cli_profiles SET {} WHERE id = ?{}",
-        sets.join(", "),
-        params.len() + 1
-    );
+    let sql =
+        format!("UPDATE cli_profiles SET {} WHERE id = ?{}", sets.join(", "), params.len() + 1);
     params.push(Box::new(id.to_string()));
 
-    conn.execute(
-        &sql,
-        rusqlite::params_from_iter(params.iter().map(|p| p.as_ref())),
-    )?;
+    conn.execute(&sql, rusqlite::params_from_iter(params.iter().map(|p| p.as_ref())))?;
 
     Ok(())
 }
 
 pub fn delete(conn: &Connection, id: &str) -> Result<(), rusqlite::Error> {
-    conn.execute(
-        "DELETE FROM cli_profiles WHERE id = ?1",
-        rusqlite::params![id],
-    )?;
+    conn.execute("DELETE FROM cli_profiles WHERE id = ?1", rusqlite::params![id])?;
     Ok(())
 }
 

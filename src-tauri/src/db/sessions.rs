@@ -102,7 +102,10 @@ pub fn close_all_for_project(
 // ── Tauri Commands ───────────────────────────────────────────────────
 
 #[tauri::command]
-pub fn db_close_all_sessions(db: tauri::State<DbState>, project_id: String) -> Result<(), KodiqError> {
+pub fn db_close_all_sessions(
+    db: tauri::State<DbState>,
+    project_id: String,
+) -> Result<(), KodiqError> {
     let conn = db.connection.lock()?;
     Ok(close_all_for_project(&conn, &project_id)?)
 }
