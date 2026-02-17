@@ -1,6 +1,94 @@
 use std::collections::{HashMap, HashSet};
+use std::process::Command;
 
 use crate::error::KodiqError;
+
+// ── Git helpers ──────────────────────────────────────────────────────────────
+
+/// Run a git command in the given directory, return stdout on success
+fn git_run(path: &str, args: &[&str]) -> Result<String, KodiqError> {
+    let output = Command::new("git")
+        .args(args)
+        .current_dir(path)
+        .output()
+        .map_err(|e| KodiqError::Other(format!("Failed to run git: {}", e)))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        return Err(KodiqError::Other(format!("git error: {}", stderr)));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+/// Run a git command, return None on failure instead of error
+fn git_try(path: &str, args: &[&str]) -> Option<String> {
+    Command::new("git")
+        .args(args)
+        .current_dir(path)
+        .output()
+        .ok()
+        .filter(|o| o.status.success())
+        .and_then(|o| String::from_utf8(o.stdout).ok())
+        .map(|s| s.trim().to_string())
+}
+
+// ── Stage / Unstage ──────────────────────────────────────────────────────────
+
+#[tauri::command]
+pub fn git_stage(path: String, files: Vec<String>) -> Result<(), KodiqError> {
+    if files.is_empty() {
+        return Ok(());
+    }
+    let mut args = vec!["add", "--"];
+    let refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
+    args.extend(refs);
+    git_run(&path, &args)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn git_unstage(path: String, files: Vec<String>) -> Result<(), KodiqError> {
+    if files.is_empty() {
+        return Ok(());
+    }
+    let mut args = vec!["reset", "HEAD", "--"];
+    let refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
+    args.extend(refs);
+    git_run(&path, &args)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn git_stage_all(path: String) -> Result<(), KodiqError> {
+    git_run(&path, &["add", "-A"])?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn git_unstage_all(path: String) -> Result<(), KodiqError> {
+    git_run(&path, &["reset", "HEAD"])?;
+    Ok(())
+}
+
+// ── Commit ───────────────────────────────────────────────────────────────────
+
+#[tauri::command]
+pub fn git_commit(path: String, message: String) -> Result<serde_json::Value, KodiqError> {
+    if message.trim().is_empty() {
+        return Err(KodiqError::Other("Commit message cannot be empty".into()));
+    }
+    git_run(&path, &["commit", "-m", &message])?;
+    let hash = git_try(&path, &["rev-parse", "--short", "HEAD"]).unwrap_or_default();
+    Ok(serde_json::json!({ "hash": hash, "message": message }))
+}
+
+// ── Diff ─────────────────────────────────────────────────────────────────────
+
+#[tauri::command]
+pub fn git_diff(path: String, file: String, staged: bool) -> Result<String, KodiqError> {
+    let args =
+        if staged { vec!["diff", "--cached", "--", &file] } else { vec!["diff", "--", &file] };
+    git_run(&path, &args)
+}
 
 /// Get project statistics: file counts by extension, total size, detected stack
 #[tauri::command]
@@ -129,55 +217,84 @@ pub fn get_project_stats(path: String) -> Result<serde_json::Value, KodiqError> 
     }))
 }
 
-/// Get git info for a project: branch, status, changed files
+/// Classify a single porcelain status character into a kind string
+fn status_kind(ch: char) -> &'static str {
+    match ch {
+        'M' => "modified",
+        'A' => "added",
+        'D' => "deleted",
+        'R' => "renamed",
+        'C' => "copied",
+        '?' => "untracked",
+        _ => "other",
+    }
+}
+
+/// Get git info for a project: branch, status, staged/unstaged files
 #[tracing::instrument]
 #[tauri::command]
 pub fn get_git_info(path: String) -> Result<serde_json::Value, KodiqError> {
-    use std::process::Command;
-
-    let run = |args: &[&str]| -> Option<String> {
-        Command::new("git")
-            .args(args)
-            .current_dir(&path)
-            .output()
-            .ok()
-            .filter(|o| o.status.success())
-            .and_then(|o| String::from_utf8(o.stdout).ok())
-            .map(|s| s.trim().to_string())
-    };
-
-    let is_git = run(&["rev-parse", "--is-inside-work-tree"]).map(|s| s == "true").unwrap_or(false);
+    let is_git = git_try(&path, &["rev-parse", "--is-inside-work-tree"])
+        .map(|s| s == "true")
+        .unwrap_or(false);
     if !is_git {
         return Ok(serde_json::json!({ "isGit": false }));
     }
 
-    let branch = run(&["branch", "--show-current"]).unwrap_or_default();
-    let commit_hash = run(&["rev-parse", "--short", "HEAD"]).unwrap_or_default();
-    let commit_message = run(&["log", "-1", "--pretty=%s"]).unwrap_or_default();
-    let commit_time = run(&["log", "-1", "--pretty=%cr"]).unwrap_or_default();
+    let branch = git_try(&path, &["branch", "--show-current"]).unwrap_or_default();
+    let commit_hash = git_try(&path, &["rev-parse", "--short", "HEAD"]).unwrap_or_default();
+    let commit_message = git_try(&path, &["log", "-1", "--pretty=%s"]).unwrap_or_default();
+    let commit_time = git_try(&path, &["log", "-1", "--pretty=%cr"]).unwrap_or_default();
 
-    let status_raw = run(&["status", "--porcelain"]).unwrap_or_default();
-    let changed_files: Vec<serde_json::Value> = status_raw
-        .lines()
-        .filter(|l| !l.is_empty())
-        .take(50)
-        .map(|line| {
-            let status = line.get(0..2).unwrap_or("??").trim().to_string();
-            let file = line.get(3..).unwrap_or("").to_string();
-            let kind = match status.as_str() {
-                "M" | " M" | "MM" => "modified",
-                "A" | " A" => "added",
-                "D" | " D" => "deleted",
-                "R" | " R" => "renamed",
-                "??" => "untracked",
-                _ => "other",
-            };
-            serde_json::json!({ "file": file, "status": status, "kind": kind })
-        })
-        .collect();
+    // Parse porcelain XY: X = index (staged), Y = worktree (unstaged)
+    let status_raw = git_try(&path, &["status", "--porcelain"]).unwrap_or_default();
+    let mut staged_files: Vec<serde_json::Value> = Vec::new();
+    let mut unstaged_files: Vec<serde_json::Value> = Vec::new();
+
+    // Keep legacy changedFiles for ProjectOverview compatibility
+    let mut changed_files: Vec<serde_json::Value> = Vec::new();
+
+    for line in status_raw.lines().filter(|l| l.len() >= 3) {
+        let bytes = line.as_bytes();
+        let x = bytes[0] as char; // index status
+        let y = bytes[1] as char; // worktree status
+        let file = line[3..].to_string();
+
+        // Untracked files: shown only in unstaged
+        if x == '?' && y == '?' {
+            unstaged_files.push(serde_json::json!({
+                "file": file, "kind": "untracked"
+            }));
+            changed_files.push(serde_json::json!({
+                "file": file, "status": "??", "kind": "untracked"
+            }));
+            continue;
+        }
+
+        // Staged: X is not ' ' and not '?'
+        if x != ' ' && x != '?' {
+            staged_files.push(serde_json::json!({
+                "file": file, "kind": status_kind(x)
+            }));
+        }
+
+        // Unstaged: Y is not ' ' and not '?'
+        if y != ' ' && y != '?' {
+            unstaged_files.push(serde_json::json!({
+                "file": file, "kind": status_kind(y)
+            }));
+        }
+
+        // Legacy: use first non-space status for ProjectOverview
+        let kind = if x != ' ' && x != '?' { status_kind(x) } else { status_kind(y) };
+        changed_files.push(serde_json::json!({
+            "file": file, "status": format!("{}{}", x, y), "kind": kind
+        }));
+    }
 
     let ahead_behind =
-        run(&["rev-list", "--left-right", "--count", "HEAD...@{upstream}"]).unwrap_or_default();
+        git_try(&path, &["rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
+            .unwrap_or_default();
     let (ahead, behind) = {
         let parts: Vec<&str> = ahead_behind.split('\t').collect();
         (
@@ -194,6 +311,10 @@ pub fn get_git_info(path: String) -> Result<serde_json::Value, KodiqError> {
         "commitTime": commit_time,
         "changedFiles": changed_files,
         "changedCount": changed_files.len(),
+        "stagedFiles": staged_files,
+        "stagedCount": staged_files.len(),
+        "unstagedFiles": unstaged_files,
+        "unstagedCount": unstaged_files.len(),
         "ahead": ahead,
         "behind": behind,
     }))

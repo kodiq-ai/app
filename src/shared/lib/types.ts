@@ -51,17 +51,31 @@ export interface FileEntry {
 }
 
 // ── Git ──────────────────────────────────────────────────
+export interface ChangedFile {
+  file: string;
+  status: string;
+  kind: string;
+}
+
+export interface StagedFile {
+  file: string;
+  kind: string;
+}
+
 export interface GitInfo {
-  branch: string | null;
-  commit_hash: string | null;
-  commit_message: string | null;
-  is_dirty: boolean;
-  ahead: number;
-  behind: number;
-  modified: string[];
-  added: string[];
-  deleted: string[];
-  untracked: string[];
+  isGit: boolean;
+  branch?: string;
+  commitHash?: string;
+  commitMessage?: string;
+  commitTime?: string;
+  changedFiles?: ChangedFile[];
+  changedCount?: number;
+  stagedFiles?: StagedFile[];
+  stagedCount?: number;
+  unstagedFiles?: StagedFile[];
+  unstagedCount?: number;
+  ahead?: number;
+  behind?: number;
 }
 
 export interface ProjectStats {
@@ -189,7 +203,7 @@ export interface SavedTab {
 
 // ── UI Types ─────────────────────────────────────────────
 export type Viewport = "desktop" | "tablet" | "mobile";
-export type SidebarTab = "files" | "project" | "activity";
+export type SidebarTab = "files" | "project" | "activity" | "git";
 
 // ── Update ───────────────────────────────────────────────
 export interface UpdateInfo {

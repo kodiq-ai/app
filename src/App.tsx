@@ -141,13 +141,9 @@ export default function App() {
     useAppStore.getState().clearActivity();
     invoke<GitInfo>("get_git_info", { path })
       .then((info) => {
-        const files = [
-          ...(info.modified || []),
-          ...(info.added || []),
-          ...(info.deleted || []),
-          ...(info.untracked || []),
-        ];
+        const files = (info.changedFiles ?? []).map((f) => f.file);
         useAppStore.getState().setSessionStartFiles(files);
+        useAppStore.getState().setGitInfo(info);
       })
       .catch(() => {});
 

@@ -67,6 +67,12 @@ pub fn run() {
             // Git
             git::info::get_git_info,
             git::info::get_project_stats,
+            git::info::git_stage,
+            git::info::git_unstage,
+            git::info::git_stage_all,
+            git::info::git_unstage_all,
+            git::info::git_commit,
+            git::info::git_diff,
             // CLI
             cli::detect::detect_cli_tools,
             cli::detect::detect_default_shell,

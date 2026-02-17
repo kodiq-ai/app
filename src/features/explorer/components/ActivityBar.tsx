@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
-import { FolderOpen, BarChart3, ClipboardList } from "lucide-react";
+import { FolderOpen, BarChart3, ClipboardList, GitBranch } from "lucide-react";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TreeItem } from "@/components/TreeItem";
 import { ProjectOverview } from "@/components/ProjectOverview";
 import { ActivityPanel } from "@features/activity/components/ActivityPanel";
+import { GitPanel } from "@features/git/components/GitPanel";
 import { Loader } from "@/components/Loader";
 import { t } from "@/lib/i18n";
 
@@ -95,6 +96,7 @@ export function ActivityBar() {
             {sidebarTab === "files" && projectName}
             {sidebarTab === "activity" && t("activityLog")}
             {sidebarTab === "project" && t("projectInfo")}
+            {sidebarTab === "git" && t("gitSourceControl")}
           </span>
         </div>
 
@@ -117,6 +119,7 @@ export function ActivityBar() {
           )}
           {sidebarTab === "activity" && <ActivityPanel />}
           {sidebarTab === "project" && <ProjectOverview />}
+          {sidebarTab === "git" && <GitPanel />}
         </div>
       </div>
 
@@ -127,6 +130,12 @@ export function ActivityBar() {
           label={t("files")}
           active={sidebarOpen && sidebarTab === "files"}
           onClick={() => handleIconClick("files")}
+        />
+        <ActivityIcon
+          icon={GitBranch}
+          label={t("gitSourceControl")}
+          active={sidebarOpen && sidebarTab === "git"}
+          onClick={() => handleIconClick("git")}
         />
         <ActivityIcon
           icon={BarChart3}
