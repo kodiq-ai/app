@@ -16,7 +16,11 @@ import { XtermPanel } from "@/components/XtermPanel";
 import { t } from "@/lib/i18n";
 
 interface TabBarProps {
-  onSpawnTab: (command?: string, label?: string) => Promise<string | null>;
+  onSpawnTab: (
+    command?: string,
+    label?: string,
+    env?: Record<string, string>,
+  ) => Promise<string | null>;
   onCloseTab: (id: string) => void;
   onReopenTab: () => void;
 }

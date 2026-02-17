@@ -15,12 +15,19 @@ import type {
   NewHistoryEntry,
   Snippet,
   NewSnippet,
+  LaunchConfig,
+  NewLaunchConfig,
+  UpdateLaunchConfig,
 } from "./types";
 
 // ── Terminal ─────────────────────────────────────────────
 export const terminal = {
-  spawn: (opts: { command?: string | null; cwd?: string | null; shell?: string | null }) =>
-    invoke<string>("spawn_terminal", opts),
+  spawn: (opts: {
+    command?: string | null;
+    cwd?: string | null;
+    shell?: string | null;
+    env?: Record<string, string> | null;
+  }) => invoke<string>("spawn_terminal", opts),
   write: (id: string, data: string) => invoke<void>("write_to_pty", { id, data }),
   resize: (id: string, cols: number, rows: number) =>
     invoke<void>("resize_pty", { id, cols, rows }),
@@ -92,5 +99,16 @@ export const db = {
       invoke<Snippet[]>("db_list_snippets", { cliName: cliName ?? null }),
     create: (snippet: NewSnippet) => invoke<Snippet>("db_create_snippet", { snippet }),
     use: (id: string) => invoke<Snippet>("db_use_snippet", { id }),
+  },
+
+  // ── Database — Launch Configs ─────────────────────────────
+  launchConfigs: {
+    list: (projectId?: string | null) =>
+      invoke<LaunchConfig[]>("db_list_launch_configs", { projectId: projectId ?? null }),
+    create: (config: NewLaunchConfig) =>
+      invoke<LaunchConfig>("db_create_launch_config", { config }),
+    update: (id: string, patch: UpdateLaunchConfig) =>
+      invoke<void>("db_update_launch_config", { id, patch }),
+    delete: (id: string) => invoke<void>("db_delete_launch_config", { id }),
   },
 };

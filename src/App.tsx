@@ -71,13 +71,14 @@ export default function App() {
   };
 
   const spawnTab = useCallback(
-    async (command?: string, label?: string) => {
+    async (command?: string, label?: string, env?: Record<string, string>) => {
       try {
         const { projectPath, projectId, settings, tabs: currentTabs } = useAppStore.getState();
         const id = await invoke<string>("spawn_terminal", {
           command: command || null,
           cwd: projectPath,
           shell: settings.shell || null,
+          env: env && Object.keys(env).length > 0 ? env : null,
         });
         const tabLabel = label || (command ? command : t("terminal"));
         addTab({ id, label: tabLabel, command: command || "shell" });
@@ -146,6 +147,31 @@ export default function App() {
         useAppStore.getState().setSessionStartFiles(files);
       })
       .catch(() => {});
+
+    // Auto-generate default launch configs for installed CLIs (first time only)
+    setTimeout(async () => {
+      try {
+        const proj = await db.projects.getOrCreate(name, path);
+        const existing = await db.launchConfigs.list(proj.id);
+        if (existing.length === 0) {
+          const installed = useAppStore.getState().cliTools.filter((t) => t.installed);
+          for (const tool of installed) {
+            await db.launchConfigs.create({
+              cli_name: tool.bin,
+              profile_name: tool.name,
+              config: JSON.stringify({ args: [], env: {}, cwd: null, shell: null }),
+              is_default: false,
+              project_id: null, // global so they appear in all projects
+            });
+          }
+          if (installed.length > 0) {
+            useAppStore.getState().loadLaunchConfigs(proj.id);
+          }
+        }
+      } catch (e) {
+        console.error("[Auto-config]", e);
+      }
+    }, 200);
 
     // Restore sessions from SQLite, fallback to localStorage, then default
     setTimeout(async () => {

@@ -6,11 +6,18 @@ pub struct Migration {
     pub sql: &'static str,
 }
 
-pub const MIGRATIONS: &[Migration] = &[Migration {
-    version: 1,
-    name: "initial_schema",
-    sql: include_str!("../../migrations/001_initial.sql"),
-}];
+pub const MIGRATIONS: &[Migration] = &[
+    Migration {
+        version: 1,
+        name: "initial_schema",
+        sql: include_str!("../../migrations/001_initial.sql"),
+    },
+    Migration {
+        version: 2,
+        name: "launch_configs_project_id",
+        sql: include_str!("../../migrations/002_launch_configs.sql"),
+    },
+];
 
 pub fn run_migrations(conn: &Connection) -> Result<(), String> {
     conn.execute_batch(
@@ -57,7 +64,7 @@ mod tests {
 
         let version: u32 =
             conn.query_row("SELECT MAX(version) FROM _migrations", [], |r| r.get(0)).unwrap();
-        assert_eq!(version, 1);
+        assert_eq!(version, 2);
     }
 
     #[test]
@@ -68,6 +75,6 @@ mod tests {
 
         let count: u32 =
             conn.query_row("SELECT COUNT(*) FROM _migrations", [], |r| r.get(0)).unwrap();
-        assert_eq!(count, 1);
+        assert_eq!(count, 2);
     }
 }

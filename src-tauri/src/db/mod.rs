@@ -1,4 +1,5 @@
 pub mod history;
+pub mod launch_configs;
 pub mod migrations;
 pub mod projects;
 pub mod sessions;

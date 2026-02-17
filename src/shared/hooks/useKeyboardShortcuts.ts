@@ -1,8 +1,13 @@
 import { useHotkeys } from "react-hotkeys-hook";
 import { useAppStore } from "@/lib/store";
+import type { LaunchConfigPayload } from "@shared/lib/types";
 
 interface ShortcutActions {
-  spawnTab: (command?: string, label?: string) => Promise<string | null>;
+  spawnTab: (
+    command?: string,
+    label?: string,
+    env?: Record<string, string>,
+  ) => Promise<string | null>;
   closeTab: (id: string) => void;
   reopenTab: () => void;
 }
@@ -93,6 +98,28 @@ export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: Shortcut
     (e) => {
       e.preventDefault();
       if (useAppStore.getState().projectPath) togglePreview();
+    },
+    { enableOnFormTags: true },
+  );
+
+  // ⌘⇧L — relaunch last used config
+  useHotkeys(
+    "mod+shift+l",
+    (e) => {
+      e.preventDefault();
+      const { projectPath, lastLaunchConfigId, launchConfigs } = useAppStore.getState();
+      if (!projectPath || !lastLaunchConfigId) return;
+      const config = launchConfigs.find((c) => c.id === lastLaunchConfigId);
+      if (!config) return;
+      try {
+        const payload: LaunchConfigPayload = JSON.parse(config.config);
+        const parts = [config.cli_name, ...payload.args];
+        const command = parts.join(" ");
+        const env = Object.keys(payload.env).length > 0 ? payload.env : undefined;
+        spawnTab(command, config.profile_name, env);
+      } catch {
+        spawnTab(config.cli_name, config.profile_name);
+      }
     },
     { enableOnFormTags: true },
   );

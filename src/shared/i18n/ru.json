@@ -163,5 +163,27 @@
   "noActivityYet": "Пока нет активности",
   "refreshActivity": "Обновить",
   "commandRun": "Команда",
-  "fileChanged": "Файл изменён"
+  "fileChanged": "Файл изменён",
+
+  "launchConfigs": "Конфигурации",
+  "newLaunchConfig": "Новая конфигурация",
+  "editLaunchConfig": "Редактировать",
+  "deleteLaunchConfig": "Удалить конфигурацию",
+  "launchConfigName": "Название",
+  "launchConfigCli": "CLI инструмент",
+  "launchConfigArgs": "Аргументы",
+  "launchConfigArgsPlaceholder": "--flag1 --flag2 value",
+  "launchConfigEnv": "Переменные окружения",
+  "launchConfigEnvPlaceholder": "KEY=value (по одному на строку)",
+  "launchConfigCwd": "Рабочая директория",
+  "launchConfigDefault": "По умолчанию",
+  "launchConfigGlobal": "Глобальная (все проекты)",
+  "launchConfigProject": "Только для этого проекта",
+  "launchConfigCreated": "Конфигурация создана",
+  "launchConfigUpdated": "Конфигурация обновлена",
+  "launchConfigDeleted": "Конфигурация удалена",
+  "launchConfigSave": "Сохранить",
+  "launchConfigCancel": "Отмена",
+  "relaunchLast": "Повторить последний (⇧⌘L)",
+  "noLaunchConfigs": "Нет сохранённых конфигураций"
 }

@@ -1,6 +1,6 @@
 // ── Project Slice ────────────────────────────────────────────────────────────
 import type { StateCreator } from "zustand";
-import type { RecentProject, CliTool } from "@shared/lib/types";
+import type { RecentProject, CliTool, LaunchConfig, UpdateLaunchConfig } from "@shared/lib/types";
 import { db } from "@shared/lib/tauri";
 
 export interface ProjectSlice {
@@ -11,6 +11,8 @@ export interface ProjectSlice {
   defaultCli: string | null;
   recentProjects: RecentProject[];
   cliTools: CliTool[];
+  launchConfigs: LaunchConfig[];
+  lastLaunchConfigId: string | null;
 
   // Actions
   setProject: (path: string | null, name?: string) => void;
@@ -18,9 +20,15 @@ export interface ProjectSlice {
   addRecent: (project: RecentProject) => void;
   setRecentProjects: (projects: RecentProject[]) => void;
   setCliTools: (tools: CliTool[]) => void;
+  setLaunchConfigs: (configs: LaunchConfig[]) => void;
+  addLaunchConfig: (config: LaunchConfig) => void;
+  removeLaunchConfig: (id: string) => void;
+  updateLaunchConfigInStore: (id: string, patch: UpdateLaunchConfig) => void;
+  setLastLaunchConfigId: (id: string | null) => void;
 
   // DB hydration
   loadProjectFromDB: () => Promise<void>;
+  loadLaunchConfigs: (projectId?: string | null) => Promise<void>;
 }
 
 export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice> = (set) => ({
@@ -30,6 +38,8 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
   defaultCli: null,
   recentProjects: [],
   cliTools: [],
+  launchConfigs: [],
+  lastLaunchConfigId: null,
 
   setProject: (path, name) => {
     if (path) {
@@ -44,7 +54,13 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
         })
         .catch((e) => console.error("[DB] getOrCreate:", e));
     } else {
-      set({ projectPath: null, projectName: "", projectId: null, defaultCli: null });
+      set({
+        projectPath: null,
+        projectName: "",
+        projectId: null,
+        defaultCli: null,
+        launchConfigs: [],
+      });
       db.settings.set("lastProjectPath", "").catch((e) => console.error("[DB] setting:", e));
     }
   },
@@ -71,6 +87,34 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
   setRecentProjects: (recentProjects) => set({ recentProjects }),
   setCliTools: (cliTools) => set({ cliTools }),
 
+  // ── Launch Configs ──────────────────────────────────────────
+
+  setLaunchConfigs: (launchConfigs) => set({ launchConfigs }),
+
+  addLaunchConfig: (config) => set((s) => ({ launchConfigs: [...s.launchConfigs, config] })),
+
+  removeLaunchConfig: (id) =>
+    set((s) => ({
+      launchConfigs: s.launchConfigs.filter((c) => c.id !== id),
+      lastLaunchConfigId: s.lastLaunchConfigId === id ? null : s.lastLaunchConfigId,
+    })),
+
+  updateLaunchConfigInStore: (id, patch) =>
+    set((s) => ({
+      launchConfigs: s.launchConfigs.map((c) =>
+        c.id === id ? { ...c, ...patch, updated_at: Math.floor(Date.now() / 1000) } : c,
+      ),
+    })),
+
+  setLastLaunchConfigId: (lastLaunchConfigId) => {
+    set({ lastLaunchConfigId });
+    db.settings
+      .set("lastLaunchConfigId", lastLaunchConfigId || "")
+      .catch((e) => console.error("[DB] lastLaunchConfigId:", e));
+  },
+
+  // ── DB Hydration ────────────────────────────────────────────
+
   loadProjectFromDB: async () => {
     try {
       const projects = await db.projects.list();
@@ -83,6 +127,15 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
       }
     } catch {
       // DB not ready yet — localStorage values already loaded
+    }
+  },
+
+  loadLaunchConfigs: async (projectId) => {
+    try {
+      const configs = await db.launchConfigs.list(projectId);
+      set({ launchConfigs: configs });
+    } catch (e) {
+      console.error("[DB] loadLaunchConfigs:", e);
     }
   },
 });

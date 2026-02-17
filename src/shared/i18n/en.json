@@ -163,5 +163,27 @@
   "noActivityYet": "No activity yet",
   "refreshActivity": "Refresh",
   "commandRun": "Command",
-  "fileChanged": "File changed"
+  "fileChanged": "File changed",
+
+  "launchConfigs": "Launch Configs",
+  "newLaunchConfig": "New config",
+  "editLaunchConfig": "Edit config",
+  "deleteLaunchConfig": "Delete config",
+  "launchConfigName": "Name",
+  "launchConfigCli": "CLI tool",
+  "launchConfigArgs": "Arguments",
+  "launchConfigArgsPlaceholder": "--flag1 --flag2 value",
+  "launchConfigEnv": "Environment variables",
+  "launchConfigEnvPlaceholder": "KEY=value (one per line)",
+  "launchConfigCwd": "Working directory",
+  "launchConfigDefault": "Default",
+  "launchConfigGlobal": "Global (all projects)",
+  "launchConfigProject": "This project only",
+  "launchConfigCreated": "Config created",
+  "launchConfigUpdated": "Config updated",
+  "launchConfigDeleted": "Config deleted",
+  "launchConfigSave": "Save",
+  "launchConfigCancel": "Cancel",
+  "relaunchLast": "Relaunch last (⇧⌘L)",
+  "noLaunchConfigs": "No saved configs"
 }

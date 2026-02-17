@@ -18,6 +18,7 @@ pub fn spawn_terminal(
     command: Option<String>,
     cwd: Option<String>,
     shell: Option<String>,
+    env: Option<std::collections::HashMap<String, String>>,
 ) -> Result<String, String> {
     let pty_system = native_pty_system();
 
@@ -63,6 +64,13 @@ pub fn spawn_terminal(
         }
         if let Ok(appdata) = std::env::var("APPDATA") {
             cmd.env("APPDATA", &appdata);
+        }
+    }
+
+    // Custom env vars from launch config
+    if let Some(ref extra_env) = env {
+        for (key, value) in extra_env {
+            cmd.env(key, value);
         }
     }
 

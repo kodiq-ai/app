@@ -104,6 +104,39 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoOpenPreview: true,
 };
 
+// ── Launch Configs ──────────────────────────────────────
+export interface LaunchConfig {
+  id: string;
+  cli_name: string;
+  profile_name: string;
+  config: string; // JSON string: LaunchConfigPayload
+  is_default: boolean;
+  project_id: string | null;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface LaunchConfigPayload {
+  args: string[];
+  env: Record<string, string>;
+  cwd: string | null;
+  shell: string | null;
+}
+
+export interface NewLaunchConfig {
+  cli_name: string;
+  profile_name: string;
+  config: string;
+  is_default?: boolean;
+  project_id?: string | null;
+}
+
+export interface UpdateLaunchConfig {
+  profile_name?: string;
+  config?: string;
+  is_default?: boolean;
+}
+
 // ── History ──────────────────────────────────────────────
 export interface HistoryEntry {
   id: number;

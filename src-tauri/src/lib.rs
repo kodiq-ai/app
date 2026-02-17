@@ -65,6 +65,11 @@ pub fn run() {
             db::snippets::db_list_snippets,
             db::snippets::db_create_snippet,
             db::snippets::db_use_snippet,
+            // Database — Launch Configs
+            db::launch_configs::db_list_launch_configs,
+            db::launch_configs::db_create_launch_config,
+            db::launch_configs::db_update_launch_config,
+            db::launch_configs::db_delete_launch_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
