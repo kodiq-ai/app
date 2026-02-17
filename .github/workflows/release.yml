@@ -87,10 +87,12 @@ jobs:
     needs: release
     runs-on: ubuntu-latest
     steps:
-      - name: Install rsign2
+      - name: Install rsign2 and expect
         run: |
+          sudo apt-get update && sudo apt-get install -y expect
           cargo install rsign2 --locked
           rsign --version
+          expect -v
 
       - name: Download bundles, sign, and generate latest.json
         env:
