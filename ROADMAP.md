@@ -120,10 +120,10 @@ Estimated: 2-3 weeks after v0.3.0.
 - [x] Custom env vars passed to PTY on launch
 
 ### Git Event System
-- [ ] `notify` crate — replace setInterval polling with filesystem events
-- [ ] Auto-refresh file tree on changes
-- [ ] Auto-refresh git status on `.git/` changes
-- [ ] `thiserror` crate — typed `KodiqError` replacing raw strings
+- [x] `notify` crate — replace setInterval polling with filesystem events
+- [x] Auto-refresh file tree on changes
+- [x] Auto-refresh git status on `.git/` changes
+- [x] `thiserror` crate — typed `KodiqError` replacing raw strings
 
 ---
 
