@@ -78,7 +78,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                       className={cn(
                         "h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]",
                         isDefault
-                          ? "text-[#14b8a6] hover:text-[#14b8a6]"
+                          ? "text-[#06b6d4] hover:text-[#06b6d4]"
                           : "text-[#52525c] hover:text-[#a1a1aa]",
                       )}
                     >

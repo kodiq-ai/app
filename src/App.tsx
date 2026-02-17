@@ -401,14 +401,14 @@ export default function App() {
                       className={cn(
                         "absolute inset-y-0 -left-[2px] w-[5px] transition-all",
                         isDragging
-                          ? "bg-[#14b8a6]/30"
+                          ? "bg-[#06b6d4]/30"
                           : "bg-transparent group-hover:bg-white/[0.04]",
                       )}
                     />
                     <div
                       className={cn(
                         "absolute inset-0 transition-colors",
-                        isDragging ? "bg-[#14b8a6]" : "bg-white/[0.06]",
+                        isDragging ? "bg-[#06b6d4]" : "bg-white/[0.06]",
                       )}
                     />
                   </div>

@@ -42,7 +42,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
             <span className="text-[#71717a]">
               {t("currentVersion") ?? "Current"}: v{updateAvailable.currentVersion}
             </span>
-            <span className="font-medium text-[#14b8a6]">→ v{updateAvailable.version}</span>
+            <span className="font-medium text-[#06b6d4]">→ v{updateAvailable.version}</span>
           </div>
 
           {/* Changelog */}
@@ -62,7 +62,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
             <div className="flex flex-col gap-1.5">
               <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.04]">
                 <div
-                  className="h-full rounded-full bg-[#14b8a6] transition-all duration-300"
+                  className="h-full rounded-full bg-[#06b6d4] transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -85,7 +85,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
               size="sm"
               onClick={installUpdate}
               disabled={downloading}
-              className="bg-[#14b8a6] text-[11px] text-white hover:bg-[#0d9488]"
+              className="bg-[#06b6d4] text-[11px] text-white hover:bg-[#0891b2]"
             >
               {downloading
                 ? `${t("downloading") ?? "Downloading"}...`

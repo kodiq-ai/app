@@ -99,7 +99,7 @@ export function ActivityPanel() {
                 .filter((e) => e.type === "command")
                 .map((entry) => (
                   <div key={entry.id} className="flex h-5 items-center gap-1.5">
-                    <TerminalSquare className="size-2.5 shrink-0 text-[#14b8a6]" />
+                    <TerminalSquare className="size-2.5 shrink-0 text-[#06b6d4]" />
                     <span className="flex-1 truncate font-mono text-[10px] text-[#a1a1aa]">
                       {entry.label}
                     </span>

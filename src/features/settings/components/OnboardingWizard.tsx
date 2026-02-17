@@ -83,7 +83,7 @@ export function OnboardingWizard({
       <div className="anim-3 w-full">
         <Button
           onClick={() => goToStep(1)}
-          className="h-10 w-full gap-2 rounded-xl bg-[#14b8a6] text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#14b8a6]/90 active:scale-[0.98]"
+          className="h-10 w-full gap-2 rounded-xl bg-[#06b6d4] text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#06b6d4]/90 active:scale-[0.98]"
         >
           {t("onboardingNext")}
           <ArrowRight className="size-3.5" />
@@ -133,7 +133,7 @@ export function OnboardingWizard({
                 <Button
                   variant="ghost"
                   onClick={() => open(INSTALL_URLS[tool.bin] ?? "")}
-                  className="h-6 rounded-md px-2.5 text-[10px] font-medium text-[#14b8a6] hover:bg-[#14b8a6]/10 hover:text-[#14b8a6]"
+                  className="h-6 rounded-md px-2.5 text-[10px] font-medium text-[#06b6d4] hover:bg-[#06b6d4]/10 hover:text-[#06b6d4]"
                 >
                   {t("onboardingCliInstall")}
                 </Button>
@@ -174,7 +174,7 @@ export function OnboardingWizard({
           </Button>
           <Button
             onClick={() => goToStep(2)}
-            className="h-10 flex-1 gap-2 rounded-xl bg-[#14b8a6] text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#14b8a6]/90 active:scale-[0.98]"
+            className="h-10 flex-1 gap-2 rounded-xl bg-[#06b6d4] text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#06b6d4]/90 active:scale-[0.98]"
           >
             {t("onboardingNext")}
             <ArrowRight className="size-3.5" />
@@ -240,7 +240,7 @@ export function OnboardingWizard({
                   className={cn(
                     "size-3 shrink-0 transition-colors",
                     selectedPath === p.path
-                      ? "fill-[#14b8a6]/30 text-[#14b8a6]"
+                      ? "fill-[#06b6d4]/30 text-[#06b6d4]"
                       : "fill-[#3f3f46] text-[#3f3f46]",
                   )}
                 />
@@ -279,8 +279,8 @@ export function OnboardingWizard({
           className={cn(
             "h-10 flex-1 gap-2 rounded-xl text-[13px] font-medium text-white transition-all duration-200 active:scale-[0.98]",
             selectedPath
-              ? "bg-[#14b8a6] hover:bg-[#14b8a6]/90"
-              : "cursor-not-allowed bg-[#14b8a6]/40",
+              ? "bg-[#06b6d4] hover:bg-[#06b6d4]/90"
+              : "cursor-not-allowed bg-[#06b6d4]/40",
           )}
         >
           {t("onboardingGetStarted")}
@@ -317,7 +317,7 @@ export function OnboardingWizard({
               key={i}
               className={cn(
                 "h-1.5 w-1.5 rounded-full transition-all duration-300",
-                i === step ? "w-4 bg-[#14b8a6]" : "bg-[#27272a]",
+                i === step ? "w-4 bg-[#06b6d4]" : "bg-[#27272a]",
               )}
             />
           ))}

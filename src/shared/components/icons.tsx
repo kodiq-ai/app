@@ -11,8 +11,8 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
           <stop offset="100%" stopColor="#0a0a0a" />
         </radialGradient>
         <linearGradient id="ki-bolt" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2dd4bf" />
-          <stop offset="100%" stopColor="#0d9488" />
+          <stop offset="0%" stopColor="#22d3ee" />
+          <stop offset="100%" stopColor="#0891b2" />
         </linearGradient>
       </defs>
       {/* Background */}
@@ -50,8 +50,8 @@ export function KodiqDot({ size = 16 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 1024 1024" fill="none">
       <defs>
         <linearGradient id="kd-bolt" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2dd4bf" />
-          <stop offset="100%" stopColor="#0d9488" />
+          <stop offset="0%" stopColor="#22d3ee" />
+          <stop offset="100%" stopColor="#0891b2" />
         </linearGradient>
       </defs>
       <rect width="1024" height="1024" rx="228" fill="#141517" />

@@ -8,19 +8,30 @@
 /* Kodiq is always dark — dark theme values go directly in :root */
 
 :root {
-  /* Kodiq custom tokens */
-  --bg-base: #08080a;
-  --bg-raised: #0f1012;
-  --bg-surface: #141517;
-  --bg-overlay: #1a1b1e;
+  /* Kodiq custom tokens — Cyan Terminal */
+  --bg-base: #09090b;
+  --bg-surface: #111113;
+  --bg-raised: #18181b;
+  --bg-overlay: #1e1e22;
+  --bg-elevated: #27272a;
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-dim: rgba(255, 255, 255, 0.03);
-  --text-primary: #e8e8ec;
-  --text-secondary: #8b8b96;
-  --text-tertiary: #52525c;
-  --kodiq-accent: #14b8a6;
-  --accent-dim: rgba(20, 184, 166, 0.12);
-  --accent-glow: rgba(20, 184, 166, 0.25);
+  --border-default: #3f3f46;
+  --border-focus: #06b6d4;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #52525b;
+  --kodiq-accent: #06b6d4;
+  --accent-light: #22d3ee;
+  --accent-dark: #0891b2;
+  --accent-dim: rgba(6, 182, 212, 0.12);
+  --accent-glow: rgba(6, 182, 212, 0.25);
+
+  /* Typography */
+  --font-display: 'Monaspace Krypton', monospace;
+  --font-ui: 'Monaspace Neon', monospace;
+  --font-body: 'Monaspace Argon', monospace;
+  --font-code: 'Monaspace Neon', monospace;
 
   /* shadcn tokens — dark theme as default */
   --radius: 0.625rem;
@@ -62,13 +73,7 @@
 body {
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family:
-    "JetBrains Mono",
-    -apple-system,
-    "SF Pro Text",
-    "Helvetica Neue",
-    system-ui,
-    sans-serif;
+  font-family: var(--font-ui);
   overflow: hidden;
   height: 100vh;
   width: 100vw;
@@ -245,11 +250,11 @@ pre code .shiki-line span {
 /* ─── Selection & Focus ─────────────────────────────────────────────────────── */
 
 ::selection {
-  background: rgba(20, 184, 166, 0.25);
+  background: rgba(6, 182, 212, 0.25);
 }
 
 *:focus-visible {
-  outline: 1px solid rgba(20, 184, 166, 0.4);
+  outline: 1px solid rgba(6, 182, 212, 0.4);
   outline-offset: -1px;
   border-radius: 4px;
 }

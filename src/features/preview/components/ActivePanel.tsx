@@ -54,7 +54,7 @@ export function ActivePanel() {
           value={previewUrl?.split("?")[0] || ""}
           readOnly
           placeholder={t("waitingForServer")}
-          className="h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px] text-[#71717a] focus:border-[#14b8a6]/40"
+          className="h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px] text-[#71717a] focus:border-[#06b6d4]/40"
         />
 
         <div className="flex shrink-0 items-center gap-px">
@@ -80,7 +80,7 @@ export function ActivePanel() {
 
         {previewUrl ? (
           <>
-            <div className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium text-[#14b8a6]">
+            <div className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium text-[#06b6d4]">
               <Zap className="size-2" />
               auto
             </div>

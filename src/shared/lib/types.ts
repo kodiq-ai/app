@@ -96,7 +96,7 @@ export interface AppSettings {
 export const DEFAULT_SETTINGS: AppSettings = {
   shell: "",
   fontSize: 13,
-  fontFamily: "'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace",
+  fontFamily: "'Monaspace Neon', 'SF Mono', 'Menlo', 'Consolas', monospace",
   locale: "en",
   splitRatio: 0.5,
   sidebarOpen: true,

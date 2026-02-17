@@ -39,7 +39,7 @@ function ActivityIcon({
           )}
         >
           {active && (
-            <div className="absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-r bg-[#14b8a6]" />
+            <div className="absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-r bg-[#06b6d4]" />
           )}
           <Icon className="size-4" />
         </Button>

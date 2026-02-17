@@ -61,7 +61,7 @@ export function ProjectSwitcher({
                   {p.name}
                 </span>
                 {p.path === projectPath && (
-                  <div className="size-1.5 shrink-0 rounded-full bg-[#14b8a6]" />
+                  <div className="size-1.5 shrink-0 rounded-full bg-[#06b6d4]" />
                 )}
               </button>
             ))}

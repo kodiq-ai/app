@@ -213,7 +213,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                   className={cn(
                     "relative",
                     dragOverIndex === idx &&
-                      "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[#14b8a6]",
+                      "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[#06b6d4]",
                     closingTabs.has(tab.id) &&
                       "motion-safe:animate-out motion-safe:fade-out-0 motion-safe:zoom-out-95 overflow-hidden motion-safe:duration-150",
                   )}
@@ -241,7 +241,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                           if (e.key === "Escape") setEditingId(null);
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        className="h-auto min-w-0 flex-1 border-b border-[#14b8a6]/40 bg-transparent px-0 py-0 text-[11px] text-[#e4e4e7] outline-none"
+                        className="h-auto min-w-0 flex-1 border-b border-[#06b6d4]/40 bg-transparent px-0 py-0 text-[11px] text-[#e4e4e7] outline-none"
                         autoFocus
                       />
                     ) : (
@@ -256,7 +256,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                     )}
                     {notifiedTabs.has(tab.id) && (
                       <span
-                        className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#14b8a6]"
+                        className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#06b6d4]"
                         title={t("processFinished")}
                       />
                     )}
@@ -313,7 +313,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
             <Button
               variant="ghost"
               onClick={() => onSpawnTab(undefined, t("terminal"))}
-              className="flex h-auto flex-col items-center gap-2 text-[11px] text-[#3f3f46] hover:text-[#14b8a6]"
+              className="flex h-auto flex-col items-center gap-2 text-[11px] text-[#3f3f46] hover:text-[#06b6d4]"
             >
               <TerminalSquare className="size-4" />
               <span>{t("open")}</span>
@@ -335,7 +335,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
               <Button
                 variant="link"
                 onClick={() => onSpawnTab(undefined, t("terminal"))}
-                className="h-auto p-0 text-[11px] text-[#14b8a6] hover:text-[#2dd4bf]"
+                className="h-auto p-0 text-[11px] text-[#06b6d4] hover:text-[#22d3ee]"
               >
                 {t("openTerminal")}
               </Button>

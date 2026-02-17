@@ -129,7 +129,7 @@ export function ProjectOverview() {
             <div className="flex flex-col gap-1.5">
               {/* Branch */}
               <div className="flex items-center gap-1.5">
-                <GitBranch className="size-3 shrink-0 text-[#14b8a6]" />
+                <GitBranch className="size-3 shrink-0 text-[#06b6d4]" />
                 <span className="truncate text-[11px] font-medium text-[#e4e4e7]">
                   {git.branch}
                 </span>

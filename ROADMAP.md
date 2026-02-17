@@ -81,11 +81,11 @@ Estimated: 3-4 weeks.
 - [x] Per-project default CLI (stored in `projects.default_cli`, context menu UI)
 - [x] Recent commands quick-pick
 
-### CLI Output Intelligence — Phase 1 *(deferred — revisit after launch)*
-- [ ] Port detection → auto-open preview (already have port parser, needs UI trigger)
-- [ ] Project activity log — what the AI agent changed per session (diffs, files, commands)
-- [ ] Detect file paths in output → make clickable (open in file viewer)
-- [ ] Collapsible long outputs (tool results, file contents)
+### CLI Output Intelligence — Phase 1
+- [x] Port detection → auto-open preview + toast (configurable `autoOpenPreview` setting)
+- [x] Project activity log — sidebar tab tracking commands + git diffs per session
+- [x] Detect file paths in output → clickable via custom xterm.js ILinkProvider
+- [x] Output section markers (teal dots at section boundaries; full collapse deferred to v0.4.0)
 
 ### Auto-Update UI
 - [x] Generate signing keypair, configure `tauri.conf.json` pubkey
@@ -96,7 +96,7 @@ Estimated: 3-4 weeks.
 ### Cross-Platform Polish
 - [x] Test and fix Windows build (path separators, shell detection, `where` vs `which`)
 - [x] Linux .deb + .AppImage builds (Tauri bundler auto-generates via release.yml)
-- [ ] macOS: code signing + notarization for Gatekeeper (needs Apple Developer account)
+- [x] macOS: code signing + notarization for Gatekeeper (Developer ID Application cert + notarytool)
 
 ### Settings Persistence
 - [x] Migrate remaining localStorage keys to SQLite (all 7 keys migrated, localStorage removed)
@@ -214,4 +214,4 @@ The roadmap is shaped by competitive analysis (see [COMPETITIVE-BRIEF.md](./COMP
 
 ---
 
-*Last updated: 2026-02-16*
+*Last updated: 2026-02-17*

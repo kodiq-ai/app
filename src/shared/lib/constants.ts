@@ -11,7 +11,7 @@ export const CLI_COLORS: Record<string, string> = {
 export const XTERM_THEME = {
   background: "#0a0a0c",
   foreground: "#c8c8d0",
-  cursor: "#14b8a6",
+  cursor: "#06b6d4",
   cursorAccent: "#0a0a0c",
   selectionBackground: "rgba(20, 184, 166, 0.25)",
   selectionForeground: "#ffffff",
