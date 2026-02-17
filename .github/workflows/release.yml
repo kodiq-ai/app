@@ -15,12 +15,16 @@ jobs:
         include:
           - platform: macos-latest
             args: "--target aarch64-apple-darwin"
+            target: aarch64-apple-darwin
           - platform: macos-latest
             args: "--target x86_64-apple-darwin"
+            target: x86_64-apple-darwin
           - platform: ubuntu-22.04
             args: ""
+            target: x86_64-unknown-linux-gnu
           - platform: windows-latest
             args: ""
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -76,6 +80,119 @@ jobs:
           releaseBody: "See the changelog for details."
           releaseDraft: true
           prerelease: false
-          includeUpdaterJson: true
           tauriScript: pnpm tauri
           args: ${{ matrix.args }}
+
+      # Upload .sig files as CI artifacts for the updater job
+      - name: Upload updater signatures (macOS)
+        if: matrix.platform == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sig-${{ matrix.target }}
+          path: src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.sig
+          if-no-files-found: warn
+
+      - name: Upload updater signatures (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sig-${{ matrix.target }}
+          path: src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig
+          if-no-files-found: warn
+
+      - name: Upload updater bundle to release (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz \
+            --repo "${{ github.repository }}" --clobber || true
+
+      - name: Upload updater signatures (Windows)
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sig-${{ matrix.target }}
+          path: |
+            src-tauri/target/release/bundle/nsis/*.nsis.zip.sig
+            src-tauri/target/release/bundle/msi/*.msi.zip.sig
+          if-no-files-found: warn
+
+      - name: Upload updater bundle to release (Windows)
+        if: matrix.platform == 'windows-latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            src-tauri/target/release/bundle/nsis/*.nsis.zip \
+            --repo "${{ github.repository }}" --clobber || true
+
+  updater:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all signature artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sig-*
+          path: sigs
+          merge-multiple: false
+
+      - name: List downloaded signatures
+        run: find sigs -type f | sort
+
+      - name: Build and upload latest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          REPO="${{ github.repository }}"
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
+          VER="${TAG#v}"
+
+          read_sig() { if [ -f "$1" ]; then cat "$1"; else echo ""; fi; }
+
+          MACOS_ARM_SIG=$(find sigs/sig-aarch64-apple-darwin -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
+          MACOS_X64_SIG=$(find sigs/sig-x86_64-apple-darwin -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
+          LINUX_SIG=$(find sigs/sig-x86_64-unknown-linux-gnu -name "*.AppImage.tar.gz.sig" 2>/dev/null | head -1)
+          WIN_SIG=$(find sigs/sig-x86_64-pc-windows-msvc -name "*.nsis.zip.sig" 2>/dev/null | head -1)
+          [ -z "$WIN_SIG" ] && WIN_SIG=$(find sigs/sig-x86_64-pc-windows-msvc -name "*.msi.zip.sig" 2>/dev/null | head -1)
+
+          echo "Sigs found:"
+          echo "  macOS arm64: $MACOS_ARM_SIG"
+          echo "  macOS x64:   $MACOS_X64_SIG"
+          echo "  Linux:       $LINUX_SIG"
+          echo "  Windows:     $WIN_SIG"
+
+          jq -n \
+            --arg ver "$TAG" \
+            --arg notes "See the changelog for details." \
+            --arg date "$DATE" \
+            --arg mac_arm_sig "$(read_sig "$MACOS_ARM_SIG")" \
+            --arg mac_arm_url "${BASE_URL}/Kodiq_aarch64.app.tar.gz" \
+            --arg mac_x64_sig "$(read_sig "$MACOS_X64_SIG")" \
+            --arg mac_x64_url "${BASE_URL}/Kodiq_x64.app.tar.gz" \
+            --arg linux_sig "$(read_sig "$LINUX_SIG")" \
+            --arg linux_url "${BASE_URL}/Kodiq_${VER}_amd64.AppImage.tar.gz" \
+            --arg win_sig "$(read_sig "$WIN_SIG")" \
+            --arg win_url "${BASE_URL}/Kodiq_${VER}_x64-setup.nsis.zip" \
+            '{
+              version: $ver,
+              notes: $notes,
+              pub_date: $date,
+              platforms: {
+                "darwin-aarch64": { signature: $mac_arm_sig, url: $mac_arm_url },
+                "darwin-x86_64": { signature: $mac_x64_sig, url: $mac_x64_url },
+                "linux-x86_64": { signature: $linux_sig, url: $linux_url },
+                "windows-x86_64": { signature: $win_sig, url: $win_url }
+              }
+            }' > latest.json
+
+          echo "Generated latest.json:"
+          cat latest.json
+
+          gh release upload "$TAG" latest.json --repo "$REPO" --clobber
+          echo "✅ latest.json uploaded to release $TAG"
