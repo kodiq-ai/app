@@ -76,4 +76,6 @@ jobs:
           releaseBody: "See the changelog for details."
           releaseDraft: true
           prerelease: false
+          includeUpdaterJson: true
+          tauriScript: pnpm tauri
           args: ${{ matrix.args }}
