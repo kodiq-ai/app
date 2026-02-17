@@ -183,7 +183,7 @@ The roadmap is shaped by target audience (beginners from Academy) and competitiv
 | v0.1.0 | 2025-01 | Initial prototype — terminal + preview |
 | v0.2.0 | 2026-02 | Foundation refactor — modular Rust, Zustand slices, SQLite, testing, CI/CD |
 | v0.3.0 | 2026-02 | Launch ready — onboarding, session restore, auto-update, basic CLI intelligence |
-| v0.4.0 | TBD | Smart Workflow — Launch Configurations, native filesystem events |
+| v0.4.0 | 2026-02 | Smart Workflow — Launch Configurations, native filesystem events |
 
 ---
 
