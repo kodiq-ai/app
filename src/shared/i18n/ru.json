@@ -154,5 +154,14 @@
   "clearDefaultCli": "Сбросить по умолчанию",
   "defaultCliSet": "CLI по умолчанию установлен",
 
-  "recentCommands": "Недавние"
+  "recentCommands": "Недавние",
+
+  "devServerDetected": "Сервер обнаружен",
+  "autoOpenPreview": "Авто-открытие превью",
+
+  "activityLog": "Активность",
+  "noActivityYet": "Пока нет активности",
+  "refreshActivity": "Обновить",
+  "commandRun": "Команда",
+  "fileChanged": "Файл изменён"
 }

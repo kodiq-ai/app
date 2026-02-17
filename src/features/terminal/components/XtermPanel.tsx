@@ -10,6 +10,8 @@ import { XTERM_THEME } from "@/lib/constants";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
+import { createFilePathLinkProvider } from "../lib/filePathLinkProvider";
+import { OutputMarkerManager } from "../lib/outputMarkers";
 
 interface XtermPanelProps {
   termId: string;
@@ -40,6 +42,11 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     const fit = new FitAddon();
     term.loadAddon(fit);
     term.loadAddon(new WebLinksAddon());
+
+    // File path link provider — makes file paths clickable
+    const projectPath = useAppStore.getState().projectPath;
+    const linkDisposable = term.registerLinkProvider(createFilePathLinkProvider(term, projectPath));
+
     term.open(containerRef.current);
 
     // GPU-accelerated rendering via WebGL, fallback to default Canvas
@@ -60,6 +67,9 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     termRef.current = term;
     fitRef.current = fit;
 
+    // Output section markers — visual dots for navigating long output
+    const markerManager = new OutputMarkerManager(term);
+
     term.onData((data) => {
       invoke("write_to_pty", { id: termId, data }).catch(() => {});
     });
@@ -67,6 +77,7 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     const unlisten = listen<{ id: string; data: string }>("pty-output", (event) => {
       if (event.payload.id === termId) {
         term.write(event.payload.data);
+        markerManager.onOutput(event.payload.data);
       }
     });
 
@@ -94,6 +105,8 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     return () => {
       unlisten.then((fn) => fn());
       unlistenExit.then((fn) => fn());
+      markerManager.dispose();
+      linkDisposable.dispose();
       term.dispose();
       termRef.current = null;
       fitRef.current = null;

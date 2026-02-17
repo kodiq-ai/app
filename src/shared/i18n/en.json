@@ -154,5 +154,14 @@
   "clearDefaultCli": "Clear default",
   "defaultCliSet": "Default CLI set",
 
-  "recentCommands": "Recent"
+  "recentCommands": "Recent",
+
+  "devServerDetected": "Dev server detected",
+  "autoOpenPreview": "Auto-open preview",
+
+  "activityLog": "Activity",
+  "noActivityYet": "No activity yet",
+  "refreshActivity": "Refresh",
+  "commandRun": "Command",
+  "fileChanged": "File changed"
 }

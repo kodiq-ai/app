@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
-import { FolderOpen, BarChart3 } from "lucide-react";
+import { FolderOpen, BarChart3, ClipboardList } from "lucide-react";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TreeItem } from "@/components/TreeItem";
 import { ProjectOverview } from "@/components/ProjectOverview";
+import { ActivityPanel } from "@features/activity/components/ActivityPanel";
 import { Loader } from "@/components/Loader";
 import { t } from "@/lib/i18n";
 
@@ -91,7 +92,11 @@ export function ActivityBar() {
         {/* Panel header */}
         <div className="flex h-9 min-w-[13rem] shrink-0 items-center px-2.5">
           <span className="flex-1 truncate text-[11px] font-medium tracking-wider text-[#71717a] uppercase">
-            {sidebarTab === "files" ? projectName : t("projectInfo")}
+            {sidebarTab === "files"
+              ? projectName
+              : sidebarTab === "activity"
+                ? t("activityLog")
+                : t("projectInfo")}
           </span>
         </div>
 
@@ -111,6 +116,8 @@ export function ActivityBar() {
                 )}
               </div>
             </ScrollArea>
+          ) : sidebarTab === "activity" ? (
+            <ActivityPanel />
           ) : (
             <ProjectOverview />
           )}
@@ -130,6 +137,12 @@ export function ActivityBar() {
           label={t("projectInfo")}
           active={sidebarOpen && sidebarTab === "project"}
           onClick={() => handleIconClick("project")}
+        />
+        <ActivityIcon
+          icon={ClipboardList}
+          label={t("activityLog")}
+          active={sidebarOpen && sidebarTab === "activity"}
+          onClick={() => handleIconClick("activity")}
         />
       </div>
     </div>

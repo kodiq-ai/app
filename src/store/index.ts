@@ -9,6 +9,7 @@ import { createPreviewSlice, type PreviewSlice } from "@features/preview/store/p
 import { createExplorerSlice, type ExplorerSlice } from "@features/explorer/store/explorerSlice";
 import { createSettingsSlice, type SettingsSlice } from "@features/settings/store/settingsSlice";
 import { createGitSlice, type GitSlice } from "@features/git/store/gitSlice";
+import { createActivitySlice, type ActivitySlice } from "@features/activity/store/activitySlice";
 
 export type AppStore = TerminalSlice &
   ProjectSlice &
@@ -16,7 +17,8 @@ export type AppStore = TerminalSlice &
   PreviewSlice &
   ExplorerSlice &
   SettingsSlice &
-  GitSlice;
+  GitSlice &
+  ActivitySlice;
 
 export const useAppStore = create<AppStore>()((...args) => ({
   ...createTerminalSlice(...args),
@@ -26,6 +28,7 @@ export const useAppStore = create<AppStore>()((...args) => ({
   ...createExplorerSlice(...args),
   ...createSettingsSlice(...args),
   ...createGitSlice(...args),
+  ...createActivitySlice(...args),
 }));
 
 // Re-export types for convenience
@@ -36,3 +39,4 @@ export type { PreviewSlice } from "@features/preview/store/previewSlice";
 export type { ExplorerSlice } from "@features/explorer/store/explorerSlice";
 export type { SettingsSlice } from "@features/settings/store/settingsSlice";
 export type { GitSlice } from "@features/git/store/gitSlice";
+export type { ActivitySlice } from "@features/activity/store/activitySlice";

@@ -5,6 +5,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 
 import { toast } from "sonner";
 import { useAppStore, type FileEntry, type CliTool } from "@/lib/store";
+import type { GitInfo } from "@shared/lib/types";
 import { db } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -80,6 +81,10 @@ export default function App() {
         });
         const tabLabel = label || (command ? command : t("terminal"));
         addTab({ id, label: tabLabel, command: command || "shell" });
+        // Log to activity
+        if (command) {
+          useAppStore.getState().addActivity({ type: "command", label: command });
+        }
         // Persist session to SQLite
         if (projectId) {
           db.sessions
@@ -128,6 +133,20 @@ export default function App() {
     addRecent({ name, path });
     loadFileTree(path);
 
+    // Capture initial git state for activity log diff
+    useAppStore.getState().clearActivity();
+    invoke<GitInfo>("get_git_info", { path })
+      .then((info) => {
+        const files = [
+          ...(info.modified || []),
+          ...(info.added || []),
+          ...(info.deleted || []),
+          ...(info.untracked || []),
+        ];
+        useAppStore.getState().setSessionStartFiles(files);
+      })
+      .catch(() => {});
+
     // Restore sessions from SQLite, fallback to localStorage, then default
     setTimeout(async () => {
       try {
@@ -171,6 +190,7 @@ export default function App() {
     setProject(null);
     setPreviewUrl(null);
     useAppStore.getState().setOpenFile(null);
+    useAppStore.getState().clearActivity();
     setSettingsOpen(false);
   };
 
@@ -240,6 +260,13 @@ export default function App() {
   useEffect(() => {
     const unlisten = listen<{ id: string; port: number; url: string }>("port-detected", (event) => {
       setPreviewUrl(event.payload.url);
+      const { previewOpen, setPreviewOpen, settings } = useAppStore.getState();
+      if (settings.autoOpenPreview !== false && !previewOpen) {
+        setPreviewOpen(true);
+      }
+      toast.success(t("devServerDetected"), {
+        description: `localhost:${event.payload.port}`,
+      });
     });
     return () => {
       unlisten.then((fn) => fn());

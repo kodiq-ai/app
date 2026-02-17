@@ -122,11 +122,18 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
       if (locale === "en" || locale === "ru") patch.locale = locale;
       const splitVal = parseNum(all["splitRatio"]);
       const onboarding = all["onboardingComplete"] === "true" ? true : undefined;
-      const previewOpen = all["previewOpen"] !== undefined && all["previewOpen"] !== null ? all["previewOpen"] === "true" : undefined;
+      const previewOpen =
+        all["previewOpen"] !== undefined && all["previewOpen"] !== null
+          ? all["previewOpen"] === "true"
+          : undefined;
+      if (all["autoOpenPreview"] !== undefined)
+        patch.autoOpenPreview = all["autoOpenPreview"] !== "false";
       set((s) => ({
         settings: { ...s.settings, ...patch },
         ...(splitVal !== undefined && splitVal !== null ? { splitRatio: splitVal } : {}),
-        ...(onboarding !== undefined && onboarding !== null ? { onboardingComplete: onboarding } : {}),
+        ...(onboarding !== undefined && onboarding !== null
+          ? { onboardingComplete: onboarding }
+          : {}),
         ...(previewOpen !== undefined && previewOpen !== null ? { previewOpen } : {}),
       }));
     } catch {

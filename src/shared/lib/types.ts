@@ -90,6 +90,7 @@ export interface AppSettings {
   splitRatio: number;
   sidebarOpen: boolean;
   previewOpen: boolean;
+  autoOpenPreview: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -100,6 +101,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   splitRatio: 0.5,
   sidebarOpen: true,
   previewOpen: true,
+  autoOpenPreview: true,
 };
 
 // ── History ──────────────────────────────────────────────
@@ -154,7 +156,7 @@ export interface SavedTab {
 
 // ── UI Types ─────────────────────────────────────────────
 export type Viewport = "desktop" | "tablet" | "mobile";
-export type SidebarTab = "files" | "project";
+export type SidebarTab = "files" | "project" | "activity";
 
 // ── Update ───────────────────────────────────────────────
 export interface UpdateInfo {
