@@ -28,11 +28,11 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
         strokeWidth="4"
       />
       {/* K — vertical stroke */}
-      <path d="M310 260L310 764" stroke="#e4e4e7" strokeWidth="56" strokeLinecap="round" />
+      <path d="M310 260L310 764" stroke="#f4f4f5" strokeWidth="56" strokeLinecap="round" />
       {/* K — upper diagonal */}
       <path
         d="M338 512L600 280"
-        stroke="#e4e4e7"
+        stroke="#f4f4f5"
         strokeWidth="56"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -54,11 +54,11 @@ export function KodiqDot({ size = 16 }: { size?: number }) {
           <stop offset="100%" stopColor="#0891b2" />
         </linearGradient>
       </defs>
-      <rect width="1024" height="1024" rx="228" fill="#141517" />
-      <path d="M310 260L310 764" stroke="#e4e4e7" strokeWidth="56" strokeLinecap="round" />
+      <rect width="1024" height="1024" rx="228" fill="#111113" />
+      <path d="M310 260L310 764" stroke="#f4f4f5" strokeWidth="56" strokeLinecap="round" />
       <path
         d="M338 512L600 280"
-        stroke="#e4e4e7"
+        stroke="#f4f4f5"
         strokeWidth="56"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -147,7 +147,7 @@ export function TabIconSvg({ icon, size = 12 }: { icon: string; size?: number })
 // ─── File Icon (color-coded by extension) ───────────────────────────────────
 
 export function FileIcon({ name, isDir }: { name: string; isDir: boolean }) {
-  if (isDir) return <Folder className="size-3 fill-[#52525c] text-[#52525c]" />;
+  if (isDir) return <Folder className="size-3 fill-[#52525b] text-[#52525b]" />;
   const ext = name.split(".").pop()?.toLowerCase() || "";
   const colors: Record<string, string> = {
     ts: "#3b82f6",
@@ -157,9 +157,9 @@ export function FileIcon({ name, isDir }: { name: string; isDir: boolean }) {
     json: "#a3a3a3",
     css: "#a855f7",
     html: "#f97316",
-    md: "#52525c",
+    md: "#52525b",
     rs: "#f97316",
-    toml: "#52525c",
+    toml: "#52525b",
     lock: "#3f3f46",
     gitignore: "#3f3f46",
     svg: "#60a5fa",

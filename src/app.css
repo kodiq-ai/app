@@ -2,6 +2,16 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* ─── Monaspace font loading ──────────────────────────────────────────────── */
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-krypton@latest/400.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-krypton@latest/600.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-krypton@latest/700.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@latest/400.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@latest/500.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@latest/600.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-argon@latest/400.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-argon@latest/500.css");
+
 @custom-variant dark (&:is(.dark *));
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
@@ -28,10 +38,10 @@
   --accent-glow: rgba(6, 182, 212, 0.25);
 
   /* Typography */
-  --font-display: 'Monaspace Krypton', monospace;
-  --font-ui: 'Monaspace Neon', monospace;
-  --font-body: 'Monaspace Argon', monospace;
-  --font-code: 'Monaspace Neon', monospace;
+  --font-display: "Monaspace Krypton", monospace;
+  --font-ui: "Monaspace Neon", monospace;
+  --font-body: "Monaspace Argon", monospace;
+  --font-code: "Monaspace Neon", monospace;
 
   /* shadcn tokens — dark theme as default */
   --radius: 0.625rem;

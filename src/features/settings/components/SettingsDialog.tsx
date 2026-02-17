@@ -26,10 +26,10 @@ export function SettingsDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="border-white/[0.06] bg-[#141517] sm:max-w-[420px]">
+      <DialogContent className="border-white/[0.06] bg-[#111113] sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-[14px] text-[#e4e4e7]">{t("settings")}</DialogTitle>
-          <DialogDescription className="text-[12px] text-[#52525c]">
+          <DialogTitle className="text-[14px] text-[#f4f4f5]">{t("settings")}</DialogTitle>
+          <DialogDescription className="text-[12px] text-[#52525b]">
             {t("settingsDesc")}
           </DialogDescription>
         </DialogHeader>
@@ -37,7 +37,7 @@ export function SettingsDialog() {
         <div className="mt-2 flex flex-col gap-5">
           {/* Shell */}
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium tracking-[0.06em] text-[#71717a] uppercase">
+            <label className="text-[11px] font-medium tracking-[0.06em] text-[#a1a1aa] uppercase">
               {t("shell")}
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -59,7 +59,7 @@ export function SettingsDialog() {
 
           {/* Font size */}
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium tracking-[0.06em] text-[#71717a] uppercase">
+            <label className="text-[11px] font-medium tracking-[0.06em] text-[#a1a1aa] uppercase">
               {t("fontSize")}
             </label>
             <div className="flex items-center gap-1.5">

@@ -26,12 +26,12 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/[0.06] bg-[#141517] sm:max-w-[420px]">
+      <DialogContent className="border-white/[0.06] bg-[#111113] sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-[14px] text-[#e4e4e7]">
+          <DialogTitle className="text-[14px] text-[#f4f4f5]">
             {t("updateAvailable") ?? "Update Available"}
           </DialogTitle>
-          <DialogDescription className="text-[12px] text-[#52525c]">
+          <DialogDescription className="text-[12px] text-[#52525b]">
             Kodiq v{updateAvailable.version}
           </DialogDescription>
         </DialogHeader>
@@ -39,7 +39,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
         <div className="mt-2 flex flex-col gap-4">
           {/* Version info */}
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-[#71717a]">
+            <span className="text-[#a1a1aa]">
               {t("currentVersion") ?? "Current"}: v{updateAvailable.currentVersion}
             </span>
             <span className="font-medium text-[#06b6d4]">→ v{updateAvailable.version}</span>
@@ -48,7 +48,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
           {/* Changelog */}
           {updateAvailable.body && (
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-medium tracking-[0.06em] text-[#52525c] uppercase">
+              <span className="text-[10px] font-medium tracking-[0.06em] text-[#52525b] uppercase">
                 {t("whatsNew") ?? "What's new"}
               </span>
               <div className="max-h-[200px] overflow-y-auto rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2 text-[11px] leading-relaxed text-[#a1a1aa]">
@@ -66,7 +66,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <span className="text-center text-[10px] text-[#52525c]">{progress}%</span>
+              <span className="text-center text-[10px] text-[#52525b]">{progress}%</span>
             </div>
           )}
 
@@ -77,7 +77,7 @@ export function UpdateDialog({ open, onOpenChange }: UpdateDialogProps) {
               size="sm"
               onClick={() => onOpenChange(false)}
               disabled={downloading}
-              className="text-[11px] text-[#71717a]"
+              className="text-[11px] text-[#a1a1aa]"
             >
               {t("remindLater") ?? "Remind me later"}
             </Button>

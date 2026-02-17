@@ -137,14 +137,14 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-8 w-full justify-start gap-2 rounded-lg border border-white/[0.06] bg-white/[0.01] px-2.5 text-[11px] text-[#71717a] transition-all hover:border-white/[0.1] hover:bg-white/[0.04] hover:text-[#a1a1aa]"
+                className="h-8 w-full justify-start gap-2 rounded-lg border border-white/[0.06] bg-white/[0.01] px-2.5 text-[11px] text-[#a1a1aa] transition-all hover:border-white/[0.1] hover:bg-white/[0.04] hover:text-[#a1a1aa]"
               >
                 <Plus className="size-3" />
                 <span>{t("newTerminal")}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-[200px] border-white/[0.06] bg-[#141517] p-1 shadow-xl"
+              className="w-[200px] border-white/[0.06] bg-[#111113] p-1 shadow-xl"
               side="right"
               sideOffset={8}
               align="start"
@@ -225,8 +225,8 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                     className={cn(
                       "group h-8 w-full justify-start gap-1.5 rounded-none px-2.5 text-[11px]",
                       activeTab === tab.id
-                        ? "bg-white/[0.04] text-[#e4e4e7]"
-                        : "text-[#52525c] hover:bg-white/[0.02] hover:text-[#a1a1aa]",
+                        ? "bg-white/[0.04] text-[#f4f4f5]"
+                        : "text-[#52525b] hover:bg-white/[0.02] hover:text-[#a1a1aa]",
                     )}
                   >
                     <TabIconSvg icon={tab.command || "shell"} size={12} />
@@ -241,7 +241,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                           if (e.key === "Escape") setEditingId(null);
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        className="h-auto min-w-0 flex-1 border-b border-[#06b6d4]/40 bg-transparent px-0 py-0 text-[11px] text-[#e4e4e7] outline-none"
+                        className="h-auto min-w-0 flex-1 border-b border-[#06b6d4]/40 bg-transparent px-0 py-0 text-[11px] text-[#f4f4f5] outline-none"
                         autoFocus
                       />
                     ) : (
@@ -271,7 +271,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                         e.stopPropagation();
                         handleAnimatedClose(tab.id);
                       }}
-                      className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded text-[#52525c] opacity-0 transition-all group-hover:opacity-100 hover:bg-white/[0.08] hover:text-[#a1a1aa]"
+                      className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded text-[#52525b] opacity-0 transition-all group-hover:opacity-100 hover:bg-white/[0.08] hover:text-[#a1a1aa]"
                     >
                       <X className="size-2.5" />
                     </span>

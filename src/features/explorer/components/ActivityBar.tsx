@@ -35,7 +35,7 @@ function ActivityIcon({
           onClick={onClick}
           className={cn(
             "relative size-7",
-            active ? "text-[#e4e4e7]" : "text-[#52525c] hover:text-[#a1a1aa]",
+            active ? "text-[#f4f4f5]" : "text-[#52525b] hover:text-[#a1a1aa]",
           )}
         >
           {active && (
@@ -91,7 +91,7 @@ export function ActivityBar() {
       >
         {/* Panel header */}
         <div className="flex h-9 min-w-[13rem] shrink-0 items-center px-2.5">
-          <span className="flex-1 truncate text-[11px] font-medium tracking-wider text-[#71717a] uppercase">
+          <span className="flex-1 truncate text-[11px] font-medium tracking-wider text-[#a1a1aa] uppercase">
             {sidebarTab === "files" && projectName}
             {sidebarTab === "activity" && t("activityLog")}
             {sidebarTab === "project" && t("projectInfo")}

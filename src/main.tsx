@@ -20,7 +20,7 @@ createRoot(rootEl).render(
           style: {
             background: "#1a1b1e",
             border: "1px solid rgba(255,255,255,0.06)",
-            color: "#e4e4e7",
+            color: "#f4f4f5",
             fontSize: "12px",
             fontFamily: "'Monaspace Neon', 'SF Mono', 'Fira Code', monospace",
           },

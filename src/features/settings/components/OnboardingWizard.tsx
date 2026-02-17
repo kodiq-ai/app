@@ -74,10 +74,10 @@ export function OnboardingWizard({
       </div>
 
       <div className="anim-2 flex flex-col items-center gap-2">
-        <h1 className="text-[18px] font-semibold tracking-tight text-[#e4e4e7]">
+        <h1 className="text-[18px] font-semibold tracking-tight text-[#f4f4f5]">
           {t("onboardingWelcome")}
         </h1>
-        <p className="text-center text-[13px] text-[#71717a]">{t("onboardingWelcomeDesc")}</p>
+        <p className="text-center text-[13px] text-[#a1a1aa]">{t("onboardingWelcomeDesc")}</p>
       </div>
 
       <div className="anim-3 w-full">
@@ -101,10 +101,10 @@ export function OnboardingWizard({
     return (
       <div className="flex flex-col items-center gap-6">
         <div className="anim-1 flex flex-col items-center gap-2">
-          <h1 className="text-[18px] font-semibold tracking-tight text-[#e4e4e7]">
+          <h1 className="text-[18px] font-semibold tracking-tight text-[#f4f4f5]">
             {t("onboardingCliTitle")}
           </h1>
-          <p className="text-center text-[13px] text-[#71717a]">{t("onboardingCliDesc")}</p>
+          <p className="text-center text-[13px] text-[#a1a1aa]">{t("onboardingCliDesc")}</p>
         </div>
 
         {/* CLI tool list */}
@@ -117,8 +117,8 @@ export function OnboardingWizard({
               >
                 <Check className="size-2.5 text-white" strokeWidth={3} />
               </div>
-              <span className="flex-1 text-[12px] text-[#e4e4e7]">{tool.name}</span>
-              <span className="font-mono text-[10px] text-[#52525c]">{tool.version}</span>
+              <span className="flex-1 text-[12px] text-[#f4f4f5]">{tool.name}</span>
+              <span className="font-mono text-[10px] text-[#52525b]">{tool.version}</span>
             </div>
           ))}
 
@@ -128,7 +128,7 @@ export function OnboardingWizard({
                 className="h-4 w-4 shrink-0 rounded-full opacity-25"
                 style={{ background: CLI_COLORS[tool.provider] }}
               />
-              <span className="flex-1 text-[12px] text-[#52525c]">{tool.name}</span>
+              <span className="flex-1 text-[12px] text-[#52525b]">{tool.name}</span>
               {INSTALL_URLS[tool.bin] && (
                 <Button
                   variant="ghost"
@@ -143,7 +143,7 @@ export function OnboardingWizard({
 
           {cliTools.length === 0 && (
             <div className="flex flex-col items-center gap-1 py-4 text-center">
-              <span className="text-[12px] text-[#52525c]">{t("onboardingCliNoneFound")}</span>
+              <span className="text-[12px] text-[#52525b]">{t("onboardingCliNoneFound")}</span>
               <span className="text-[11px] text-[#3f3f46]">{t("onboardingCliNoneFoundDesc")}</span>
             </div>
           )}
@@ -151,11 +151,11 @@ export function OnboardingWizard({
 
         {/* Shell info */}
         <div className="anim-3 flex w-full items-center gap-2.5 rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.03] text-[#52525c]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.03] text-[#52525b]">
             <Terminal className="size-3.5" />
           </div>
           <div className="flex-1">
-            <div className="text-[10px] tracking-[0.06em] text-[#52525c] uppercase">
+            <div className="text-[10px] tracking-[0.06em] text-[#52525b] uppercase">
               {t("onboardingShellDetected")}
             </div>
             <div className="font-mono text-[12px] text-[#a1a1aa]">{defaultShell}</div>
@@ -167,7 +167,7 @@ export function OnboardingWizard({
           <Button
             variant="ghost"
             onClick={() => goToStep(0)}
-            className="h-10 gap-2 rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 text-[13px] font-medium text-[#71717a] transition-all duration-200 hover:bg-white/[0.03] hover:text-[#a1a1aa]"
+            className="h-10 gap-2 rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 text-[13px] font-medium text-[#a1a1aa] transition-all duration-200 hover:bg-white/[0.03] hover:text-[#a1a1aa]"
           >
             <ArrowLeft className="size-3.5" />
             {t("onboardingBack")}
@@ -189,10 +189,10 @@ export function OnboardingWizard({
   const renderProject = () => (
     <div className="flex flex-col items-center gap-6">
       <div className="anim-1 flex flex-col items-center gap-2">
-        <h1 className="text-[18px] font-semibold tracking-tight text-[#e4e4e7]">
+        <h1 className="text-[18px] font-semibold tracking-tight text-[#f4f4f5]">
           {t("onboardingProjectTitle")}
         </h1>
-        <p className="text-center text-[13px] text-[#71717a]">{t("onboardingProjectDesc")}</p>
+        <p className="text-center text-[13px] text-[#a1a1aa]">{t("onboardingProjectDesc")}</p>
       </div>
 
       {/* Choose folder button */}
@@ -202,20 +202,20 @@ export function OnboardingWizard({
           onClick={handleOpenFolder}
           className="group flex h-auto w-full items-center gap-3.5 rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-3.5 transition-all duration-200 hover:border-white/[0.1] hover:bg-white/[0.03] active:scale-[0.995]"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.03] text-[#71717a] transition-colors group-hover:text-[#a1a1aa]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.03] text-[#a1a1aa] transition-colors group-hover:text-[#a1a1aa]">
             <FolderOpen className="size-4" />
           </div>
           <div className="flex-1 text-left">
-            <div className="text-[13px] font-medium text-[#e4e4e7]">
+            <div className="text-[13px] font-medium text-[#f4f4f5]">
               {t("onboardingProjectOpen")}
             </div>
             {selectedPath && (
-              <div className="mt-0.5 truncate font-mono text-[11px] text-[#52525c]">
+              <div className="mt-0.5 truncate font-mono text-[11px] text-[#52525b]">
                 {selectedPath}
               </div>
             )}
           </div>
-          <ChevronRight className="size-3.5 text-[#3f3f46] transition-colors group-hover:text-[#52525c]" />
+          <ChevronRight className="size-3.5 text-[#3f3f46] transition-colors group-hover:text-[#52525b]" />
         </Button>
       </div>
 
@@ -248,8 +248,8 @@ export function OnboardingWizard({
                   className={cn(
                     "flex-1 truncate text-left text-[12px] transition-colors",
                     selectedPath === p.path
-                      ? "text-[#e4e4e7]"
-                      : "text-[#71717a] group-hover:text-[#a1a1aa]",
+                      ? "text-[#f4f4f5]"
+                      : "text-[#a1a1aa] group-hover:text-[#a1a1aa]",
                   )}
                 >
                   {p.name}
@@ -268,7 +268,7 @@ export function OnboardingWizard({
         <Button
           variant="ghost"
           onClick={() => goToStep(1)}
-          className="h-10 gap-2 rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 text-[13px] font-medium text-[#71717a] transition-all duration-200 hover:bg-white/[0.03] hover:text-[#a1a1aa]"
+          className="h-10 gap-2 rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 text-[13px] font-medium text-[#a1a1aa] transition-all duration-200 hover:bg-white/[0.03] hover:text-[#a1a1aa]"
         >
           <ArrowLeft className="size-3.5" />
           {t("onboardingBack")}

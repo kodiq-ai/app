@@ -23,7 +23,7 @@ const KIND_ICONS: Record<string, { icon: typeof FileEdit; color: string }> = {
   modified: { icon: FileEdit, color: "#eab308" },
   added: { icon: Plus, color: "#22c55e" },
   deleted: { icon: Minus, color: "#ef4444" },
-  untracked: { icon: FileQuestion, color: "#71717a" },
+  untracked: { icon: FileQuestion, color: "#a1a1aa" },
 };
 
 function timeAgo(ts: number): string {
@@ -77,7 +77,7 @@ export function ActivityPanel() {
               variant="ghost"
               size="icon-xs"
               onClick={refreshGit}
-              className="size-5 text-[#52525c] hover:text-[#a1a1aa]"
+              className="size-5 text-[#52525b] hover:text-[#a1a1aa]"
             >
               <RefreshCw className="size-2.5" />
             </Button>
@@ -92,7 +92,7 @@ export function ActivityPanel() {
           {/* Commands run */}
           {activityLog.filter((e) => e.type === "command").length > 0 && (
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium tracking-wider text-[#52525c] uppercase">
+              <span className="text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
                 {t("commandRun")}
               </span>
               {activityLog
@@ -114,7 +114,7 @@ export function ActivityPanel() {
           {/* File changes since session start */}
           {fileChanges.length > 0 && (
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium tracking-wider text-[#52525c] uppercase">
+              <span className="text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
                 {t("fileChanged")} ({fileChanges.length})
               </span>
               {fileChanges.slice(0, 20).map((f) => {
@@ -124,7 +124,7 @@ export function ActivityPanel() {
                 return (
                   <div key={f.file} className="flex h-5 items-center gap-1.5">
                     <Icon className="size-2.5 shrink-0" style={{ color: cfg.color }} />
-                    <span className="truncate font-mono text-[10px] text-[#71717a]">{f.file}</span>
+                    <span className="truncate font-mono text-[10px] text-[#a1a1aa]">{f.file}</span>
                   </div>
                 );
               })}

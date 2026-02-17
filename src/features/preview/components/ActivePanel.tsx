@@ -9,10 +9,22 @@ import { t } from "@/lib/i18n";
 
 function getViewportStyle(viewport: Viewport): React.CSSProperties {
   if (viewport === "tablet") {
-    return { width: 768, height: "100%", maxHeight: 1024, borderRadius: 8, boxShadow: "0 0 0 1px rgba(255,255,255,0.06)" };
+    return {
+      width: 768,
+      height: "100%",
+      maxHeight: 1024,
+      borderRadius: 8,
+      boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
+    };
   }
   if (viewport === "mobile") {
-    return { width: 390, height: "100%", maxHeight: 844, borderRadius: 12, boxShadow: "0 0 0 1px rgba(255,255,255,0.06)" };
+    return {
+      width: 390,
+      height: "100%",
+      maxHeight: 844,
+      borderRadius: 12,
+      boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
+    };
   }
   return { width: "100%", height: "100%" };
 }
@@ -41,7 +53,7 @@ export function ActivePanel() {
               onClick={() =>
                 previewUrl && setPreviewUrl(`${previewUrl.split("?")[0]}?_r=${Date.now()}`)
               }
-              className="text-[#52525c] hover:text-[#a1a1aa]"
+              className="text-[#52525b] hover:text-[#a1a1aa]"
             >
               <RefreshCw className="size-3" />
             </Button>
@@ -54,7 +66,7 @@ export function ActivePanel() {
           value={previewUrl?.split("?")[0] || ""}
           readOnly
           placeholder={t("waitingForServer")}
-          className="h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px] text-[#71717a] focus:border-[#06b6d4]/40"
+          className="h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px] text-[#a1a1aa] focus:border-[#06b6d4]/40"
         />
 
         <div className="flex shrink-0 items-center gap-px">
@@ -66,7 +78,7 @@ export function ActivePanel() {
                   size="icon-xs"
                   onClick={() => setViewport(v)}
                   className={cn(
-                    "text-[#52525c] hover:text-[#a1a1aa]",
+                    "text-[#52525b] hover:text-[#a1a1aa]",
                     viewport === v && "bg-white/[0.04] !text-[#a1a1aa]",
                   )}
                 >
@@ -107,10 +119,10 @@ export function ActivePanel() {
             <div className="flex flex-col items-center gap-3 text-center">
               <Globe className="size-5 text-[#3f3f46]" />
               <div>
-                <p className="text-[12px] text-[#52525c]">{t("serverNotRunning")}</p>
+                <p className="text-[12px] text-[#52525b]">{t("serverNotRunning")}</p>
                 <p className="mt-1 text-[11px] text-[#3f3f46]">
                   {t("runDevServer")}{" "}
-                  <code className="font-mono text-[#52525c]">{t("npmRunDev")}</code>{" "}
+                  <code className="font-mono text-[#52525b]">{t("npmRunDev")}</code>{" "}
                   {t("inTerminal")}
                 </p>
               </div>

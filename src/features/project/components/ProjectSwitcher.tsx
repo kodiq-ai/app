@@ -29,7 +29,7 @@ export function ProjectSwitcher({
       <PopoverTrigger asChild>
         <button className="flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.04]">
           <KodiqDot size={16} />
-          <span className="text-[12px] font-medium text-[#52525c]">Kodiq</span>
+          <span className="text-[12px] font-medium text-[#52525b]">Kodiq</span>
           <ChevronRight className="size-2.5 text-[#27272a]" />
           <span className="text-[12px] font-medium text-[#a1a1aa]">
             {projectName || t("selectProject")}
@@ -38,7 +38,7 @@ export function ProjectSwitcher({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[280px] border-white/[0.06] bg-[#141517] p-0 shadow-xl"
+        className="w-[280px] border-white/[0.06] bg-[#111113] p-0 shadow-xl"
         sideOffset={8}
         align="center"
       >
@@ -57,7 +57,7 @@ export function ProjectSwitcher({
                 className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
               >
                 <Folder className="size-3 shrink-0 fill-[#3f3f46] text-[#3f3f46]" />
-                <span className="flex-1 truncate text-[12px] text-[#71717a] transition-colors group-hover:text-[#a1a1aa]">
+                <span className="flex-1 truncate text-[12px] text-[#a1a1aa] transition-colors group-hover:text-[#a1a1aa]">
                   {p.name}
                 </span>
                 {p.path === projectPath && (
@@ -78,7 +78,7 @@ export function ProjectSwitcher({
             }}
             className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
           >
-            <FolderOpen className="size-3 text-[#52525c]" />
+            <FolderOpen className="size-3 text-[#52525b]" />
             <span className="text-[12px] text-[#a1a1aa]">{t("openProject")}...</span>
           </button>
           {projectPath && (
@@ -89,8 +89,8 @@ export function ProjectSwitcher({
               }}
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
             >
-              <X className="size-3 text-[#52525c]" />
-              <span className="text-[12px] text-[#71717a]">{t("closeProject")}</span>
+              <X className="size-3 text-[#52525b]" />
+              <span className="text-[12px] text-[#a1a1aa]">{t("closeProject")}</span>
             </button>
           )}
         </div>

@@ -75,7 +75,7 @@ const EXT_COLORS: Record<string, string> = {
   rs: "#dea584",
   py: "#3776ab",
   go: "#00add8",
-  md: "#52525c",
+  md: "#52525b",
   toml: "#9c4221",
   yaml: "#cb171e",
   yml: "#cb171e",
@@ -89,8 +89,8 @@ const KIND_CONFIG: Record<string, { icon: typeof Pencil; color: string; label: s
   modified: { icon: Pencil, color: "#eab308", label: "gitModified" },
   added: { icon: Plus, color: "#22c55e", label: "gitAdded" },
   deleted: { icon: Minus, color: "#ef4444", label: "gitDeleted" },
-  untracked: { icon: FileQuestion, color: "#71717a", label: "gitUntracked" },
-  other: { icon: CircleDot, color: "#71717a", label: "gitModified" },
+  untracked: { icon: FileQuestion, color: "#a1a1aa", label: "gitUntracked" },
+  other: { icon: CircleDot, color: "#a1a1aa", label: "gitModified" },
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -130,7 +130,7 @@ export function ProjectOverview() {
               {/* Branch */}
               <div className="flex items-center gap-1.5">
                 <GitBranch className="size-3 shrink-0 text-[#06b6d4]" />
-                <span className="truncate text-[11px] font-medium text-[#e4e4e7]">
+                <span className="truncate text-[11px] font-medium text-[#f4f4f5]">
                   {git.branch}
                 </span>
                 {(git.ahead ?? 0) > 0 && (
@@ -165,7 +165,7 @@ export function ProjectOverview() {
               {git.commitHash && (
                 <div className="flex items-center gap-1.5 pl-[18px]">
                   <GitCommit className="size-2.5 shrink-0 text-[#3f3f46]" />
-                  <span className="truncate font-mono text-[10px] text-[#52525c]">
+                  <span className="truncate font-mono text-[10px] text-[#52525b]">
                     {git.commitHash}
                   </span>
                   <span className="flex-1 truncate text-[10px] text-[#3f3f46]">
@@ -177,17 +177,17 @@ export function ProjectOverview() {
               {/* Changed files */}
               {git.changedFiles && git.changedFiles.length > 0 ? (
                 <div className="mt-0.5 flex flex-col gap-0.5 pl-[18px]">
-                  <span className="text-[10px] font-medium text-[#52525c]">
+                  <span className="text-[10px] font-medium text-[#52525b]">
                     {t("gitChanges")} ({git.changedCount})
                   </span>
                   {git.changedFiles.slice(0, 8).map((f) => {
-                    const fallback = { icon: CircleDot, color: "#71717a", label: "gitModified" };
+                    const fallback = { icon: CircleDot, color: "#a1a1aa", label: "gitModified" };
                     const cfg = KIND_CONFIG[f.kind] ?? fallback;
                     const Icon = cfg.icon;
                     return (
                       <div key={f.file} className="flex h-5 items-center gap-1.5">
                         <Icon className="size-2.5 shrink-0" style={{ color: cfg.color }} />
-                        <span className="truncate font-mono text-[10px] text-[#71717a]">
+                        <span className="truncate font-mono text-[10px] text-[#a1a1aa]">
                           {f.file}
                         </span>
                       </div>
@@ -214,20 +214,20 @@ export function ProjectOverview() {
               {/* Counts row */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
-                  <FileText className="size-2.5 text-[#52525c]" />
-                  <span className="text-[10px] text-[#71717a]">
+                  <FileText className="size-2.5 text-[#52525b]" />
+                  <span className="text-[10px] text-[#a1a1aa]">
                     {stats.totalFiles} {t("filesCount")}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Folder className="size-2.5 text-[#52525c]" />
-                  <span className="text-[10px] text-[#71717a]">
+                  <Folder className="size-2.5 text-[#52525b]" />
+                  <span className="text-[10px] text-[#a1a1aa]">
                     {stats.totalDirs} {t("foldersCount")}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <HardDrive className="size-2.5 text-[#52525c]" />
-                  <span className="text-[10px] text-[#71717a]">
+                  <HardDrive className="size-2.5 text-[#52525b]" />
+                  <span className="text-[10px] text-[#a1a1aa]">
                     {formatSize(stats.totalSizeBytes)}
                   </span>
                 </div>
@@ -236,7 +236,7 @@ export function ProjectOverview() {
               {/* Stack badges */}
               {stats.stack.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1">
-                  <Layers className="size-2.5 shrink-0 text-[#52525c]" />
+                  <Layers className="size-2.5 shrink-0 text-[#52525b]" />
                   {stats.stack.map((s) => (
                     <Badge
                       key={s}
@@ -255,10 +255,10 @@ export function ProjectOverview() {
                   {stats.extensions.slice(0, 6).map((e) => {
                     const maxCount = stats.extensions[0]?.count ?? 1;
                     const pct = Math.max(8, (e.count / maxCount) * 100);
-                    const color = EXT_COLORS[e.ext] || "#52525c";
+                    const color = EXT_COLORS[e.ext] || "#52525b";
                     return (
                       <div key={e.ext} className="flex h-4 items-center gap-1.5">
-                        <span className="w-8 shrink-0 text-right font-mono text-[10px] text-[#52525c]">
+                        <span className="w-8 shrink-0 text-right font-mono text-[10px] text-[#52525b]">
                           .{e.ext}
                         </span>
                         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.03]">

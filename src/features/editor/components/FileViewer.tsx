@@ -90,7 +90,7 @@ export function FileViewer() {
             >
               {i > 0 && <ChevronRight className="size-2.5 shrink-0 text-[#27272a]" />}
               {crumb.isLast ? (
-                <span className="flex items-center gap-1.5 truncate text-[11px] font-medium text-[#e4e4e7]">
+                <span className="flex items-center gap-1.5 truncate text-[11px] font-medium text-[#f4f4f5]">
                   <FileIcon name={crumb.name} isDir={false} />
                   {crumb.name}
                 </span>
@@ -99,7 +99,7 @@ export function FileViewer() {
                   variant="ghost"
                   size="xs"
                   onClick={() => navigateToDir(crumb.path)}
-                  className="h-5 px-1 text-[11px] font-normal text-[#52525c] hover:text-[#a1a1aa]"
+                  className="h-5 px-1 text-[11px] font-normal text-[#52525b] hover:text-[#a1a1aa]"
                 >
                   {crumb.name}
                 </Button>
@@ -114,7 +114,7 @@ export function FileViewer() {
               variant="ghost"
               size="icon-xs"
               onClick={copyContent}
-              className="text-[#52525c] hover:text-[#a1a1aa]"
+              className="text-[#52525b] hover:text-[#a1a1aa]"
             >
               <Copy className="size-3" />
             </Button>
@@ -125,7 +125,7 @@ export function FileViewer() {
           variant="ghost"
           size="icon-xs"
           onClick={() => setOpenFile(null)}
-          className="text-[#52525c] hover:text-[#a1a1aa]"
+          className="text-[#52525b] hover:text-[#a1a1aa]"
         >
           <X className="size-3" />
         </Button>

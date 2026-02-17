@@ -320,7 +320,7 @@ export default function App() {
                   size="icon-xs"
                   onClick={togglePreview}
                   className={cn(
-                    "text-[#52525c] hover:text-[#a1a1aa]",
+                    "text-[#52525b] hover:text-[#a1a1aa]",
                     previewOpen && "text-[#a1a1aa]",
                   )}
                 >
@@ -342,7 +342,7 @@ export default function App() {
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => setSettingsOpen(true)}
-                className="text-[#52525c] hover:text-[#a1a1aa]"
+                className="text-[#52525b] hover:text-[#a1a1aa]"
               >
                 <Settings className="size-3.5" />
               </Button>
@@ -358,7 +358,7 @@ export default function App() {
                     variant="ghost"
                     size="icon-xs"
                     onClick={closeProject}
-                    className="text-[#52525c] hover:text-[#a1a1aa]"
+                    className="text-[#52525b] hover:text-[#a1a1aa]"
                   >
                     <X className="size-3.5" />
                   </Button>

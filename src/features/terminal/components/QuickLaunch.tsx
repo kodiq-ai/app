@@ -63,7 +63,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
       {/* AI CLI tools */}
       {sorted.length > 0 && (
         <>
-          <span className="mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#52525c] uppercase">
+          <span className="mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
             AI
           </span>
           <div className="flex flex-col gap-0.5">
@@ -79,7 +79,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                         "h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]",
                         isDefault
                           ? "text-[#06b6d4] hover:text-[#06b6d4]"
-                          : "text-[#52525c] hover:text-[#a1a1aa]",
+                          : "text-[#52525b] hover:text-[#a1a1aa]",
                       )}
                     >
                       <TabIconSvg icon={tool.bin} size={12} />
@@ -108,7 +108,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
       {/* Recent commands */}
       {filteredRecent.length > 0 && (
         <>
-          <span className="mt-2 mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#52525c] uppercase">
+          <span className="mt-2 mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
             {t("recentCommands")}
           </span>
           <div className="flex flex-col gap-0.5">
@@ -117,7 +117,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                 key={entry.id}
                 variant="ghost"
                 onClick={() => onSpawnTab(entry.command, entry.command)}
-                className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#52525c] hover:bg-white/[0.02] hover:text-[#a1a1aa]"
+                className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#52525b] hover:bg-white/[0.02] hover:text-[#a1a1aa]"
               >
                 <TerminalSquare className="size-3 shrink-0" />
                 <span className="flex-1 truncate text-left font-mono">{entry.command}</span>
