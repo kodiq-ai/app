@@ -50,10 +50,8 @@ pub fn create(
     snippet: &NewSnippet,
 ) -> Result<Snippet, rusqlite::Error> {
     let id = uuid::Uuid::new_v4().to_string();
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "INSERT INTO snippets (id, title, content, cli_name, tags, usage_count, created_at, updated_at)
@@ -74,10 +72,8 @@ pub fn create(
 }
 
 pub fn use_snippet(conn: &rusqlite::Connection, id: &str) -> Result<Snippet, rusqlite::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "UPDATE snippets SET usage_count = usage_count + 1, updated_at = ?1 WHERE id = ?2",

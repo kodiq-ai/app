@@ -6,6 +6,7 @@
 import type { Terminal, IMarker, IDecoration } from "@xterm/xterm";
 
 // ANSI escape code stripper
+// eslint-disable-next-line no-control-regex
 const ANSI_RE = /\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07/g;
 
 // Section boundary patterns (tested on clean text)

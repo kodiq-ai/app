@@ -48,7 +48,7 @@
   "plugins": {
     "updater": {
       "endpoints": ["https://github.com/kodiq-ai/app/releases/latest/download/latest.json"],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDEyNkI3MzJGREU1RjE3N0QKUldSOUYxL2VMM05yRW1KT1IwTmFrc1NPeHlHcW41alZPaDVQYUFYM0t6ajVwaXJjZG5oQzB4Q0kK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEE2ODBCNzhBRjA1RTZBNzYKUldSMmFsN3dpcmVBcGxvTWtXNFhVVWQrbXJmbWlaUEkxQXRXNU5BYkpXYXNaWVB2OG56a1diTjkK"
     }
   }
 }

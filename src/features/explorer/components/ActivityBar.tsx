@@ -92,17 +92,15 @@ export function ActivityBar() {
         {/* Panel header */}
         <div className="flex h-9 min-w-[13rem] shrink-0 items-center px-2.5">
           <span className="flex-1 truncate text-[11px] font-medium tracking-wider text-[#71717a] uppercase">
-            {sidebarTab === "files"
-              ? projectName
-              : sidebarTab === "activity"
-                ? t("activityLog")
-                : t("projectInfo")}
+            {sidebarTab === "files" && projectName}
+            {sidebarTab === "activity" && t("activityLog")}
+            {sidebarTab === "project" && t("projectInfo")}
           </span>
         </div>
 
         {/* Panel content */}
         <div className="min-w-[13rem] flex-1 overflow-hidden">
-          {sidebarTab === "files" ? (
+          {sidebarTab === "files" && (
             <ScrollArea className="h-full">
               <div className="py-0.5">
                 {fileTree.map((e) => (
@@ -116,11 +114,9 @@ export function ActivityBar() {
                 )}
               </div>
             </ScrollArea>
-          ) : sidebarTab === "activity" ? (
-            <ActivityPanel />
-          ) : (
-            <ProjectOverview />
           )}
+          {sidebarTab === "activity" && <ActivityPanel />}
+          {sidebarTab === "project" && <ProjectOverview />}
         </div>
       </div>
 

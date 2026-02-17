@@ -76,11 +76,7 @@ pub fn detect_cli_tools() -> Vec<serde_json::Value> {
                     .arg("--version")
                     .output()
                     .ok()
-                    .and_then(|o| {
-                        String::from_utf8(o.stdout)
-                            .ok()
-                            .map(|s| s.trim().to_string())
-                    })
+                    .and_then(|o| String::from_utf8(o.stdout).ok().map(|s| s.trim().to_string()))
                     .unwrap_or_default()
             } else {
                 String::new()

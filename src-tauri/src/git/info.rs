@@ -32,6 +32,7 @@ pub fn get_project_stats(path: String) -> Result<serde_json::Value, String> {
     let mut total_size: u64 = 0;
     let mut stack: Vec<String> = Vec::new();
 
+    #[allow(clippy::too_many_arguments)]
     fn walk(
         dir: &std::path::Path,
         skip: &HashSet<&str>,
@@ -142,9 +143,7 @@ pub fn get_git_info(path: String) -> Result<serde_json::Value, String> {
             .map(|s| s.trim().to_string())
     };
 
-    let is_git = run(&["rev-parse", "--is-inside-work-tree"])
-        .map(|s| s == "true")
-        .unwrap_or(false);
+    let is_git = run(&["rev-parse", "--is-inside-work-tree"]).map(|s| s == "true").unwrap_or(false);
     if !is_git {
         return Ok(serde_json::json!({ "isGit": false }));
     }
@@ -174,24 +173,13 @@ pub fn get_git_info(path: String) -> Result<serde_json::Value, String> {
         })
         .collect();
 
-    let ahead_behind = run(&[
-        "rev-list",
-        "--left-right",
-        "--count",
-        "HEAD...@{upstream}",
-    ])
-    .unwrap_or_default();
+    let ahead_behind =
+        run(&["rev-list", "--left-right", "--count", "HEAD...@{upstream}"]).unwrap_or_default();
     let (ahead, behind) = {
         let parts: Vec<&str> = ahead_behind.split('\t').collect();
         (
-            parts
-                .first()
-                .and_then(|s| s.parse::<u32>().ok())
-                .unwrap_or(0),
-            parts
-                .get(1)
-                .and_then(|s| s.parse::<u32>().ok())
-                .unwrap_or(0),
+            parts.first().and_then(|s| s.parse::<u32>().ok()).unwrap_or(0),
+            parts.get(1).and_then(|s| s.parse::<u32>().ok()).unwrap_or(0),
         )
     };
 

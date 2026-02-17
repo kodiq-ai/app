@@ -5,13 +5,11 @@
 pub fn resolve_command(cmd: &str, custom_shell: Option<&str>) -> (String, Vec<String>, String) {
     match cmd.trim() {
         "" | "shell" | "zsh" | "bash" => {
-            let shell = custom_shell
-                .filter(|s| !s.is_empty())
-                .map(String::from)
-                .unwrap_or_else(|| {
+            let shell =
+                custom_shell.filter(|s| !s.is_empty()).map(String::from).unwrap_or_else(|| {
                     std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".to_string())
                 });
-            let label = shell.split('/').last().unwrap_or("shell").to_string();
+            let label = shell.split('/').next_back().unwrap_or("shell").to_string();
             (shell, vec![], label)
         }
         "claude" => ("claude".to_string(), vec![], "Claude Code".to_string()),
@@ -26,7 +24,7 @@ pub fn resolve_command(cmd: &str, custom_shell: Option<&str>) -> (String, Vec<St
         other => {
             let parts: Vec<String> = other.split_whitespace().map(String::from).collect();
             let program = parts.first().cloned().unwrap_or_default();
-            let label = program.split('/').last().unwrap_or("custom").to_string();
+            let label = program.split('/').next_back().unwrap_or("custom").to_string();
             let args = parts.into_iter().skip(1).collect();
             (program, args, label)
         }
@@ -35,16 +33,14 @@ pub fn resolve_command(cmd: &str, custom_shell: Option<&str>) -> (String, Vec<St
 
 /// Detect a localhost port from terminal output text.
 /// Returns the first port >= 1024 found in the text.
-pub fn detect_port(text: &str) -> Option<u16> {
-    let url_re =
-        regex::Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap();
+#[cfg(test)]
+fn detect_port(text: &str) -> Option<u16> {
+    let url_re = regex::Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap();
     let ansi_re = regex::Regex::new(r"\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07").unwrap();
     let clean = ansi_re.replace_all(text, "").to_string();
 
     url_re.captures(&clean).and_then(|cap| {
-        cap.get(1)
-            .and_then(|m| m.as_str().parse::<u16>().ok())
-            .filter(|&p| p >= 1024)
+        cap.get(1).and_then(|m| m.as_str().parse::<u16>().ok()).filter(|&p| p >= 1024)
     })
 }
 
@@ -111,18 +107,12 @@ mod tests {
 
     #[test]
     fn test_detect_port_basic() {
-        assert_eq!(
-            detect_port("Server running at http://localhost:3000"),
-            Some(3000)
-        );
+        assert_eq!(detect_port("Server running at http://localhost:3000"), Some(3000));
     }
 
     #[test]
     fn test_detect_port_127() {
-        assert_eq!(
-            detect_port("Listening on http://127.0.0.1:5173/"),
-            Some(5173)
-        );
+        assert_eq!(detect_port("Listening on http://127.0.0.1:5173/"), Some(5173));
     }
 
     #[test]
@@ -132,10 +122,7 @@ mod tests {
 
     #[test]
     fn test_detect_port_with_ansi() {
-        assert_eq!(
-            detect_port("\x1b[32mReady at http://localhost:8080\x1b[0m"),
-            Some(8080)
-        );
+        assert_eq!(detect_port("\x1b[32mReady at http://localhost:8080\x1b[0m"), Some(8080));
     }
 
     #[test]

@@ -23,22 +23,16 @@ pub fn run_migrations(conn: &Connection) -> Result<(), String> {
     .map_err(|e| format!("Failed to create migrations table: {}", e))?;
 
     let current: u32 = conn
-        .query_row(
-            "SELECT COALESCE(MAX(version), 0) FROM _migrations",
-            [],
-            |r| r.get(0),
-        )
+        .query_row("SELECT COALESCE(MAX(version), 0) FROM _migrations", [], |r| r.get(0))
         .unwrap_or(0);
 
     for m in MIGRATIONS.iter().filter(|m| m.version > current) {
-        conn.execute_batch(m.sql).map_err(|e| {
-            format!("Migration {} ({}) failed: {}", m.version, m.name, e)
-        })?;
+        conn.execute_batch(m.sql)
+            .map_err(|e| format!("Migration {} ({}) failed: {}", m.version, m.name, e))?;
 
-        let now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+        let now =
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+                as i64;
 
         conn.execute(
             "INSERT INTO _migrations (version, name, applied_at) VALUES (?1, ?2, ?3)",
@@ -61,9 +55,8 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         run_migrations(&conn).unwrap();
 
-        let version: u32 = conn
-            .query_row("SELECT MAX(version) FROM _migrations", [], |r| r.get(0))
-            .unwrap();
+        let version: u32 =
+            conn.query_row("SELECT MAX(version) FROM _migrations", [], |r| r.get(0)).unwrap();
         assert_eq!(version, 1);
     }
 
@@ -73,9 +66,8 @@ mod tests {
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap(); // Should not fail on second run
 
-        let count: u32 = conn
-            .query_row("SELECT COUNT(*) FROM _migrations", [], |r| r.get(0))
-            .unwrap();
+        let count: u32 =
+            conn.query_row("SELECT COUNT(*) FROM _migrations", [], |r| r.get(0)).unwrap();
         assert_eq!(count, 1);
     }
 }

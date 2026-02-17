@@ -4,19 +4,15 @@ use std::collections::HashMap;
 // ── Pure functions ───────────────────────────────────────────────────
 
 pub fn get(conn: &rusqlite::Connection, key: &str) -> Result<Option<String>, rusqlite::Error> {
-    conn.query_row(
-        "SELECT value FROM settings WHERE key = ?1",
-        rusqlite::params![key],
-        |row| row.get(0),
-    )
+    conn.query_row("SELECT value FROM settings WHERE key = ?1", rusqlite::params![key], |row| {
+        row.get(0)
+    })
     .optional()
 }
 
 pub fn set(conn: &rusqlite::Connection, key: &str, value: &str) -> Result<(), rusqlite::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "INSERT INTO settings (key, value, updated_at) VALUES (?1, ?2, ?3)
@@ -28,7 +24,8 @@ pub fn set(conn: &rusqlite::Connection, key: &str, value: &str) -> Result<(), ru
 
 pub fn get_all(conn: &rusqlite::Connection) -> Result<HashMap<String, String>, rusqlite::Error> {
     let mut stmt = conn.prepare("SELECT key, value FROM settings")?;
-    let rows = stmt.query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)))?;
+    let rows =
+        stmt.query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)))?;
     let mut map = HashMap::new();
     for row in rows {
         let (k, v) = row?;
@@ -49,19 +46,13 @@ pub fn db_get_setting(db: tauri::State<DbState>, key: String) -> Result<Option<S
 }
 
 #[tauri::command]
-pub fn db_set_setting(
-    db: tauri::State<DbState>,
-    key: String,
-    value: String,
-) -> Result<(), String> {
+pub fn db_set_setting(db: tauri::State<DbState>, key: String, value: String) -> Result<(), String> {
     let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
     set(&conn, &key, &value).map_err(|e| format!("DB error: {}", e))
 }
 
 #[tauri::command]
-pub fn db_get_all_settings(
-    db: tauri::State<DbState>,
-) -> Result<HashMap<String, String>, String> {
+pub fn db_get_all_settings(db: tauri::State<DbState>) -> Result<HashMap<String, String>, String> {
     let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
     get_all(&conn).map_err(|e| format!("DB error: {}", e))
 }

@@ -48,10 +48,8 @@ pub fn create(
     path: &str,
 ) -> Result<Project, rusqlite::Error> {
     let id = uuid::Uuid::new_v4().to_string();
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "INSERT INTO projects (id, name, path, created_at, last_opened, open_count)
@@ -72,10 +70,8 @@ pub fn create(
 }
 
 pub fn touch(conn: &rusqlite::Connection, path: &str) -> Result<(), rusqlite::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "UPDATE projects SET last_opened = ?1, open_count = open_count + 1 WHERE path = ?2",
@@ -90,10 +86,7 @@ pub fn update(
     patch: &ProjectPatch,
 ) -> Result<(), rusqlite::Error> {
     if let Some(ref name) = patch.name {
-        conn.execute(
-            "UPDATE projects SET name = ?1 WHERE id = ?2",
-            rusqlite::params![name, id],
-        )?;
+        conn.execute("UPDATE projects SET name = ?1 WHERE id = ?2", rusqlite::params![name, id])?;
     }
     if let Some(ref cli) = patch.default_cli {
         conn.execute(
@@ -102,10 +95,7 @@ pub fn update(
         )?;
     }
     if let Some(ref s) = patch.settings {
-        conn.execute(
-            "UPDATE projects SET settings = ?1 WHERE id = ?2",
-            rusqlite::params![s, id],
-        )?;
+        conn.execute("UPDATE projects SET settings = ?1 WHERE id = ?2", rusqlite::params![s, id])?;
     }
     Ok(())
 }
@@ -140,10 +130,7 @@ pub fn get_or_create(
     match existing {
         Some(p) => {
             touch(conn, path)?;
-            Ok(Project {
-                open_count: p.open_count + 1,
-                ..p
-            })
+            Ok(Project { open_count: p.open_count + 1, ..p })
         }
         None => create(conn, name, path),
     }

@@ -51,14 +51,9 @@ pub fn search(
     }
 }
 
-pub fn add(
-    conn: &rusqlite::Connection,
-    entry: &NewHistoryEntry,
-) -> Result<(), rusqlite::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+pub fn add(conn: &rusqlite::Connection, entry: &NewHistoryEntry) -> Result<(), rusqlite::Error> {
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "INSERT INTO command_history
@@ -138,10 +133,7 @@ pub fn db_recent_history(
 }
 
 #[tauri::command]
-pub fn db_add_history(
-    db: tauri::State<DbState>,
-    entry: NewHistoryEntry,
-) -> Result<(), String> {
+pub fn db_add_history(db: tauri::State<DbState>, entry: NewHistoryEntry) -> Result<(), String> {
     let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
     add(&conn, &entry).map_err(|e| format!("DB error: {}", e))
 }

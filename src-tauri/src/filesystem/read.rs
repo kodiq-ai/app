@@ -59,8 +59,7 @@ pub fn read_file(path: String) -> Result<String, String> {
     if !file_path.is_file() {
         return Err(format!("Not a file: {}", path));
     }
-    let metadata =
-        std::fs::metadata(&path).map_err(|e| format!("Cannot read metadata: {}", e))?;
+    let metadata = std::fs::metadata(&path).map_err(|e| format!("Cannot read metadata: {}", e))?;
     if metadata.len() > 1_048_576 {
         return Err("File too large (>1MB)".to_string());
     }

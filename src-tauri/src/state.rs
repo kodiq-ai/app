@@ -25,9 +25,7 @@ pub struct DbState {
 
 impl DbState {
     pub fn new(conn: rusqlite::Connection) -> Self {
-        Self {
-            connection: Mutex::new(conn),
-        }
+        Self { connection: Mutex::new(conn) }
     }
 }
 
@@ -36,8 +34,5 @@ impl DbState {
 pub type AppState = Mutex<TerminalState>;
 
 pub fn new_app_state() -> AppState {
-    Mutex::new(TerminalState {
-        terminals: HashMap::new(),
-        next_id: 0,
-    })
+    Mutex::new(TerminalState { terminals: HashMap::new(), next_id: 0 })
 }

@@ -118,7 +118,8 @@ export function ActivityPanel() {
                 {t("fileChanged")} ({fileChanges.length})
               </span>
               {fileChanges.slice(0, 20).map((f) => {
-                const cfg = KIND_ICONS[f.kind] ?? KIND_ICONS.modified!;
+                const fallback = { icon: FileEdit, color: "#eab308" };
+                const cfg = KIND_ICONS[f.kind] ?? fallback;
                 const Icon = cfg.icon;
                 return (
                   <div key={f.file} className="flex h-5 items-center gap-1.5">

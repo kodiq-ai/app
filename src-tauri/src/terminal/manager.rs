@@ -22,12 +22,7 @@ pub fn spawn_terminal(
     let pty_system = native_pty_system();
 
     let pair = pty_system
-        .openpty(PtySize {
-            rows: 24,
-            cols: 80,
-            pixel_width: 0,
-            pixel_height: 0,
-        })
+        .openpty(PtySize { rows: 24, cols: 80, pixel_width: 0, pixel_height: 0 })
         .map_err(|e| format!("Failed to open PTY: {}", e))?;
 
     let cmd_str = command.clone().unwrap_or_default();
@@ -85,33 +80,20 @@ pub fn spawn_terminal(
         }
     }
 
-    let _child = pair
-        .slave
-        .spawn_command(cmd)
-        .map_err(|e| format!("Failed to spawn: {}", e))?;
+    let _child = pair.slave.spawn_command(cmd).map_err(|e| format!("Failed to spawn: {}", e))?;
     drop(pair.slave);
 
-    let writer = pair
-        .master
-        .take_writer()
-        .map_err(|e| format!("Failed to get writer: {}", e))?;
-    let mut reader = pair
-        .master
-        .try_clone_reader()
-        .map_err(|e| format!("Failed to get reader: {}", e))?;
+    let writer = pair.master.take_writer().map_err(|e| format!("Failed to get writer: {}", e))?;
+    let mut reader =
+        pair.master.try_clone_reader().map_err(|e| format!("Failed to get reader: {}", e))?;
 
     let terminal_id = {
         let mut app_state = state.lock().unwrap();
         let id = format!("term-{}", app_state.next_id);
         app_state.next_id += 1;
-        app_state.terminals.insert(
-            id.clone(),
-            PtyInstance {
-                writer,
-                master: pair.master,
-                label: label.clone(),
-            },
-        );
+        app_state
+            .terminals
+            .insert(id.clone(), PtyInstance { writer, master: pair.master, label: label.clone() });
         id
     };
 
@@ -122,8 +104,7 @@ pub fn spawn_terminal(
         let mut buf = [0u8; 4096];
         let mut emitted_ports: HashSet<u16> = HashSet::new();
 
-        let url_re =
-            Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap();
+        let url_re = Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap();
         let ansi_re = Regex::new(r"\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07").unwrap();
 
         loop {
@@ -188,13 +169,8 @@ pub fn write_to_pty(id: String, data: String, state: tauri::State<'_, AppState>)
 /// Resize a specific terminal
 #[tauri::command]
 pub fn resize_pty(id: String, cols: u16, rows: u16, state: tauri::State<'_, AppState>) {
-    if let Some(ref pty) = state.lock().unwrap().terminals.get(&id) {
-        let _ = pty.master.resize(PtySize {
-            rows,
-            cols,
-            pixel_width: 0,
-            pixel_height: 0,
-        });
+    if let Some(pty) = state.lock().unwrap().terminals.get(&id) {
+        let _ = pty.master.resize(PtySize { rows, cols, pixel_width: 0, pixel_height: 0 });
     }
 }
 

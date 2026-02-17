@@ -1,9 +1,9 @@
-mod state;
+mod cli;
 mod db;
-mod terminal;
 mod filesystem;
 mod git;
-mod cli;
+mod state;
+mod terminal;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -17,15 +17,12 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             #[cfg(desktop)]
-            app.handle()
-                .plugin(tauri_plugin_updater::Builder::new().build())?;
+            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             app.handle().plugin(tauri_plugin_process::init())?;
 
             if cfg!(debug_assertions) {
                 app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .build(),
+                    tauri_plugin_log::Builder::default().level(log::LevelFilter::Info).build(),
                 )?;
             }
             Ok(())

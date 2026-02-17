@@ -51,14 +51,9 @@ pub fn list_active(
     rows.collect()
 }
 
-pub fn save(
-    conn: &rusqlite::Connection,
-    session: &NewSession,
-) -> Result<(), rusqlite::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+pub fn save(conn: &rusqlite::Connection, session: &NewSession) -> Result<(), rusqlite::Error> {
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "INSERT OR REPLACE INTO terminal_sessions
@@ -78,10 +73,8 @@ pub fn save(
 }
 
 pub fn close(conn: &rusqlite::Connection, id: &str) -> Result<(), rusqlite::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "UPDATE terminal_sessions SET is_active = 0, closed_at = ?1 WHERE id = ?2",
@@ -94,10 +87,8 @@ pub fn close_all_for_project(
     conn: &rusqlite::Connection,
     project_id: &str,
 ) -> Result<(), rusqlite::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+        as i64;
 
     conn.execute(
         "UPDATE terminal_sessions SET is_active = 0, closed_at = ?1
@@ -110,10 +101,7 @@ pub fn close_all_for_project(
 // ── Tauri Commands ───────────────────────────────────────────────────
 
 #[tauri::command]
-pub fn db_close_all_sessions(
-    db: tauri::State<DbState>,
-    project_id: String,
-) -> Result<(), String> {
+pub fn db_close_all_sessions(db: tauri::State<DbState>, project_id: String) -> Result<(), String> {
     let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
     close_all_for_project(&conn, &project_id).map_err(|e| format!("DB error: {}", e))
 }
@@ -128,10 +116,7 @@ pub fn db_list_sessions(
 }
 
 #[tauri::command]
-pub fn db_save_session(
-    db: tauri::State<DbState>,
-    session: NewSession,
-) -> Result<(), String> {
+pub fn db_save_session(db: tauri::State<DbState>, session: NewSession) -> Result<(), String> {
     let conn = db.connection.lock().map_err(|e| format!("Lock error: {}", e))?;
     save(&conn, &session).map_err(|e| format!("DB error: {}", e))
 }

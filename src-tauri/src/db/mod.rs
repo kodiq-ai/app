@@ -1,24 +1,21 @@
+pub mod history;
 pub mod migrations;
 pub mod projects;
 pub mod sessions;
 pub mod settings;
-pub mod history;
 pub mod snippets;
 
 use crate::state::DbState;
 
 /// Initialize the database: open/create file, run migrations.
 pub fn init() -> Result<DbState, String> {
-    let db_dir = dirs::config_dir()
-        .ok_or("Cannot find config directory")?
-        .join("kodiq");
+    let db_dir = dirs::config_dir().ok_or("Cannot find config directory")?.join("kodiq");
 
-    std::fs::create_dir_all(&db_dir)
-        .map_err(|e| format!("Cannot create config dir: {}", e))?;
+    std::fs::create_dir_all(&db_dir).map_err(|e| format!("Cannot create config dir: {}", e))?;
 
     let db_path = db_dir.join("kodiq.db");
-    let conn = rusqlite::Connection::open(&db_path)
-        .map_err(|e| format!("Cannot open database: {}", e))?;
+    let conn =
+        rusqlite::Connection::open(&db_path).map_err(|e| format!("Cannot open database: {}", e))?;
 
     // Enable WAL mode for better concurrent read performance
     conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;")
