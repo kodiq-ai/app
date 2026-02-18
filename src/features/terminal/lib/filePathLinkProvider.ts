@@ -88,10 +88,12 @@ function findPaths(text: string): Array<{ path: string; start: number; end: numb
 
 export function createFilePathLinkProvider(
   term: Terminal,
-  projectPath: string | null,
+  _projectPath?: string | null,
 ): ILinkProvider {
   return {
     provideLinks(bufferLineNumber: number, callback: (links: ILink[] | undefined) => void) {
+      // Always read fresh projectPath from store (avoids stale closure)
+      const projectPath = useAppStore.getState().projectPath;
       if (!projectPath) {
         callback(undefined);
         return;

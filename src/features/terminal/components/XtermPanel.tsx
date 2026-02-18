@@ -114,6 +114,18 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Terminal is created once; font settings are read at init only
   }, [termId]);
 
+  // -- Live-update font settings -------
+  useEffect(() => {
+    if (!termRef.current) return;
+    termRef.current.options.fontSize = settings.fontSize;
+    termRef.current.options.fontFamily = settings.fontFamily;
+    try {
+      fitRef.current?.fit();
+    } catch {
+      /* ok */
+    }
+  }, [settings.fontSize, settings.fontFamily]);
+
   useEffect(() => {
     if (!isActive || !fitRef.current || !termRef.current) return;
 

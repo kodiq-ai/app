@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { git as gitApi } from "@shared/lib/tauri";
-import type { ProjectStats } from "@shared/lib/types";
+import type { ProjectStats, GitInfo } from "@shared/lib/types";
 import {
   GitBranch,
   GitCommit,
@@ -23,26 +23,6 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { t } from "@/lib/i18n";
-
-// ── Types ────────────────────────────────────────────────────────────────────
-
-interface ChangedFile {
-  file: string;
-  status: string;
-  kind: string;
-}
-
-interface GitInfo {
-  isGit: boolean;
-  branch?: string;
-  commitHash?: string;
-  commitMessage?: string;
-  commitTime?: string;
-  changedFiles?: ChangedFile[];
-  changedCount?: number;
-  ahead?: number;
-  behind?: number;
-}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

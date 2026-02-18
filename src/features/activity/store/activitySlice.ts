@@ -21,6 +21,7 @@ export interface ActivitySlice {
 }
 
 let activityCounter = 0;
+const MAX_ACTIVITY_LOG = 500;
 
 export const createActivitySlice: StateCreator<ActivitySlice, [], [], ActivitySlice> = (set) => ({
   activityLog: [],
@@ -29,7 +30,7 @@ export const createActivitySlice: StateCreator<ActivitySlice, [], [], ActivitySl
   addActivity: (entry) =>
     set((s) => ({
       activityLog: [
-        ...s.activityLog,
+        ...s.activityLog.slice(-(MAX_ACTIVITY_LOG - 1)),
         {
           ...entry,
           id: `act-${++activityCounter}`,

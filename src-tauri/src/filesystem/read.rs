@@ -39,7 +39,9 @@ pub fn read_dir(path: String) -> Result<Vec<serde_json::Value>, KodiqError> {
             continue;
         }
 
-        let file_type = entry.file_type().unwrap();
+        let Ok(file_type) = entry.file_type() else {
+            continue; // skip broken symlinks / inaccessible entries
+        };
         let full_path = entry.path().to_string_lossy().to_string();
 
         entries.push(serde_json::json!({

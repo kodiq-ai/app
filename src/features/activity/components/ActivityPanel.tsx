@@ -5,15 +5,11 @@ import { useEffect, useState, useCallback } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { TerminalSquare, FileEdit, Plus, Minus, FileQuestion, RefreshCw } from "lucide-react";
 import { git } from "@shared/lib/tauri";
+import type { ChangedFile } from "@shared/lib/types";
 import { useAppStore } from "@/lib/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { t } from "@/lib/i18n";
-
-interface ChangedFile {
-  file: string;
-  kind: string;
-}
 
 const KIND_ICONS: Record<string, { icon: typeof FileEdit; color: string }> = {
   modified: { icon: FileEdit, color: "#eab308" },

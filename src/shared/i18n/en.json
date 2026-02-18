@@ -212,5 +212,6 @@
   "failedToSave": "Failed to save file",
   "noOpenFiles": "No open files",
   "closeTab": "Close tab",
-  "closeOtherTabs": "Close other tabs"
+  "closeOtherTabs": "Close other tabs",
+  "andMore": "more…"
 }

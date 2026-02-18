@@ -33,9 +33,10 @@ export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: Shortcut
       if (!activeEditorTab) return;
       const tab = editorTabs.find((t) => t.path === activeEditorTab);
       if (!tab || tab.content === tab.savedContent) return;
-      fs.writeFile(tab.path, tab.content)
+      const contentToSave = tab.content;
+      fs.writeFile(tab.path, contentToSave)
         .then(() => {
-          markTabSaved(tab.path, tab.content);
+          markTabSaved(tab.path, contentToSave);
           toast.success(t("fileSaved"));
         })
         .catch((err) => handleError(err, t("failedToSave")));

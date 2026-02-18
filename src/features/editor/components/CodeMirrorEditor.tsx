@@ -16,31 +16,10 @@ import { bracketMatching, indentOnInput, foldGutter, foldKeymap } from "@codemir
 import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { useAppStore } from "@/lib/store";
-import { fs } from "@shared/lib/tauri";
-import { handleError } from "@shared/lib/errors";
-import { t } from "@/lib/i18n";
-import { toast } from "sonner";
 import { kodiqTheme } from "../lib/kodiqTheme";
 import { loadLanguage } from "../lib/languageLoader";
 import { getViewEntry, setViewEntry, hasViewEntry } from "../lib/viewCache";
 import type { EditorTab } from "../store/editorSlice";
-
-// -- Save handler -------
-async function saveActiveTab() {
-  const { activeEditorTab, editorTabs, markTabSaved } = useAppStore.getState();
-  if (!activeEditorTab) return;
-
-  const tab = editorTabs.find((t) => t.path === activeEditorTab);
-  if (!tab || tab.content === tab.savedContent) return; // clean — skip
-
-  try {
-    await fs.writeFile(tab.path, tab.content);
-    markTabSaved(tab.path, tab.content);
-    toast.success(t("fileSaved"));
-  } catch (e) {
-    handleError(e, t("failedToSave"));
-  }
-}
 
 // -- Component -------
 interface Props {
@@ -94,13 +73,6 @@ export function CodeMirrorEditor({ tab }: Props) {
           ...searchKeymap,
           ...foldKeymap,
           indentWithTab,
-          {
-            key: "Mod-s",
-            run: () => {
-              saveActiveTab();
-              return true;
-            },
-          },
         ]),
 
         // Theme

@@ -158,61 +158,65 @@ export default function App() {
       })
       .catch(() => {});
 
-    // Auto-generate default launch configs for installed CLIs (first time only)
-    setTimeout(async () => {
-      try {
-        const proj = await db.projects.getOrCreate(name, path);
-        const existing = await db.launchConfigs.list(proj.id);
-        if (existing.length === 0) {
-          const installed = useAppStore.getState().cliTools.filter((t) => t.installed);
-          for (const tool of installed) {
-            await db.launchConfigs.create({
-              cli_name: tool.bin,
-              profile_name: tool.name,
-              config: JSON.stringify({ args: [], env: {}, cwd: null, shell: null }),
-              is_default: false,
-              project_id: null, // global so they appear in all projects
-            });
-          }
-          if (installed.length > 0) {
-            useAppStore.getState().loadLaunchConfigs(proj.id);
-          }
-        }
-      } catch (e) {
-        console.error("[Auto-config]", e);
-      }
-    }, 200);
-
-    // Restore sessions from SQLite, fallback to localStorage, then default
-    setTimeout(async () => {
+    // Async init: DB project → auto-config → restore sessions (proper await chain)
+    (async () => {
       try {
         const project = await db.projects.getOrCreate(name, path);
-        const saved = await db.sessions.list(project.id);
-        // Mark old sessions as closed (will be re-created with new PTY ids)
-        await db.sessions.closeAll(project.id);
 
-        if (saved.length > 0) {
-          for (const s of saved) {
-            const cmd = s.command === "shell" || !s.command ? undefined : s.command;
-            await spawnTab(cmd, s.label);
+        // Auto-generate default launch configs for installed CLIs (first time only)
+        try {
+          const existing = await db.launchConfigs.list(project.id);
+          if (existing.length === 0) {
+            const installed = useAppStore.getState().cliTools.filter((t) => t.installed);
+            for (const tool of installed) {
+              await db.launchConfigs.create({
+                cli_name: tool.bin,
+                profile_name: tool.name,
+                config: JSON.stringify({ args: [], env: {}, cwd: null, shell: null }),
+                is_default: false,
+                project_id: null, // global so they appear in all projects
+              });
+            }
+            if (installed.length > 0) {
+              await useAppStore.getState().loadLaunchConfigs(project.id);
+            }
           }
-          return;
+        } catch (e) {
+          console.error("[Auto-config]", e);
+        }
+
+        // Restore sessions from SQLite, fallback to default
+        try {
+          const saved = await db.sessions.list(project.id);
+          await db.sessions.closeAll(project.id);
+
+          if (saved.length > 0) {
+            for (const s of saved) {
+              const cmd = s.command === "shell" || !s.command ? undefined : s.command;
+              await spawnTab(cmd, s.label);
+            }
+            return;
+          }
+        } catch (e) {
+          console.error("[DB] restore sessions:", e);
+        }
+
+        // Default: use project's default CLI or plain terminal
+        const { defaultCli } = useAppStore.getState();
+        if (defaultCli) {
+          const tool = useAppStore
+            .getState()
+            .cliTools.find((t) => t.bin === defaultCli && t.installed);
+          await spawnTab(defaultCli, tool?.name || defaultCli);
+        } else {
+          await spawnTab(undefined, t("terminal"));
         }
       } catch (e) {
-        console.error("[DB] restore sessions:", e);
-      }
-
-      // Default: use project's default CLI or plain terminal
-      const { defaultCli } = useAppStore.getState();
-      if (defaultCli) {
-        const tool = useAppStore
-          .getState()
-          .cliTools.find((t) => t.bin === defaultCli && t.installed);
-        await spawnTab(defaultCli, tool?.name || defaultCli);
-      } else {
+        console.error("[openProject] init failed:", e);
+        // Fallback: spawn plain terminal so user isn't stuck
         await spawnTab(undefined, t("terminal"));
       }
-    }, 100);
+    })();
   };
 
   const closeProject = () => {
