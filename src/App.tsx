@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 
 import { toast } from "sonner";
-import { useAppStore, type FileEntry, type CliTool } from "@/lib/store";
+import { useAppStore, type FileEntry } from "@/lib/store";
 import type { GitInfo } from "@shared/lib/types";
-import { db } from "@shared/lib/tauri";
+import { terminal, fs, git, cli, db } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -73,8 +72,8 @@ export default function App() {
 
   const loadFileTree = async (path: string) => {
     try {
-      const entries = await invoke<FileEntry[]>("read_dir", { path });
-      setFileTree(entries);
+      const entries = await fs.readDir(path);
+      setFileTree(entries as FileEntry[]);
     } catch (e) {
       toast.error(t("failedToLoadFiles"), { description: String(e) });
     }
@@ -84,7 +83,7 @@ export default function App() {
     async (command?: string, label?: string, env?: Record<string, string>) => {
       try {
         const { projectPath, projectId, settings, tabs: currentTabs } = useAppStore.getState();
-        const id = await invoke<string>("spawn_terminal", {
+        const id = await terminal.spawn({
           command: command || null,
           cwd: projectPath,
           shell: settings.shell || null,
@@ -120,7 +119,7 @@ export default function App() {
 
   const closeTab = useCallback(
     (id: string) => {
-      invoke("close_terminal", { id }).catch(() => {});
+      terminal.close(id).catch(() => {});
       removeTab(id);
       db.sessions.close(id).catch((e) => console.error("[DB] close session:", e));
     },
@@ -146,12 +145,13 @@ export default function App() {
     loadFileTree(path);
 
     // Start native filesystem watcher
-    invoke("start_watching", { path }).catch((e) => console.warn("[Watcher] failed to start:", e));
+    fs.startWatching(path).catch((e) => console.warn("[Watcher] failed to start:", e));
 
     // Capture initial git state for activity log diff
     useAppStore.getState().clearActivity();
-    invoke<GitInfo>("get_git_info", { path })
-      .then((info) => {
+    git
+      .getInfo(path)
+      .then((info: GitInfo) => {
         const files = (info.changedFiles ?? []).map((f) => f.file);
         useAppStore.getState().setSessionStartFiles(files);
         useAppStore.getState().setGitInfo(info);
@@ -217,11 +217,11 @@ export default function App() {
 
   const closeProject = () => {
     const { projectId } = useAppStore.getState();
-    tabs.forEach((tab) => invoke("close_terminal", { id: tab.id }).catch(() => {}));
+    tabs.forEach((tab) => terminal.close(tab.id).catch(() => {}));
     if (projectId) {
       db.sessions.closeAll(projectId).catch((e) => console.error("[DB] closeAll:", e));
     }
-    invoke("stop_watching").catch(() => {});
+    fs.stopWatching().catch(() => {});
     clearTabs();
     setFileTree([]);
     setProject(null);
@@ -252,10 +252,12 @@ export default function App() {
   useEffect(() => {
     const init = async () => {
       // 1. CLI detection (non-blocking)
-      invoke<CliTool[]>("detect_cli_tools")
+      cli
+        .detectTools()
         .then(setCliTools)
         .catch(() => {});
-      invoke<string>("detect_default_shell")
+      cli
+        .detectShell()
         .then(setDefaultShell)
         .catch(() => {});
 

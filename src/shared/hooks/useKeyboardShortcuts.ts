@@ -58,7 +58,7 @@ export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: Shortcut
     "mod+t",
     (e) => {
       e.preventDefault();
-      if (useAppStore.getState().projectPath) spawnTab(undefined, "Терминал");
+      if (useAppStore.getState().projectPath) spawnTab(undefined, t("terminal"));
     },
     { enableOnFormTags: true },
   );

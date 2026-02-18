@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { FolderOpen, BarChart3, ClipboardList, GitBranch } from "lucide-react";
+import { fs } from "@shared/lib/tauri";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ export function ActivityBar() {
 
   const expandDir = useCallback(async (path: string): Promise<FileEntry[]> => {
     try {
-      return await invoke<FileEntry[]>("read_dir", { path });
+      return (await fs.readDir(path)) as FileEntry[];
     } catch (e) {
       toast.error(t("failedToReadDir"), { description: String(e) });
       return [];

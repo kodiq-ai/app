@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
+import { fs } from "@shared/lib/tauri";
 import {
   CommandDialog,
   CommandInput,
@@ -44,7 +44,7 @@ export function FileSearch() {
   const openFile = useCallback(
     async (entry: FileEntry) => {
       try {
-        const content = await invoke<string>("read_file", { path: entry.path });
+        const content = await fs.readFile(entry.path);
         setOpenFile(entry.path, content);
       } catch (e) {
         toast.error(t("failedToOpenFile"), { description: String(e) });

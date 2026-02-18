@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
+import { fs } from "@shared/lib/tauri";
 import { ChevronRight, Copy, FolderOpen, TerminalSquare } from "lucide-react";
 import { Loader } from "@/components/Loader";
 import { cn } from "@/lib/utils";
@@ -48,7 +48,7 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
       setIsOpen(!isOpen);
     } else {
       try {
-        const content = await invoke<string>("read_file", { path: entry.path });
+        const content = await fs.readFile(entry.path);
         setOpenFile(entry.path, content);
       } catch (e) {
         toast.error(t("failedToReadFile"), { description: String(e) });

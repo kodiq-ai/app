@@ -134,7 +134,8 @@ export function CodeMirrorEditor({ tab }: Props) {
     });
 
     return entry;
-  }, [tab.path, tab.content, tab.language]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tab.content excluded intentionally: including it causes re-render on every keystroke
+  }, [tab.path, tab.language]);
 
   // -- Mount / Unmount -------
   useEffect(() => {
@@ -167,7 +168,8 @@ export function CodeMirrorEditor({ tab }: Props) {
         container.removeChild(view.dom);
       }
     };
-  }, [tab.path, getOrCreateView, tab.scrollPos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tab.scrollPos excluded: scroll restore is one-time on mount, not reactive
+  }, [tab.path, getOrCreateView]);
 
   return <div ref={containerRef} className="h-full w-full overflow-hidden [&_.cm-editor]:h-full" />;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { terminal } from "@shared/lib/tauri";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
@@ -71,7 +71,7 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     const markerManager = new OutputMarkerManager(term);
 
     term.onData((data) => {
-      invoke("write_to_pty", { id: termId, data }).catch(() => {});
+      terminal.write(termId, data).catch(() => {});
     });
 
     const unlisten = listen<{ id: string; data: string }>("pty-output", (event) => {
@@ -122,7 +122,7 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
         fitRef.current?.fit();
         const term = termRef.current;
         if (term) {
-          invoke("resize_pty", { id: termId, cols: term.cols, rows: term.rows }).catch(() => {});
+          terminal.resize(termId, term.cols, term.rows).catch(() => {});
         }
       } catch {
         /* ok */

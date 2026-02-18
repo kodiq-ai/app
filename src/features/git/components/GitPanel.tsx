@@ -3,10 +3,9 @@
 // Lives in the 4th tab of the right Activity Bar.
 
 import { useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
-import type { GitInfo } from "@shared/lib/types";
+import { git } from "@shared/lib/tauri";
 import { useAppStore } from "@/lib/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,8 @@ export function GitPanel() {
     if (sidebarTab !== "git" || !projectPath) return;
 
     const refresh = () => {
-      invoke<GitInfo>("get_git_info", { path: projectPath })
+      git
+        .getInfo(projectPath)
         .then(setGitInfo)
         .catch((e) => console.error("[GitPanel]", e));
     };
@@ -48,7 +48,7 @@ export function GitPanel() {
     async (file: string) => {
       if (!projectPath) return;
       try {
-        await invoke("git_stage", { path: projectPath, files: [file] });
+        await git.stage(projectPath, [file]);
       } catch (e) {
         toast.error(t("gitStageError"), { description: String(e) });
       }
@@ -60,7 +60,7 @@ export function GitPanel() {
     async (file: string) => {
       if (!projectPath) return;
       try {
-        await invoke("git_unstage", { path: projectPath, files: [file] });
+        await git.unstage(projectPath, [file]);
       } catch (e) {
         toast.error(t("gitUnstageError"), { description: String(e) });
       }
@@ -71,7 +71,7 @@ export function GitPanel() {
   const stageAll = useCallback(async () => {
     if (!projectPath) return;
     try {
-      await invoke("git_stage_all", { path: projectPath });
+      await git.stageAll(projectPath);
     } catch (e) {
       toast.error(t("gitStageError"), { description: String(e) });
     }
@@ -80,7 +80,7 @@ export function GitPanel() {
   const unstageAll = useCallback(async () => {
     if (!projectPath) return;
     try {
-      await invoke("git_unstage_all", { path: projectPath });
+      await git.unstageAll(projectPath);
     } catch (e) {
       toast.error(t("gitUnstageError"), { description: String(e) });
     }
@@ -90,10 +90,7 @@ export function GitPanel() {
     if (!projectPath || !commitMessage.trim() || stagedFiles.length === 0) return;
     setIsCommitting(true);
     try {
-      const result = await invoke<{ hash: string; message: string }>("git_commit", {
-        path: projectPath,
-        message: commitMessage.trim(),
-      });
+      const result = await git.commit(projectPath, commitMessage.trim());
       toast.success(t("gitCommitted"), { description: result.hash });
       setCommitMessage("");
     } catch (e) {

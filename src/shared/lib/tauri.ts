@@ -39,12 +39,22 @@ export const fs = {
   readDir: (path: string) => invoke<FileEntry[]>("read_dir", { path }),
   readFile: (path: string) => invoke<string>("read_file", { path }),
   writeFile: (path: string, content: string) => invoke<void>("write_file", { path, content }),
+  startWatching: (path: string) => invoke<void>("start_watching", { path }),
+  stopWatching: () => invoke<void>("stop_watching"),
 };
 
 // ── Git ──────────────────────────────────────────────────
 export const git = {
   getInfo: (path: string) => invoke<GitInfo>("get_git_info", { path }),
   getStats: (path: string) => invoke<ProjectStats>("get_project_stats", { path }),
+  stage: (path: string, files: string[]) => invoke<void>("git_stage", { path, files }),
+  unstage: (path: string, files: string[]) => invoke<void>("git_unstage", { path, files }),
+  stageAll: (path: string) => invoke<void>("git_stage_all", { path }),
+  unstageAll: (path: string) => invoke<void>("git_unstage_all", { path }),
+  commit: (path: string, message: string) =>
+    invoke<{ hash: string; message: string }>("git_commit", { path, message }),
+  diff: (path: string, file: string, staged: boolean) =>
+    invoke<string>("git_diff", { path, file, staged }),
 };
 
 // ── CLI ──────────────────────────────────────────────────

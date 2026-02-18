@@ -79,11 +79,11 @@ export interface GitInfo {
 }
 
 export interface ProjectStats {
-  total_files: number;
-  total_dirs: number;
-  total_size: number;
-  extensions: Record<string, number>;
-  detected_stack: string[];
+  totalFiles: number;
+  totalDirs: number;
+  totalSizeBytes: number;
+  extensions: { ext: string; count: number }[];
+  stack: string[];
 }
 
 // ── CLI ──────────────────────────────────────────────────

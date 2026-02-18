@@ -2,9 +2,9 @@
 // Sidebar panel showing session activity: commands run, files changed.
 
 import { useEffect, useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { TerminalSquare, FileEdit, Plus, Minus, FileQuestion, RefreshCw } from "lucide-react";
+import { git } from "@shared/lib/tauri";
 import { useAppStore } from "@/lib/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,6 @@ import { t } from "@/lib/i18n";
 interface ChangedFile {
   file: string;
   kind: string;
-}
-
-interface GitInfo {
-  isGit: boolean;
-  changedFiles?: ChangedFile[];
 }
 
 const KIND_ICONS: Record<string, { icon: typeof FileEdit; color: string }> = {
@@ -44,7 +39,8 @@ export function ActivityPanel() {
 
   const refreshGit = useCallback(() => {
     if (!projectPath) return;
-    invoke<GitInfo>("get_git_info", { path: projectPath })
+    git
+      .getInfo(projectPath)
       .then((info) => {
         if (!info.isGit || !info.changedFiles) {
           setFileChanges([]);
