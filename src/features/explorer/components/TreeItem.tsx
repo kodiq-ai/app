@@ -87,7 +87,7 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
             onClick={handleClick}
             className={cn(
               "h-[26px] w-full justify-start gap-1.5 rounded-none px-0 text-[11px]",
-              isActive ? "bg-white/[0.04] text-[#f4f4f5]" : "hover:bg-white/[0.025]",
+              isActive ? "text-k-text bg-white/[0.04]" : "hover:bg-white/[0.025]",
             )}
             style={{ paddingLeft: pl }}
           >
@@ -96,7 +96,7 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
             {entry.isDir && !loading && (
               <ChevronRight
                 className={cn(
-                  "size-2.5 shrink-0 text-[#3f3f46] transition-transform duration-150",
+                  "text-k-border size-2.5 shrink-0 transition-transform duration-150",
                   isOpen && "rotate-90",
                 )}
               />
@@ -105,9 +105,9 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
             <span
               className={cn(
                 "truncate text-left",
-                isActive && "text-[#f4f4f5]",
-                !isActive && entry.isDir && "text-[#a1a1aa]",
-                !isActive && !entry.isDir && "text-[#a1a1aa]",
+                isActive && "text-k-text",
+                !isActive && entry.isDir && "text-k-text-secondary",
+                !isActive && !entry.isDir && "text-k-text-secondary",
               )}
             >
               {entry.name}

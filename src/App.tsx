@@ -376,8 +376,8 @@ export default function App() {
                   size="icon-xs"
                   onClick={togglePreview}
                   className={cn(
-                    "text-[#52525b] hover:text-[#a1a1aa]",
-                    previewOpen && "text-[#a1a1aa]",
+                    "text-k-text-tertiary hover:text-k-text-secondary",
+                    previewOpen && "text-k-text-secondary",
                   )}
                 >
                   {previewOpen ? (
@@ -398,7 +398,7 @@ export default function App() {
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => setSettingsOpen(true)}
-                className="text-[#52525b] hover:text-[#a1a1aa]"
+                className="text-k-text-tertiary hover:text-k-text-secondary"
               >
                 <Settings className="size-3.5" />
               </Button>
@@ -407,14 +407,14 @@ export default function App() {
           </Tooltip>
           {projectPath && (
             <>
-              <span className="text-[10px] text-[#3f3f46] tabular-nums">{tabs.length}</span>
+              <span className="text-k-border text-[10px] tabular-nums">{tabs.length}</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon-xs"
                     onClick={closeProject}
-                    className="text-[#52525b] hover:text-[#a1a1aa]"
+                    className="text-k-text-tertiary hover:text-k-text-secondary"
                   >
                     <X className="size-3.5" />
                   </Button>
@@ -466,14 +466,14 @@ export default function App() {
                       className={cn(
                         "absolute inset-x-0 -top-[2px] h-[5px] transition-all",
                         isVDragging
-                          ? "bg-[#06b6d4]/30"
+                          ? "bg-k-accent/30"
                           : "bg-transparent group-hover:bg-white/[0.04]",
                       )}
                     />
                     <div
                       className={cn(
                         "absolute inset-0 transition-colors",
-                        isVDragging ? "bg-[#06b6d4]" : "bg-white/[0.06]",
+                        isVDragging ? "bg-k-accent" : "bg-white/[0.06]",
                       )}
                     />
                   </div>
@@ -498,14 +498,14 @@ export default function App() {
                       className={cn(
                         "absolute inset-y-0 -left-[2px] w-[5px] transition-all",
                         isDragging
-                          ? "bg-[#06b6d4]/30"
+                          ? "bg-k-accent/30"
                           : "bg-transparent group-hover:bg-white/[0.04]",
                       )}
                     />
                     <div
                       className={cn(
                         "absolute inset-0 transition-colors",
-                        isDragging ? "bg-[#06b6d4]" : "bg-white/[0.06]",
+                        isDragging ? "bg-k-accent" : "bg-white/[0.06]",
                       )}
                     />
                   </div>

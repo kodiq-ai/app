@@ -21,6 +21,7 @@
   --text-primary: #f4f4f5;
   --text-secondary: #a1a1aa;
   --text-tertiary: #52525b;
+  --text-dim: #71717a;
   --kodiq-accent: #06b6d4;
   --accent-light: #22d3ee;
   --accent-dark: #0891b2;
@@ -288,6 +289,22 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Kodiq design tokens → Tailwind utilities (text-k-*, bg-k-*, border-k-*) */
+  --color-k-accent: var(--kodiq-accent);
+  --color-k-accent-light: var(--accent-light);
+  --color-k-accent-dark: var(--accent-dark);
+  --color-k-text: var(--text-primary);
+  --color-k-text-secondary: var(--text-secondary);
+  --color-k-text-tertiary: var(--text-tertiary);
+  --color-k-border: var(--border-default);
+  --color-k-border-subtle: var(--border-subtle);
+  --color-k-bg-base: var(--bg-base);
+  --color-k-bg-surface: var(--bg-surface);
+  --color-k-bg-raised: var(--bg-raised);
+  --color-k-bg-overlay: var(--bg-overlay);
+  --color-k-bg-elevated: var(--bg-elevated);
+  --color-k-text-dim: var(--text-dim);
 }
 
 .dark {

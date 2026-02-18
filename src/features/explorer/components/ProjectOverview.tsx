@@ -103,10 +103,8 @@ export function ProjectOverview() {
             <div className="flex flex-col gap-1.5">
               {/* Branch */}
               <div className="flex items-center gap-1.5">
-                <GitBranch className="size-3 shrink-0 text-[#06b6d4]" />
-                <span className="truncate text-[11px] font-medium text-[#f4f4f5]">
-                  {git.branch}
-                </span>
+                <GitBranch className="text-k-accent size-3 shrink-0" />
+                <span className="text-k-text truncate text-[11px] font-medium">{git.branch}</span>
                 {(git.ahead ?? 0) > 0 && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -138,11 +136,11 @@ export function ProjectOverview() {
               {/* Last commit */}
               {git.commitHash && (
                 <div className="flex items-center gap-1.5 pl-[18px]">
-                  <GitCommit className="size-2.5 shrink-0 text-[#3f3f46]" />
-                  <span className="truncate font-mono text-[10px] text-[#52525b]">
+                  <GitCommit className="text-k-border size-2.5 shrink-0" />
+                  <span className="text-k-text-tertiary truncate font-mono text-[10px]">
                     {git.commitHash}
                   </span>
-                  <span className="flex-1 truncate text-[10px] text-[#3f3f46]">
+                  <span className="text-k-border flex-1 truncate text-[10px]">
                     {git.commitMessage}
                   </span>
                 </div>
@@ -151,7 +149,7 @@ export function ProjectOverview() {
               {/* Changed files */}
               {git.changedFiles && git.changedFiles.length > 0 ? (
                 <div className="mt-0.5 flex flex-col gap-0.5 pl-[18px]">
-                  <span className="text-[10px] font-medium text-[#52525b]">
+                  <span className="text-k-text-tertiary text-[10px] font-medium">
                     {t("gitChanges")} ({git.changedCount})
                   </span>
                   {git.changedFiles.slice(0, 8).map((f) => {
@@ -161,20 +159,20 @@ export function ProjectOverview() {
                     return (
                       <div key={f.file} className="flex h-5 items-center gap-1.5">
                         <Icon className="size-2.5 shrink-0" style={{ color: cfg.color }} />
-                        <span className="truncate font-mono text-[10px] text-[#a1a1aa]">
+                        <span className="text-k-text-secondary truncate font-mono text-[10px]">
                           {f.file}
                         </span>
                       </div>
                     );
                   })}
                   {(git.changedCount ?? 0) > 8 && (
-                    <span className="text-[10px] text-[#3f3f46]">
+                    <span className="text-k-border text-[10px]">
                       +{(git.changedCount ?? 0) - 8} ещё…
                     </span>
                   )}
                 </div>
               ) : (
-                <span className="pl-[18px] text-[10px] text-[#3f3f46]">{t("gitNoChanges")}</span>
+                <span className="text-k-border pl-[18px] text-[10px]">{t("gitNoChanges")}</span>
               )}
             </div>
           )}
@@ -188,20 +186,20 @@ export function ProjectOverview() {
               {/* Counts row */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
-                  <FileText className="size-2.5 text-[#52525b]" />
-                  <span className="text-[10px] text-[#a1a1aa]">
+                  <FileText className="text-k-text-tertiary size-2.5" />
+                  <span className="text-k-text-secondary text-[10px]">
                     {stats.totalFiles} {t("filesCount")}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Folder className="size-2.5 text-[#52525b]" />
-                  <span className="text-[10px] text-[#a1a1aa]">
+                  <Folder className="text-k-text-tertiary size-2.5" />
+                  <span className="text-k-text-secondary text-[10px]">
                     {stats.totalDirs} {t("foldersCount")}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <HardDrive className="size-2.5 text-[#52525b]" />
-                  <span className="text-[10px] text-[#a1a1aa]">
+                  <HardDrive className="text-k-text-tertiary size-2.5" />
+                  <span className="text-k-text-secondary text-[10px]">
                     {formatSize(stats.totalSizeBytes)}
                   </span>
                 </div>
@@ -210,12 +208,12 @@ export function ProjectOverview() {
               {/* Stack badges */}
               {stats.stack.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1">
-                  <Layers className="size-2.5 shrink-0 text-[#52525b]" />
+                  <Layers className="text-k-text-tertiary size-2.5 shrink-0" />
                   {stats.stack.map((s) => (
                     <Badge
                       key={s}
                       variant="secondary"
-                      className="h-4 border-0 bg-white/[0.04] px-1.5 text-[9px] font-medium text-[#a1a1aa]"
+                      className="text-k-text-secondary h-4 border-0 bg-white/[0.04] px-1.5 text-[9px] font-medium"
                     >
                       {s}
                     </Badge>
@@ -232,7 +230,7 @@ export function ProjectOverview() {
                     const color = EXT_COLORS[e.ext] || "#52525b";
                     return (
                       <div key={e.ext} className="flex h-4 items-center gap-1.5">
-                        <span className="w-8 shrink-0 text-right font-mono text-[10px] text-[#52525b]">
+                        <span className="text-k-text-tertiary w-8 shrink-0 text-right font-mono text-[10px]">
                           .{e.ext}
                         </span>
                         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.03]">
@@ -241,7 +239,7 @@ export function ProjectOverview() {
                             style={{ width: `${pct}%`, backgroundColor: color, opacity: 0.7 }}
                           />
                         </div>
-                        <span className="w-6 shrink-0 font-mono text-[10px] text-[#3f3f46]">
+                        <span className="text-k-border w-6 shrink-0 font-mono text-[10px]">
                           {e.count}
                         </span>
                       </div>

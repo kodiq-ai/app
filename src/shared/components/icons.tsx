@@ -126,7 +126,7 @@ export function TabIconSvg({ icon, size = 12 }: { icon: string; size?: number })
 // ─── File Icon (color-coded by extension) ───────────────────────────────────
 
 export function FileIcon({ name, isDir }: { name: string; isDir: boolean }) {
-  if (isDir) return <Folder className="size-3 fill-[#52525b] text-[#52525b]" />;
+  if (isDir) return <Folder className="fill-k-text-tertiary text-k-text-tertiary size-3" />;
   const ext = name.split(".").pop()?.toLowerCase() || "";
   const colors: Record<string, string> = {
     ts: "#3b82f6",

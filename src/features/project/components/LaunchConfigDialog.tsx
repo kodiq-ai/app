@@ -147,9 +147,9 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/[0.06] bg-[#111113] sm:max-w-[420px]">
+      <DialogContent className="bg-k-bg-surface border-white/[0.06] sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-sm font-medium text-[#f4f4f5]">
+          <DialogTitle className="text-k-text text-sm font-medium">
             {isEditing ? t("editLaunchConfig") : t("newLaunchConfig")}
           </DialogTitle>
         </DialogHeader>
@@ -157,24 +157,24 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
         <div className="flex flex-col gap-3">
           {/* Profile name */}
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-[#71717a]">{t("launchConfigName")}</Label>
+            <Label className="text-k-text-dim text-[11px]">{t("launchConfigName")}</Label>
             <Input
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
               placeholder="e.g. sonnet-4, fast-mode"
-              className="h-8 border-white/[0.06] bg-white/[0.02] text-xs text-[#f4f4f5] placeholder:text-[#3f3f46]"
+              className="text-k-text placeholder:text-k-border h-8 border-white/[0.06] bg-white/[0.02] text-xs"
               autoFocus
             />
           </div>
 
           {/* CLI tool selector */}
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-[#71717a]">{t("launchConfigCli")}</Label>
+            <Label className="text-k-text-dim text-[11px]">{t("launchConfigCli")}</Label>
             <Select value={cliName} onValueChange={setCliName} disabled={isEditing}>
-              <SelectTrigger className="h-8 w-full border-white/[0.06] bg-white/[0.02] text-xs text-[#f4f4f5]">
+              <SelectTrigger className="text-k-text h-8 w-full border-white/[0.06] bg-white/[0.02] text-xs">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="border-white/[0.06] bg-[#18181b]">
+              <SelectContent className="bg-k-bg-raised border-white/[0.06]">
                 {installedCli.map((tool) => (
                   <SelectItem key={tool.bin} value={tool.bin} className="text-xs">
                     {tool.name}
@@ -186,36 +186,36 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
 
           {/* Arguments */}
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-[#71717a]">{t("launchConfigArgs")}</Label>
+            <Label className="text-k-text-dim text-[11px]">{t("launchConfigArgs")}</Label>
             <Input
               value={args}
               onChange={(e) => setArgs(e.target.value)}
               placeholder={t("launchConfigArgsPlaceholder")}
-              className="h-8 border-white/[0.06] bg-white/[0.02] font-mono text-xs text-[#f4f4f5] placeholder:text-[#3f3f46]"
+              className="text-k-text placeholder:text-k-border h-8 border-white/[0.06] bg-white/[0.02] font-mono text-xs"
             />
           </div>
 
           {/* Environment variables */}
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-[#71717a]">{t("launchConfigEnv")}</Label>
+            <Label className="text-k-text-dim text-[11px]">{t("launchConfigEnv")}</Label>
             <Textarea
               value={envText}
               onChange={(e) => setEnvText(e.target.value)}
               placeholder={t("launchConfigEnvPlaceholder")}
               rows={3}
-              className="resize-none border-white/[0.06] bg-white/[0.02] font-mono text-xs text-[#f4f4f5] placeholder:text-[#3f3f46]"
+              className="text-k-text placeholder:text-k-border resize-none border-white/[0.06] bg-white/[0.02] font-mono text-xs"
             />
           </div>
 
           {/* Switches row */}
           <div className="flex items-center gap-4 pt-1">
             {!isEditing && (
-              <label className="flex items-center gap-2 text-[11px] text-[#71717a]">
+              <label className="text-k-text-dim flex items-center gap-2 text-[11px]">
                 <Switch checked={isGlobal} onCheckedChange={setIsGlobal} className="scale-75" />
                 {t("launchConfigGlobal")}
               </label>
             )}
-            <label className="flex items-center gap-2 text-[11px] text-[#71717a]">
+            <label className="text-k-text-dim flex items-center gap-2 text-[11px]">
               <Switch checked={isDefault} onCheckedChange={setIsDefault} className="scale-75" />
               {t("launchConfigDefault")}
             </label>
@@ -227,7 +227,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
             variant="ghost"
             size="sm"
             onClick={() => onOpenChange(false)}
-            className="text-xs text-[#71717a]"
+            className="text-k-text-dim text-xs"
           >
             {t("launchConfigCancel")}
           </Button>
@@ -235,7 +235,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
             size="sm"
             onClick={handleSave}
             disabled={!profileName.trim() || !cliName || saving}
-            className="bg-[#06b6d4] text-xs text-black hover:bg-[#22d3ee]"
+            className="bg-k-accent hover:bg-k-accent-light text-xs text-black"
           >
             {t("launchConfigSave")}
           </Button>

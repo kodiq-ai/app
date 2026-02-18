@@ -36,11 +36,11 @@ function ActivityIcon({
           onClick={onClick}
           className={cn(
             "relative size-7",
-            active ? "text-[#f4f4f5]" : "text-[#52525b] hover:text-[#a1a1aa]",
+            active ? "text-k-text" : "text-k-text-tertiary hover:text-k-text-secondary",
           )}
         >
           {active && (
-            <div className="absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-r bg-[#06b6d4]" />
+            <div className="bg-k-accent absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-r" />
           )}
           <Icon className="size-4" />
         </Button>
@@ -92,7 +92,7 @@ export function ActivityBar() {
       >
         {/* Panel header */}
         <div className="flex h-9 min-w-[13rem] shrink-0 items-center px-2.5">
-          <span className="flex-1 truncate text-[11px] font-medium tracking-wider text-[#a1a1aa] uppercase">
+          <span className="text-k-text-secondary flex-1 truncate text-[11px] font-medium tracking-wider uppercase">
             {sidebarTab === "files" && projectName}
             {sidebarTab === "activity" && t("activityLog")}
             {sidebarTab === "project" && t("projectInfo")}
@@ -111,7 +111,7 @@ export function ActivityBar() {
                 {fileTree.length === 0 && (
                   <div className="flex items-center gap-2 px-3 py-4">
                     <Loader size="sm" />
-                    <span className="text-[11px] text-[#3f3f46]">{t("loading")}</span>
+                    <span className="text-k-border text-[11px]">{t("loading")}</span>
                   </div>
                 )}
               </div>

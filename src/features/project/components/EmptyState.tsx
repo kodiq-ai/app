@@ -32,14 +32,14 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
             onClick={onOpenFolder}
             className="group flex h-auto w-full items-center gap-3.5 rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-3.5 transition-all duration-200 hover:border-white/[0.1] hover:bg-white/[0.03] active:scale-[0.995]"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.03] text-[#a1a1aa] transition-colors group-hover:text-[#a1a1aa]">
+            <div className="text-k-text-secondary group-hover:text-k-text-secondary flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.03] transition-colors">
               <FolderOpen className="size-4" />
             </div>
             <div className="flex-1 text-left">
-              <div className="text-[13px] font-medium text-[#f4f4f5]">{t("openProject")}</div>
-              <div className="mt-0.5 text-[11px] text-[#52525b]">{t("selectFolder")}</div>
+              <div className="text-k-text text-[13px] font-medium">{t("openProject")}</div>
+              <div className="text-k-text-tertiary mt-0.5 text-[11px]">{t("selectFolder")}</div>
             </div>
-            <ChevronRight className="size-3.5 text-[#3f3f46] transition-colors group-hover:text-[#52525b]" />
+            <ChevronRight className="text-k-border group-hover:text-k-text-tertiary size-3.5 transition-colors" />
           </Button>
 
           <Button
@@ -47,14 +47,16 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
             disabled
             className="flex h-auto w-full items-center gap-3.5 rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-3.5 opacity-45"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.03] text-[#a1a1aa]">
+            <div className="text-k-text-secondary flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.03]">
               <Plus className="size-4" />
             </div>
             <div className="flex-1 text-left">
-              <div className="text-[13px] font-medium text-[#f4f4f5]">{t("newProject")}</div>
-              <div className="mt-0.5 text-[11px] text-[#52525b]">{t("createFromScratch")}</div>
+              <div className="text-k-text text-[13px] font-medium">{t("newProject")}</div>
+              <div className="text-k-text-tertiary mt-0.5 text-[11px]">
+                {t("createFromScratch")}
+              </div>
             </div>
-            <span className="text-[9px] font-medium tracking-wider text-[#3f3f46] uppercase">
+            <span className="text-k-border text-[9px] font-medium tracking-wider uppercase">
               {t("comingSoon")}
             </span>
           </Button>
@@ -63,7 +65,7 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
         {/* Recent projects */}
         {recentProjects.length > 0 && (
           <div className="anim-3 w-full">
-            <div className="mb-2 px-1 text-[10px] font-medium tracking-[0.08em] text-[#3f3f46] uppercase">
+            <div className="text-k-border mb-2 px-1 text-[10px] font-medium tracking-[0.08em] uppercase">
               {t("recent")}
             </div>
             <div className="flex flex-col gap-px">
@@ -74,11 +76,11 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
                   onClick={() => onOpenProject(p.path)}
                   className="group h-auto w-full justify-start gap-2.5 rounded-lg px-3 py-2 hover:bg-white/[0.025]"
                 >
-                  <Folder className="size-3 shrink-0 fill-[#3f3f46] text-[#3f3f46]" />
-                  <span className="flex-1 truncate text-left text-[12px] text-[#a1a1aa] transition-colors group-hover:text-[#a1a1aa]">
+                  <Folder className="fill-k-border text-k-border size-3 shrink-0" />
+                  <span className="text-k-text-secondary group-hover:text-k-text-secondary flex-1 truncate text-left text-[12px] transition-colors">
                     {p.name}
                   </span>
-                  <span className="font-mono text-[10px] text-[#27272a] opacity-0 transition-opacity group-hover:opacity-100">
+                  <span className="text-k-bg-elevated font-mono text-[10px] opacity-0 transition-opacity group-hover:opacity-100">
                     {p.path.replace(/\/[^/]+$/, "/")}
                   </span>
                 </Button>
@@ -89,7 +91,7 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
 
         {/* AI tools */}
         <div className="anim-4 w-full">
-          <div className="mb-2 px-1 text-[10px] font-medium tracking-[0.08em] text-[#3f3f46] uppercase">
+          <div className="text-k-border mb-2 px-1 text-[10px] font-medium tracking-[0.08em] uppercase">
             {t("aiTools")}
           </div>
           <div className="flex flex-col gap-px">
@@ -101,8 +103,8 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
                 >
                   <Check className="size-2 text-white" strokeWidth={3} />
                 </div>
-                <span className="flex-1 text-[12px] text-[#a1a1aa]">{tool.name}</span>
-                <span className="font-mono text-[10px] text-[#3f3f46]">{tool.version}</span>
+                <span className="text-k-text-secondary flex-1 text-[12px]">{tool.name}</span>
+                <span className="text-k-border font-mono text-[10px]">{tool.version}</span>
               </div>
             ))}
             {dimmedCli.map((tool) => (
@@ -114,11 +116,11 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
                   className="h-3.5 w-3.5 shrink-0 rounded-full"
                   style={{ background: CLI_COLORS[tool.provider] }}
                 />
-                <span className="flex-1 text-[12px] text-[#52525b]">{tool.name}</span>
+                <span className="text-k-text-tertiary flex-1 text-[12px]">{tool.name}</span>
               </div>
             ))}
             {cliTools.length === 0 && (
-              <div className="flex items-center gap-2.5 px-3 py-2 text-[11px] text-[#3f3f46]">
+              <div className="text-k-border flex items-center gap-2.5 px-3 py-2 text-[11px]">
                 {t("searchingTools")}
               </div>
             )}
@@ -126,7 +128,7 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
         </div>
 
         {/* Version */}
-        <div className="anim-5 text-[10px] text-[#27272a]">v{__APP_VERSION__}</div>
+        <div className="anim-5 text-k-bg-elevated text-[10px]">v{__APP_VERSION__}</div>
       </div>
     </div>
   );

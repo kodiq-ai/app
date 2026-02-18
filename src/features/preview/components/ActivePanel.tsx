@@ -53,7 +53,7 @@ export function ActivePanel() {
               onClick={() =>
                 previewUrl && setPreviewUrl(`${previewUrl.split("?")[0]}?_r=${Date.now()}`)
               }
-              className="text-[#52525b] hover:text-[#a1a1aa]"
+              className="text-k-text-tertiary hover:text-k-text-secondary"
             >
               <RefreshCw className="size-3" />
             </Button>
@@ -66,7 +66,7 @@ export function ActivePanel() {
           value={previewUrl?.split("?")[0] || ""}
           readOnly
           placeholder={t("waitingForServer")}
-          className="h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px] text-[#a1a1aa] focus:border-[#06b6d4]/40"
+          className="text-k-text-secondary focus:border-k-accent/40 h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px]"
         />
 
         <div className="flex shrink-0 items-center gap-px">
@@ -78,8 +78,8 @@ export function ActivePanel() {
                   size="icon-xs"
                   onClick={() => setViewport(v)}
                   className={cn(
-                    "text-[#52525b] hover:text-[#a1a1aa]",
-                    viewport === v && "bg-white/[0.04] !text-[#a1a1aa]",
+                    "text-k-text-tertiary hover:text-k-text-secondary",
+                    viewport === v && "!text-k-text-secondary bg-white/[0.04]",
                   )}
                 >
                   <Icon className="size-3.5" />
@@ -92,14 +92,14 @@ export function ActivePanel() {
 
         {previewUrl ? (
           <>
-            <div className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium text-[#06b6d4]">
+            <div className="text-k-accent flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium">
               <Zap className="size-2" />
               auto
             </div>
             <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500/80" />
           </>
         ) : (
-          <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#3f3f46]" />
+          <div className="bg-k-border h-1.5 w-1.5 shrink-0 rounded-full" />
         )}
       </div>
 
@@ -117,12 +117,12 @@ export function ActivePanel() {
         ) : (
           <div className="flex h-full flex-1 items-center justify-center">
             <div className="flex flex-col items-center gap-3 text-center">
-              <Globe className="size-5 text-[#3f3f46]" />
+              <Globe className="text-k-border size-5" />
               <div>
-                <p className="text-[12px] text-[#52525b]">{t("serverNotRunning")}</p>
-                <p className="mt-1 text-[11px] text-[#3f3f46]">
+                <p className="text-k-text-tertiary text-[12px]">{t("serverNotRunning")}</p>
+                <p className="text-k-border mt-1 text-[11px]">
                   {t("runDevServer")}{" "}
-                  <code className="font-mono text-[#52525b]">{t("npmRunDev")}</code>{" "}
+                  <code className="text-k-text-tertiary font-mono">{t("npmRunDev")}</code>{" "}
                   {t("inTerminal")}
                 </p>
               </div>
