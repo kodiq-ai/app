@@ -6,6 +6,12 @@ export const CLI_COLORS: Record<string, string> = {
   anthropic: "#D97757",
 };
 
+export const CLI_INSTALL_URLS: Record<string, string> = {
+  gemini: "https://github.com/google-gemini/gemini-cli",
+  codex: "https://github.com/openai/codex",
+  claude: "https://docs.anthropic.com/en/docs/claude-code/overview",
+};
+
 export const XTERM_THEME = {
   background: "#0a0a0c",
   foreground: "#c8c8d0",

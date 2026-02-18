@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TabIconSvg } from "@/components/icons";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { Star, TerminalSquare, Plus, Pencil, Trash2, Play } from "lucide-react";
+import { Star, TerminalSquare, Plus, Pencil, Trash2, Play, ExternalLink } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -12,7 +12,9 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { open } from "@tauri-apps/plugin-shell";
 import { db } from "@shared/lib/tauri";
+import { CLI_COLORS, CLI_INSTALL_URLS } from "@shared/lib/constants";
 import type { HistoryEntry, LaunchConfig, LaunchConfigPayload } from "@shared/lib/types";
 import { LaunchConfigDialog } from "@features/project/components/LaunchConfigDialog";
 import { toast } from "sonner";
@@ -34,6 +36,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
   const removeLaunchConfig = useAppStore((s) => s.removeLaunchConfig);
   const setLastLaunchConfigId = useAppStore((s) => s.setLastLaunchConfigId);
   const installedCli = cliTools.filter((tool) => tool.installed);
+  const notInstalledCli = cliTools.filter((tool) => !tool.installed);
 
   const [recentCommands, setRecentCommands] = useState<HistoryEntry[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -90,7 +93,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
     setDialogOpen(true);
   };
 
-  if (installedCli.length === 0 && recentCommands.length === 0 && launchConfigs.length === 0) {
+  if (cliTools.length === 0 && recentCommands.length === 0 && launchConfigs.length === 0) {
     return null;
   }
 
@@ -109,7 +112,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
     <>
       <div className="shrink-0 border-t border-white/[0.06] px-1 py-1.5">
         {/* AI CLI tools */}
-        {sorted.length > 0 && (
+        {(sorted.length > 0 || notInstalledCli.length > 0) && (
           <>
             <span className="mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
               AI
@@ -149,6 +152,29 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                   </ContextMenu>
                 );
               })}
+
+              {/* Not-installed CLI tools */}
+              {notInstalledCli.map((tool) => (
+                <Button
+                  key={tool.bin}
+                  variant="ghost"
+                  onClick={() => {
+                    const url = CLI_INSTALL_URLS[tool.bin];
+                    if (url) open(url);
+                  }}
+                  className="group h-7 justify-start gap-1.5 px-2 text-[11px] text-[#3f3f46] hover:bg-white/[0.02] hover:text-[#52525b]"
+                >
+                  <div
+                    className="size-3 shrink-0 rounded-full opacity-25"
+                    style={{ background: CLI_COLORS[tool.provider] }}
+                  />
+                  <span className="flex-1 truncate text-left">{tool.name}</span>
+                  <span className="flex items-center gap-0.5 text-[9px] text-[#06b6d4] opacity-0 transition-opacity group-hover:opacity-100">
+                    {t("onboardingCliInstall")}
+                    <ExternalLink className="size-2" />
+                  </span>
+                </Button>
+              ))}
             </div>
           </>
         )}

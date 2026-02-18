@@ -3,7 +3,21 @@ use portable_pty::{native_pty_system, CommandBuilder, PtySize};
 use regex::Regex;
 use std::collections::HashSet;
 use std::io::{Read, Write};
+use std::sync::OnceLock;
 use tauri::Emitter;
+
+// -- Compiled regex patterns (allocated once, reused across all terminals) -------
+fn url_regex() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
+        Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap()
+    })
+}
+
+fn ansi_regex() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| Regex::new(r"\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07").unwrap())
+}
 
 use super::parser::resolve_command;
 
@@ -37,7 +51,7 @@ pub fn spawn_terminal(
 
     // Environment variables — common
     cmd.env("TERM_PROGRAM", "Kodiq");
-    cmd.env("TERM_PROGRAM_VERSION", "0.2.0");
+    cmd.env("TERM_PROGRAM_VERSION", env!("CARGO_PKG_VERSION"));
 
     // Inherit PATH so CLI tools are found
     if let Ok(path) = std::env::var("PATH") {
@@ -97,7 +111,8 @@ pub fn spawn_terminal(
         pair.master.try_clone_reader().map_err(|e| format!("Failed to get reader: {}", e))?;
 
     let terminal_id = {
-        let mut app_state = state.lock().unwrap();
+        let mut app_state =
+            state.lock().map_err(|_| "App state lock poisoned".to_string())?;
         let id = format!("term-{}", app_state.next_id);
         app_state.next_id += 1;
         app_state
@@ -113,8 +128,8 @@ pub fn spawn_terminal(
         let mut buf = [0u8; 4096];
         let mut emitted_ports: HashSet<u16> = HashSet::new();
 
-        let url_re = Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap();
-        let ansi_re = Regex::new(r"\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07").unwrap();
+        let url_re = url_regex();
+        let ansi_re = ansi_regex();
 
         loop {
             match reader.read(&mut buf) {
@@ -169,7 +184,8 @@ pub fn spawn_terminal(
 /// Write data to a specific terminal
 #[tauri::command]
 pub fn write_to_pty(id: String, data: String, state: tauri::State<'_, AppState>) {
-    if let Some(ref mut pty) = state.lock().unwrap().terminals.get_mut(&id) {
+    let Ok(mut guard) = state.lock() else { return };
+    if let Some(ref mut pty) = guard.terminals.get_mut(&id) {
         let _ = pty.writer.write_all(data.as_bytes());
         let _ = pty.writer.flush();
     }
@@ -178,7 +194,8 @@ pub fn write_to_pty(id: String, data: String, state: tauri::State<'_, AppState>)
 /// Resize a specific terminal
 #[tauri::command]
 pub fn resize_pty(id: String, cols: u16, rows: u16, state: tauri::State<'_, AppState>) {
-    if let Some(pty) = state.lock().unwrap().terminals.get(&id) {
+    let Ok(guard) = state.lock() else { return };
+    if let Some(pty) = guard.terminals.get(&id) {
         let _ = pty.master.resize(PtySize { rows, cols, pixel_width: 0, pixel_height: 0 });
     }
 }
@@ -187,6 +204,8 @@ pub fn resize_pty(id: String, cols: u16, rows: u16, state: tauri::State<'_, AppS
 #[tracing::instrument(skip(state))]
 #[tauri::command]
 pub fn close_terminal(id: String, state: tauri::State<'_, AppState>) {
-    state.lock().unwrap().terminals.remove(&id);
+    if let Ok(mut guard) = state.lock() {
+        guard.terminals.remove(&id);
+    }
     tracing::info!("Terminal closed: {}", id);
 }

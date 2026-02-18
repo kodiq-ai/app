@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
-import { CLI_COLORS } from "@/lib/constants";
+import { CLI_COLORS, CLI_INSTALL_URLS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { KodiqIcon } from "@/components/icons";
 import type { CliTool, RecentProject } from "@shared/lib/types";
@@ -25,14 +25,6 @@ interface OnboardingWizardProps {
   onComplete: (selectedPath?: string) => void;
   onOpenFolder: () => Promise<string | null>;
 }
-
-// ── Install URLs ──────────────────────────────────────────────────────────────
-
-const INSTALL_URLS: Record<string, string> = {
-  gemini: "https://github.com/google-gemini/gemini-cli",
-  codex: "https://github.com/openai/codex",
-  claude: "https://docs.anthropic.com/en/docs/claude-code/overview",
-};
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -127,10 +119,10 @@ export function OnboardingWizard({
                 style={{ background: CLI_COLORS[tool.provider] }}
               />
               <span className="flex-1 text-[12px] text-[#52525b]">{tool.name}</span>
-              {INSTALL_URLS[tool.bin] && (
+              {CLI_INSTALL_URLS[tool.bin] && (
                 <Button
                   variant="ghost"
-                  onClick={() => open(INSTALL_URLS[tool.bin] ?? "")}
+                  onClick={() => open(CLI_INSTALL_URLS[tool.bin] ?? "")}
                   className="h-6 rounded-md px-2.5 text-[10px] font-medium text-[#06b6d4] hover:bg-[#06b6d4]/10 hover:text-[#06b6d4]"
                 >
                   {t("onboardingCliInstall")}
