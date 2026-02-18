@@ -271,9 +271,18 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                       />
                     )}
                     <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label="close tab"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAnimatedClose(tab.id);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation();
+                          handleAnimatedClose(tab.id);
+                        }
                       }}
                       className="text-k-text-tertiary hover:text-k-text-secondary flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded opacity-0 transition-all group-hover:opacity-100 hover:bg-white/[0.08]"
                     >

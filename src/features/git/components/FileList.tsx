@@ -75,6 +75,7 @@ export function FileList({
             <span
               role="button"
               tabIndex={0}
+              aria-label={allActionLabel}
               onClick={(e) => {
                 e.stopPropagation();
                 onAllAction();
@@ -121,6 +122,7 @@ export function FileList({
                   variant="ghost"
                   size="icon-xs"
                   className="size-4 opacity-0 group-hover:opacity-100"
+                  aria-label={action === "stage" ? "stage file" : "unstage file"}
                   onClick={(e) => {
                     e.stopPropagation();
                     onFileAction(f.file);

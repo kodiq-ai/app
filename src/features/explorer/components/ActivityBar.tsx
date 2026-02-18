@@ -34,6 +34,7 @@ function ActivityIcon({
           variant="ghost"
           size="icon-xs"
           onClick={onClick}
+          aria-label={label}
           className={cn(
             "relative size-7",
             active ? "text-k-text" : "text-k-text-tertiary hover:text-k-text-secondary",

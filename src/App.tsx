@@ -375,6 +375,7 @@ export default function App() {
                   variant="ghost"
                   size="icon-xs"
                   onClick={togglePreview}
+                  aria-label={previewOpen ? "hide preview" : "show preview"}
                   className={cn(
                     "text-k-text-tertiary hover:text-k-text-secondary",
                     previewOpen && "text-k-text-secondary",
@@ -398,6 +399,7 @@ export default function App() {
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => setSettingsOpen(true)}
+                aria-label="settings"
                 className="text-k-text-tertiary hover:text-k-text-secondary"
               >
                 <Settings className="size-3.5" />
@@ -414,6 +416,7 @@ export default function App() {
                     variant="ghost"
                     size="icon-xs"
                     onClick={closeProject}
+                    aria-label="close project"
                     className="text-k-text-tertiary hover:text-k-text-secondary"
                   >
                     <X className="size-3.5" />

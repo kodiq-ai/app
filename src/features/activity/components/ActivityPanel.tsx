@@ -72,6 +72,7 @@ export function ActivityPanel() {
               variant="ghost"
               size="icon-xs"
               onClick={refreshGit}
+              aria-label="refresh activity"
               className="text-k-text-tertiary hover:text-k-text-secondary size-5"
             >
               <RefreshCw className="size-2.5" />

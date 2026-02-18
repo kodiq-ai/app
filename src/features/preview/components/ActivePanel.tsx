@@ -53,6 +53,7 @@ export function ActivePanel() {
               onClick={() =>
                 previewUrl && setPreviewUrl(`${previewUrl.split("?")[0]}?_r=${Date.now()}`)
               }
+              aria-label="refresh preview"
               className="text-k-text-tertiary hover:text-k-text-secondary"
             >
               <RefreshCw className="size-3" />
@@ -77,6 +78,7 @@ export function ActivePanel() {
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => setViewport(v)}
+                  aria-label={label}
                   className={cn(
                     "text-k-text-tertiary hover:text-k-text-secondary",
                     viewport === v && "!text-k-text-secondary bg-white/[0.04]",

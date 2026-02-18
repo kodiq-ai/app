@@ -47,6 +47,7 @@ export function EditorTabBar({ tabs, activeTab, onClose }: Props) {
                     e.stopPropagation();
                     onClose(tab.path);
                   }}
+                  aria-label={isDirty ? "unsaved changes" : "close tab"}
                   className={`flex size-4 shrink-0 items-center justify-center rounded-sm transition-colors ${
                     isDirty ? "text-[var(--kodiq-accent)]" : "opacity-0 group-hover:opacity-100"
                   } hover:bg-white/[0.06] hover:text-[var(--text-primary)]`}
