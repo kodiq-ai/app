@@ -2,16 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* ─── Monaspace font loading ──────────────────────────────────────────────── */
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-krypton@latest/400.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-krypton@latest/600.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-krypton@latest/700.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@latest/400.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@latest/500.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@latest/600.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-argon@latest/400.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/monaspace-argon@latest/500.css");
-
 @custom-variant dark (&:is(.dark *));
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
@@ -298,12 +288,6 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
 }
 
 .dark {

@@ -1,7 +1,5 @@
 import * as Sentry from "@sentry/browser";
 
-declare const __APP_VERSION__: string;
-
 export function initSentry() {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (!dsn) return;

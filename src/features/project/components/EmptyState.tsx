@@ -126,7 +126,7 @@ export function EmptyState({ onOpenFolder, onOpenProject }: EmptyStateProps) {
         </div>
 
         {/* Version */}
-        <div className="anim-5 text-[10px] text-[#27272a]">v0.1.0</div>
+        <div className="anim-5 text-[10px] text-[#27272a]">v{__APP_VERSION__}</div>
       </div>
     </div>
   );

@@ -82,7 +82,7 @@ export function SettingsDialog() {
 
           {/* Info */}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-[#3f3f46]">Kodiq v0.1.0</span>
+            <span className="text-[10px] text-[#3f3f46]">Kodiq v{__APP_VERSION__}</span>
             <span className="text-[10px] text-[#3f3f46]">{t("openSettings")}</span>
           </div>
         </div>
