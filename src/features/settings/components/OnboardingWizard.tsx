@@ -29,11 +29,9 @@ interface OnboardingWizardProps {
 // ── Install URLs ──────────────────────────────────────────────────────────────
 
 const INSTALL_URLS: Record<string, string> = {
-  claude: "https://docs.anthropic.com/en/docs/claude-code/overview",
   gemini: "https://github.com/google-gemini/gemini-cli",
   codex: "https://github.com/openai/codex",
-  aider: "https://aider.chat",
-  ollama: "https://ollama.ai",
+  claude: "https://docs.anthropic.com/en/docs/claude-code/overview",
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────

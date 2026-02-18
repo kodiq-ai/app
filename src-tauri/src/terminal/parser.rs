@@ -12,15 +12,9 @@ pub fn resolve_command(cmd: &str, custom_shell: Option<&str>) -> (String, Vec<St
             let label = shell.split('/').next_back().unwrap_or("shell").to_string();
             (shell, vec![], label)
         }
-        "claude" => ("claude".to_string(), vec![], "Claude Code".to_string()),
         "gemini" => ("gemini".to_string(), vec![], "Gemini CLI".to_string()),
         "codex" => ("codex".to_string(), vec![], "Codex CLI".to_string()),
-        "aider" => ("aider".to_string(), vec![], "Aider".to_string()),
-        "ollama" => (
-            "ollama".to_string(),
-            vec!["run".to_string(), "llama3".to_string()],
-            "Ollama".to_string(),
-        ),
+        "claude" => ("claude".to_string(), vec![], "Claude Code".to_string()),
         other => {
             let parts: Vec<String> = other.split_whitespace().map(String::from).collect();
             let program = parts.first().cloned().unwrap_or_default();
@@ -82,13 +76,6 @@ mod tests {
         let (prog, _, label) = resolve_command("gemini", None);
         assert_eq!(prog, "gemini");
         assert_eq!(label, "Gemini CLI");
-    }
-
-    #[test]
-    fn test_resolve_ollama() {
-        let (prog, args, _) = resolve_command("ollama", None);
-        assert_eq!(prog, "ollama");
-        assert_eq!(args, vec!["run", "llama3"]);
     }
 
     #[test]

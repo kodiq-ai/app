@@ -114,27 +114,6 @@ export function TabIconSvg({ icon, size = 12 }: { icon: string; size?: number })
           />
         </svg>
       );
-    case "aider":
-      return (
-        <svg {...s} viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" fill="#8B5CF6" />
-          <path
-            d="M9 16l3-8 3 8M10 14h4"
-            stroke="#fff"
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
-    case "ollama":
-      return (
-        <svg {...s} viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" fill="#333" />
-          <circle cx="12" cy="11" r="4" stroke="#fff" strokeWidth="1.5" fill="none" />
-          <path d="M10 17h4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      );
     default:
       return (
         <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

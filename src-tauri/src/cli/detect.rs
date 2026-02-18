@@ -48,16 +48,14 @@ pub fn detect_default_shell() -> String {
 }
 
 /// Detect which AI CLI tools are installed on the system.
-/// Checks for: Claude Code, Gemini CLI, Codex, Aider, Ollama.
+/// Checks for: Gemini CLI, Codex CLI, Claude Code.
 /// Uses `where` on Windows, `which` on Unix.
 #[tauri::command]
 pub fn detect_cli_tools() -> Vec<serde_json::Value> {
     let tools = vec![
-        ("claude", "Claude Code", "anthropic"),
         ("gemini", "Gemini CLI", "google"),
         ("codex", "Codex CLI", "openai"),
-        ("aider", "Aider", "aider"),
-        ("ollama", "Ollama", "ollama"),
+        ("claude", "Claude Code", "anthropic"),
     ];
 
     let which_cmd = if cfg!(target_os = "windows") { "where" } else { "which" };

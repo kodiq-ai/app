@@ -241,7 +241,7 @@ mod tests {
         let cfg = create(
             &conn,
             NewLaunchConfig {
-                cli_name: "aider".into(),
+                cli_name: "claude".into(),
                 profile_name: "sonnet".into(),
                 config: r#"{"args":["--model","sonnet"]}"#.into(),
                 is_default: None,

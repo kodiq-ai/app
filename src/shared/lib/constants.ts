@@ -1,11 +1,9 @@
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 export const CLI_COLORS: Record<string, string> = {
-  anthropic: "#D97757",
   google: "#4285F4",
   openai: "#10A37F",
-  aider: "#8B5CF6",
-  ollama: "#333",
+  anthropic: "#D97757",
 };
 
 export const XTERM_THEME = {
