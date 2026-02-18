@@ -13,8 +13,9 @@ export interface SettingsSlice {
   commandPaletteOpen: boolean;
   fileSearchOpen: boolean;
 
-  // Split ratio
+  // Split ratios
   splitRatio: number;
+  editorSplitRatio: number;
 
   // Onboarding
   onboardingComplete: boolean;
@@ -38,6 +39,7 @@ export interface SettingsSlice {
 
   // Split ratio actions
   setSplitRatio: (r: number) => void;
+  setEditorSplitRatio: (r: number) => void;
 
   // DB hydration
   loadSettingsFromDB: () => Promise<void>;
@@ -58,6 +60,7 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   commandPaletteOpen: false,
   fileSearchOpen: false,
   splitRatio: 0.5, // Hydrated from DB via loadSettingsFromDB
+  editorSplitRatio: 0.5, // Hydrated from DB via loadSettingsFromDB
   onboardingComplete: false, // Hydrated from DB via loadSettingsFromDB
   updateAvailable: null,
   toastDismissed: false,
@@ -86,6 +89,13 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   setSplitRatio: (splitRatio) => {
     db.settings.set("splitRatio", String(splitRatio)).catch((e) => console.error("[DB]", e));
     set({ splitRatio });
+  },
+
+  setEditorSplitRatio: (editorSplitRatio) => {
+    db.settings
+      .set("editorSplitRatio", String(editorSplitRatio))
+      .catch((e) => console.error("[DB]", e));
+    set({ editorSplitRatio });
   },
 
   loadSettingsFromDB: async () => {
@@ -121,6 +131,7 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
       const locale = parse(all["locale"]);
       if (locale === "en" || locale === "ru") patch.locale = locale;
       const splitVal = parseNum(all["splitRatio"]);
+      const editorSplitVal = parseNum(all["editorSplitRatio"]);
       const onboarding = all["onboardingComplete"] === "true" ? true : undefined;
       const previewOpen =
         all["previewOpen"] !== undefined && all["previewOpen"] !== null
@@ -131,6 +142,9 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
       set((s) => ({
         settings: { ...s.settings, ...patch },
         ...(splitVal !== undefined && splitVal !== null ? { splitRatio: splitVal } : {}),
+        ...(editorSplitVal !== undefined && editorSplitVal !== null
+          ? { editorSplitRatio: editorSplitVal }
+          : {}),
         ...(onboarding !== undefined && onboarding !== null
           ? { onboardingComplete: onboarding }
           : {}),

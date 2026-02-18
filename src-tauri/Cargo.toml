@@ -57,6 +57,9 @@ thiserror = "2"
 # Future additions (uncomment when needed):
 # reqwest = { version = "0.12", optional = true }  # Pro HTTP client
 
+[dev-dependencies]
+tempfile = "3"
+
 # Auto-update (desktop only)
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "2"

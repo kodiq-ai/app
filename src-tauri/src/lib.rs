@@ -62,6 +62,7 @@ pub fn run() {
             // Filesystem
             filesystem::read::read_dir,
             filesystem::read::read_file,
+            filesystem::write::write_file,
             filesystem::watcher::start_watching,
             filesystem::watcher::stop_watching,
             // Git

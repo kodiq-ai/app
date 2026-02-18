@@ -93,6 +93,7 @@
   "reload": "Reload",
   "criticalError": "Kodiq — critical error",
   "terminalError": "Terminal error",
+  "editorError": "Editor error",
   "previewError": "Preview panel error",
   "fileTreeError": "File tree error",
 
@@ -196,5 +197,20 @@
   "launchConfigSave": "Save",
   "launchConfigCancel": "Cancel",
   "relaunchLast": "Relaunch last (⇧⌘L)",
-  "noLaunchConfigs": "No saved configs"
+  "noLaunchConfigs": "No saved configs",
+
+  "editor": "Editor",
+  "save": "Save",
+  "saveShort": "Save (⌘S)",
+  "saved": "Saved",
+  "unsavedChanges": "Unsaved changes",
+  "discardChanges": "Discard changes?",
+  "saveAndClose": "Save & close",
+  "discardAndClose": "Discard",
+  "cancelClose": "Cancel",
+  "fileSaved": "File saved",
+  "failedToSave": "Failed to save file",
+  "noOpenFiles": "No open files",
+  "closeTab": "Close tab",
+  "closeOtherTabs": "Close other tabs"
 }

@@ -14,6 +14,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { X, Settings, PanelRightClose, PanelRightOpen } from "lucide-react";
 
 import { useSplitDrag } from "@/hooks/useSplitDrag";
+import { useVerticalSplit } from "@/hooks/useVerticalSplit";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -21,11 +22,11 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { ActivityBar } from "@/components/ActivityBar";
 import { TabBar } from "@/components/TabBar";
 import { ActivePanel } from "@/components/ActivePanel";
-import { FileViewer } from "@/components/FileViewer";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { FileSearch } from "@/components/FileSearch";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { EmptyState } from "@/components/EmptyState";
+import { EditorPanel, destroyAllEditorViews } from "@features/editor";
 import { OnboardingWizard } from "@features/settings/components/OnboardingWizard";
 import { UpdateBadge } from "@features/settings/components/UpdateBadge";
 import { UpdateDialog } from "@features/settings/components/UpdateDialog";
@@ -53,11 +54,20 @@ export default function App() {
   const onboardingComplete = useAppStore((s) => s.onboardingComplete);
   const setOnboardingComplete = useAppStore((s) => s.setOnboardingComplete);
   const cliTools = useAppStore((s) => s.cliTools);
+  const editorTabs = useAppStore((s) => s.editorTabs);
+  const editorSplitRatio = useAppStore((s) => s.editorSplitRatio);
 
   const [defaultShell, setDefaultShell] = useState("");
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 
   const { panelsRef, isDragging, startDrag } = useSplitDrag();
+  const {
+    containerRef: verticalRef,
+    isDragging: isVDragging,
+    startDrag: startVDrag,
+  } = useVerticalSplit();
+
+  const hasEditorTabs = editorTabs.length > 0;
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -130,7 +140,8 @@ export default function App() {
     const name = path.split("/").pop() || "project";
     setProject(path, name);
     setPreviewUrl(null);
-    useAppStore.getState().setOpenFile(null);
+    useAppStore.getState().closeAllEditorTabs();
+    destroyAllEditorViews();
     addRecent({ name, path });
     loadFileTree(path);
 
@@ -215,7 +226,8 @@ export default function App() {
     setFileTree([]);
     setProject(null);
     setPreviewUrl(null);
-    useAppStore.getState().setOpenFile(null);
+    useAppStore.getState().closeAllEditorTabs();
+    destroyAllEditorViews();
     useAppStore.getState().clearActivity();
     setSettingsOpen(false);
   };
@@ -411,24 +423,65 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden">
         {projectPath && (
           <>
-            {/* Panels */}
+            {/* Main content area: vertical split (editor + terminal) | preview */}
             <div
               ref={panelsRef}
               className="flex flex-1 overflow-hidden"
               style={{ cursor: isDragging ? "col-resize" : undefined }}
             >
-              {/* Terminal panel */}
+              {/* Left column: editor on top, terminal on bottom */}
               <div
-                className="relative flex overflow-hidden"
-                style={{ width: previewOpen ? `${splitRatio * 100}%` : "100%" }}
+                ref={verticalRef}
+                className="flex flex-1 flex-col overflow-hidden"
+                style={{
+                  width: previewOpen ? `${splitRatio * 100}%` : "100%",
+                  cursor: isVDragging ? "row-resize" : undefined,
+                }}
               >
-                <ErrorBoundary name="terminal" fallbackTitle={t("terminalError")}>
-                  <TabBar onSpawnTab={spawnTab} onCloseTab={closeTab} onReopenTab={reopenTab} />
-                </ErrorBoundary>
-                <FileViewer />
+                {/* Editor panel (only when tabs are open) */}
+                {hasEditorTabs && (
+                  <div
+                    className="shrink-0 overflow-hidden"
+                    style={{ height: `${editorSplitRatio * 100}%` }}
+                  >
+                    <ErrorBoundary name="editor" fallbackTitle={t("editorError")}>
+                      <EditorPanel />
+                    </ErrorBoundary>
+                  </div>
+                )}
+
+                {/* Horizontal row-resize divider (only when editor is open) */}
+                {hasEditorTabs && (
+                  <div
+                    className="group relative h-px shrink-0 cursor-row-resize"
+                    onMouseDown={startVDrag}
+                  >
+                    <div
+                      className={cn(
+                        "absolute inset-x-0 -top-[2px] h-[5px] transition-all",
+                        isVDragging
+                          ? "bg-[#06b6d4]/30"
+                          : "bg-transparent group-hover:bg-white/[0.04]",
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        "absolute inset-0 transition-colors",
+                        isVDragging ? "bg-[#06b6d4]" : "bg-white/[0.06]",
+                      )}
+                    />
+                  </div>
+                )}
+
+                {/* Terminal panel */}
+                <div className="relative flex flex-1 overflow-hidden">
+                  <ErrorBoundary name="terminal" fallbackTitle={t("terminalError")}>
+                    <TabBar onSpawnTab={spawnTab} onCloseTab={closeTab} onReopenTab={reopenTab} />
+                  </ErrorBoundary>
+                </div>
               </div>
 
-              {/* Divider + Preview (only when open) */}
+              {/* Vertical col-resize divider + Preview (only when open) */}
               {previewOpen && (
                 <>
                   <div

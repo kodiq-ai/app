@@ -1,5 +1,10 @@
 import { useHotkeys } from "react-hotkeys-hook";
 import { useAppStore } from "@/lib/store";
+import { fs } from "@shared/lib/tauri";
+import { handleError } from "@shared/lib/errors";
+import { destroyEditorView } from "@features/editor/lib/viewCache";
+import { t } from "@/lib/i18n";
+import { toast } from "sonner";
 import type { LaunchConfigPayload } from "@shared/lib/types";
 
 interface ShortcutActions {
@@ -18,6 +23,25 @@ export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: Shortcut
   const toggleSettings = useAppStore((s) => s.toggleSettings);
   const toggleFileSearch = useAppStore((s) => s.toggleFileSearch);
   const togglePreview = useAppStore((s) => s.togglePreview);
+
+  // ⌘S — save active editor tab
+  useHotkeys(
+    "mod+s",
+    (e) => {
+      e.preventDefault();
+      const { activeEditorTab, editorTabs, markTabSaved } = useAppStore.getState();
+      if (!activeEditorTab) return;
+      const tab = editorTabs.find((t) => t.path === activeEditorTab);
+      if (!tab || tab.content === tab.savedContent) return;
+      fs.writeFile(tab.path, tab.content)
+        .then(() => {
+          markTabSaved(tab.path, tab.content);
+          toast.success(t("fileSaved"));
+        })
+        .catch((err) => handleError(err, t("failedToSave")));
+    },
+    { enableOnFormTags: true },
+  );
 
   // ⌘K — command palette
   useHotkeys(
@@ -122,6 +146,20 @@ export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: Shortcut
       }
     },
     { enableOnFormTags: true },
+  );
+
+  // Escape — close active editor tab (only if clean)
+  useHotkeys(
+    "escape",
+    () => {
+      const { activeEditorTab, closeEditorTab } = useAppStore.getState();
+      if (!activeEditorTab) return;
+      const closed = closeEditorTab(activeEditorTab);
+      if (closed) {
+        destroyEditorView(activeEditorTab);
+      }
+    },
+    { enableOnFormTags: false },
   );
 
   // ⌘1-9 — switch tabs

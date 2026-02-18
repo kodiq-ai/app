@@ -245,18 +245,6 @@ body {
   }
 }
 
-/* ─── Shiki syntax highlighting ────────────────────────────────────────────── */
-
-.shiki-line {
-  display: block;
-  min-height: 1lh;
-}
-
-/* Override shiki's default background — we handle bg ourselves */
-pre code .shiki-line span {
-  background: transparent !important;
-}
-
 /* ─── Selection & Focus ─────────────────────────────────────────────────────── */
 
 ::selection {

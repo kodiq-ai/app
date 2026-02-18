@@ -93,6 +93,7 @@
   "reload": "Перезагрузить",
   "criticalError": "Kodiq — критическая ошибка",
   "terminalError": "Ошибка терминала",
+  "editorError": "Ошибка редактора",
   "previewError": "Ошибка актив панели",
   "fileTreeError": "Ошибка файлового дерева",
 
@@ -196,5 +197,20 @@
   "launchConfigSave": "Сохранить",
   "launchConfigCancel": "Отмена",
   "relaunchLast": "Повторить последний (⇧⌘L)",
-  "noLaunchConfigs": "Нет сохранённых конфигураций"
+  "noLaunchConfigs": "Нет сохранённых конфигураций",
+
+  "editor": "Редактор",
+  "save": "Сохранить",
+  "saveShort": "Сохранить (⌘S)",
+  "saved": "Сохранено",
+  "unsavedChanges": "Несохранённые изменения",
+  "discardChanges": "Отменить изменения?",
+  "saveAndClose": "Сохранить и закрыть",
+  "discardAndClose": "Отменить",
+  "cancelClose": "Отмена",
+  "fileSaved": "Файл сохранён",
+  "failedToSave": "Не удалось сохранить файл",
+  "noOpenFiles": "Нет открытых файлов",
+  "closeTab": "Закрыть вкладку",
+  "closeOtherTabs": "Закрыть другие вкладки"
 }
