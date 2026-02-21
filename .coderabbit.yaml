@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: 'ru-RU'
 early_access: true
-enable_free_tier: false
+enable_free_tier: true
 tone_instructions: 'Будь строгим и техничным. Указывай на все проблемы, включая мелкие. Это Tauri 2 desktop IDE (Rust + React 19 + TypeScript). Безопасность и типобезопасность Tauri bridge критичны.'
 
 reviews:
@@ -13,7 +13,7 @@ reviews:
   changed_files_summary: true
   sequence_diagrams: true
   review_status: true
-  suggest_reviewers: true
+  suggested_reviewers: true
   poem: false
   enable_prompt_for_ai_agents: true
   estimate_code_review_effort: true
@@ -215,11 +215,11 @@ reviews:
       enabled: true
 
     # Dependency vulnerabilities
-    osv-scanner:
+    osvScanner:
       enabled: true
 
     # .env file validation
-    dotenv-linter:
+    dotenvLint:
       enabled: true
 
     # AST
@@ -257,7 +257,7 @@ knowledge_base:
     scope: 'auto'
   code_guidelines:
     enabled: true
-    paths: ['CLAUDE.md', 'ARCHITECTURE.md']
+    filePatterns: ['CLAUDE.md', 'ARCHITECTURE.md']
   web_search:
     enabled: true
 
