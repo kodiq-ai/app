@@ -1,0 +1,265 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: 'ru-RU'
+early_access: true
+enable_free_tier: false
+tone_instructions: 'Будь строгим и техничным. Указывай на все проблемы, включая мелкие. Это Tauri 2 desktop IDE (Rust + React 19 + TypeScript). Безопасность и типобезопасность Tauri bridge критичны.'
+
+reviews:
+  profile: 'assertive'
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  collapse_walkthrough: false
+  changed_files_summary: true
+  sequence_diagrams: true
+  review_status: true
+  suggest_reviewers: true
+  poem: false
+  enable_prompt_for_ai_agents: true
+  estimate_code_review_effort: true
+  related_issues: true
+  related_prs: true
+  auto_apply_labels: true
+  labeling_instructions:
+    - label: 'fix'
+      instructions: 'Bug fix or error correction'
+    - label: 'feat'
+      instructions: 'New feature or functionality'
+    - label: 'refactor'
+      instructions: 'Code refactoring without behavior change'
+    - label: 'rust'
+      instructions: 'Changes to Rust backend (src-tauri/)'
+    - label: 'security'
+      instructions: 'Security-related changes (auth, IPC, secrets, permissions)'
+
+  path_filters:
+    - '!pnpm-lock.yaml'
+    - '!bun.lock'
+    - '!dist/**'
+    - '!node_modules/**'
+    - '!coverage/**'
+    - '!*.d.ts'
+    - '!*.min.js'
+    - '!*.min.css'
+    - '!*.map'
+    - '!*.png'
+    - '!*.jpg'
+    - '!*.webp'
+    - '!*.svg'
+    - '!*.woff*'
+    - '!*.ttf'
+    - '!*.ico'
+    - '!src-tauri/target/**'
+    - '!src-tauri/gen/**'
+
+  path_instructions:
+    - path: 'src-tauri/src/**/*.rs'
+      instructions: |
+        Rust backend code (Tauri 2).
+        КРИТИЧНО проверяй:
+        - #[tauri::command] — правильные аргументы и Result<T, E> возвращаемые типы
+        - Нет unwrap() в production — используй ? оператор или proper error handling
+        - Filesystem операции — path traversal prevention
+        - Process spawning — command injection prevention
+        - Нет panic!() в command handlers
+        - Proper cleanup в Drop implementations
+
+    - path: 'src/shared/lib/tauri.ts'
+      instructions: |
+        Typed Tauri bridge — ЕДИНСТВЕННАЯ точка Rust<->JS IPC.
+        КРИТИЧНО проверяй:
+        - ВСЕ invoke() вызовы типизированы (НЕ raw invoke)
+        - Аргументы и возвращаемые типы совпадают с Rust #[tauri::command]
+        - Error handling для failed IPC calls
+        - Нет прямых invoke() вызовов в других файлах
+
+    - path: 'src/features/*/store/*.ts'
+      instructions: |
+        Zustand 5 state slices (auto-merged in store/index.ts).
+        Проверяй:
+        - Slice изолирован (нет cross-slice dependencies в определении)
+        - Actions именованы глаголами (setX, toggleX, resetX)
+        - Нет побочных эффектов в store (fetch, IPC — только в actions через middleware)
+        - Selectors мемоизированы (useShallow или manual selector)
+
+    - path: 'src/features/*/components/*.tsx'
+      instructions: |
+        Feature components.
+        Проверяй:
+        - i18n: все UI строки через t("key") — НЕ hardcoded text
+        - Accessibility (aria-label, role, keyboard navigation)
+        - Стилизация через Tailwind CSS и design tokens (НЕ inline styles)
+        - key prop в списках (стабильный id, НЕ index)
+        - Borders: border-white/[0.06], Hover: hover:bg-white/[0.04]
+
+    - path: 'src/shared/i18n/**'
+      instructions: |
+        i18n translations (en.json + ru.json).
+        Проверяй:
+        - Both en.json and ru.json обновлены синхронно
+        - Нет отсутствующих ключей между языками
+        - Ключи следуют naming convention (feature.component.label)
+
+    - path: 'src/components/ui/**'
+      instructions: |
+        shadcn/ui primitives.
+        Проверяй:
+        - Минимальные кастомизации (предпочитай config changes)
+        - Accessibility compliance
+        - Dark theme only — нет light mode styles
+
+    - path: '.github/workflows/**/*.yml'
+      instructions: |
+        GitHub Actions workflows (CI + Release).
+        Проверяй:
+        - Secrets не логируются
+        - Shell injection через ${{ }} — используй env vars
+        - Timeouts на шагах
+        - Правильные system dependencies для Tauri build
+
+    - path: 'src-tauri/tauri.conf.json'
+      instructions: |
+        Tauri configuration.
+        КРИТИЧНО проверяй:
+        - Security: allowlist permissions (минимально необходимые)
+        - CSP заголовки
+        - Нет wildcard permissions без обоснования
+        - Version bump при релизах
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 5
+    drafts: false
+    base_branches: ['main']
+    ignore_title_keywords: ['WIP', 'DO NOT MERGE', 'DRAFT']
+
+  pre_merge_checks:
+    title:
+      mode: 'warning'
+      requirements: 'Must start with fix:, feat:, refactor:, docs:, or chore: prefix'
+    description:
+      mode: 'warning'
+    custom_checks:
+      - name: 'No hardcoded secrets or credentials'
+        mode: 'error'
+        instructions: |
+          Fail if any hardcoded API keys, passwords, tokens, database URLs,
+          or connection strings are added to source code.
+          Look for: long hex/base64 strings (32+ chars), password=, apiKey=,
+          token=, secret=, Bearer, sk_live_, supabase URL with anon key in code.
+          IGNORE: .env.example (placeholder values), test fixtures.
+      - name: 'No raw invoke() calls outside tauri.ts'
+        mode: 'error'
+        instructions: |
+          Fail if any file OTHER than src/shared/lib/tauri.ts
+          uses Tauri invoke() directly. All IPC must go through
+          the typed bridge. Look for: import { invoke } from "@tauri-apps/api"
+          or @tauri-apps/api/core.
+      - name: 'No unwrap() in Rust command handlers'
+        mode: 'warning'
+        instructions: |
+          Warn if any new Rust code in src-tauri/src/ uses .unwrap()
+          in functions marked with #[tauri::command].
+          Prefer ? operator with proper error types.
+      - name: 'i18n completeness'
+        mode: 'warning'
+        instructions: |
+          Warn if new UI strings are added as hardcoded text in .tsx files
+          instead of using t("key") from the i18n system.
+          IGNORE: placeholder text in shadcn/ui components, aria-labels
+          that are technical identifiers.
+      - name: 'No any types in new code'
+        mode: 'warning'
+        instructions: |
+          Warn if any new TypeScript code introduces explicit `any` type
+          annotations (: any, as any, <any>). Prefer proper types, unknown
+          with type guards, or generic constraints.
+
+  tools:
+    # TypeScript/JavaScript
+    eslint:
+      enabled: true
+    oxc:
+      enabled: true
+    biome:
+      enabled: false
+
+    # Rust
+    clippy:
+      enabled: true
+
+    # Security
+    gitleaks:
+      enabled: true
+    semgrep:
+      enabled: true
+
+    # Shell
+    shellcheck:
+      enabled: true
+
+    # Documentation
+    markdownlint:
+      enabled: true
+    languagetool:
+      enabled: true
+      level: 'default'
+
+    # YAML
+    yamllint:
+      enabled: true
+
+    # GitHub Actions
+    actionlint:
+      enabled: true
+
+    # Dependency vulnerabilities
+    osv-scanner:
+      enabled: true
+
+    # .env file validation
+    dotenv-linter:
+      enabled: true
+
+    # AST
+    ast-grep:
+      essential_rules: true
+      packages: []
+
+code_generation:
+  docstrings:
+    language: 'en-US'
+    path_instructions:
+      - path: 'src/**/*.ts'
+        instructions: |
+          Use TSDoc format with @param, @returns, @throws.
+          Keep descriptions concise but complete.
+      - path: 'src-tauri/src/**/*.rs'
+        instructions: |
+          Use Rust doc comments (///).
+          Document parameters, return types, and panics.
+
+  unit_tests:
+    path_instructions:
+      - path: 'src/**/*.ts'
+        instructions: |
+          Use Vitest for testing framework.
+          Mock Tauri IPC calls via vi.mock().
+          Isolated Zustand stores: create<Slice>()(createSlice).
+      - path: 'src-tauri/src/**/*.rs'
+        instructions: |
+          Use #[cfg(test)] mod tests.
+          Test command handlers with mock state.
+
+knowledge_base:
+  learnings:
+    scope: 'auto'
+  code_guidelines:
+    enabled: true
+    paths: ['CLAUDE.md', 'ARCHITECTURE.md']
+  web_search:
+    enabled: true
+
+chat:
+  auto_reply: true
