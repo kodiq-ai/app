@@ -81,7 +81,7 @@ export function FileSearch() {
             <CommandItem key={f.path} value={f.path} onSelect={() => openFile(f)} className="gap-2">
               <FileIcon name={f.name} isDir={false} />
               <span className="flex-1 truncate">{f.name}</span>
-              <span className="max-w-[200px] truncate font-mono text-[10px] text-[#3f3f46]">
+              <span className="max-w-[200px] truncate font-mono text-[10px] text-[#6E6E76]">
                 {getRelativePath(f.path)}
               </span>
             </CommandItem>

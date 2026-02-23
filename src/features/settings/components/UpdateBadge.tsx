@@ -13,11 +13,11 @@ export function UpdateBadge({ onClick }: UpdateBadgeProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1.5 rounded-md bg-[#06b6d4]/10 px-2 py-1 text-[10px] font-medium text-[#06b6d4] transition-colors hover:bg-[#06b6d4]/20"
+      className="flex items-center gap-1.5 rounded-md bg-[#4DA3C7]/10 px-2 py-1 text-[10px] font-medium text-[#4DA3C7] transition-colors hover:bg-[#4DA3C7]/20"
     >
       <span className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#06b6d4] opacity-75" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#06b6d4]" />
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4DA3C7] opacity-75" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#4DA3C7]" />
       </span>
       v{updateAvailable.version}
     </button>

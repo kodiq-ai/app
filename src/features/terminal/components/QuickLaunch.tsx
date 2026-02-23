@@ -111,7 +111,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
         {/* AI CLI tools */}
         {sorted.length > 0 && (
           <>
-            <span className="mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
+            <span className="mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
               AI
             </span>
             <div className="flex flex-col gap-0.5">
@@ -126,8 +126,8 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                         className={cn(
                           "h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]",
                           isDefault
-                            ? "text-[#06b6d4] hover:text-[#06b6d4]"
-                            : "text-[#52525b] hover:text-[#a1a1aa]",
+                            ? "text-[#4DA3C7] hover:text-[#4DA3C7]"
+                            : "text-[#6E6E76] hover:text-[#A1A1A8]",
                         )}
                       >
                         <TabIconSvg icon={tool.bin} size={12} />
@@ -157,12 +157,12 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
         {launchConfigs.length > 0 && (
           <>
             <div className="mt-2 mb-1 flex items-center justify-between px-1.5">
-              <span className="text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
+              <span className="text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
                 {t("launchConfigs")}
               </span>
               <button
                 onClick={openCreateDialog}
-                className="flex size-4 items-center justify-center rounded text-[#52525b] transition-colors hover:bg-white/[0.04] hover:text-[#a1a1aa]"
+                className="flex size-4 items-center justify-center rounded text-[#6E6E76] transition-colors hover:bg-white/[0.04] hover:text-[#A1A1A8]"
               >
                 <Plus className="size-2.5" />
               </button>
@@ -174,13 +174,13 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                     <Button
                       variant="ghost"
                       onClick={() => handleLaunchConfig(config)}
-                      className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#52525b] hover:bg-white/[0.02] hover:text-[#a1a1aa]"
+                      className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#6E6E76] hover:bg-white/[0.02] hover:text-[#A1A1A8]"
                     >
-                      <Play className="size-2.5 shrink-0 text-[#06b6d4]" />
+                      <Play className="size-2.5 shrink-0 text-[#4DA3C7]" />
                       <span className="flex-1 truncate text-left">{config.profile_name}</span>
-                      <span className="truncate text-[9px] text-[#3f3f46]">{config.cli_name}</span>
+                      <span className="truncate text-[9px] text-[#6E6E76]">{config.cli_name}</span>
                       {config.is_default && (
-                        <Star className="size-2 shrink-0 fill-current text-[#06b6d4] opacity-60" />
+                        <Star className="size-2 shrink-0 fill-current text-[#4DA3C7] opacity-60" />
                       )}
                     </Button>
                   </ContextMenuTrigger>
@@ -214,7 +214,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
             <Button
               variant="ghost"
               onClick={openCreateDialog}
-              className="h-7 w-full justify-start gap-1.5 px-2 text-[11px] text-[#3f3f46] hover:bg-white/[0.02] hover:text-[#71717a]"
+              className="h-7 w-full justify-start gap-1.5 px-2 text-[11px] text-[#6E6E76] hover:bg-white/[0.02] hover:text-[#71717a]"
             >
               <Plus className="size-2.5" />
               {t("newLaunchConfig")}
@@ -225,7 +225,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
         {/* Recent commands */}
         {filteredRecent.length > 0 && (
           <>
-            <span className="mt-2 mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
+            <span className="mt-2 mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
               {t("recentCommands")}
             </span>
             <div className="flex flex-col gap-0.5">
@@ -234,7 +234,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                   key={entry.id}
                   variant="ghost"
                   onClick={() => onSpawnTab(entry.command, entry.command)}
-                  className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#52525b] hover:bg-white/[0.02] hover:text-[#a1a1aa]"
+                  className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#6E6E76] hover:bg-white/[0.02] hover:text-[#A1A1A8]"
                 >
                   <TerminalSquare className="size-3 shrink-0" />
                   <span className="flex-1 truncate text-left font-mono">{entry.command}</span>
