@@ -15,7 +15,7 @@ const KIND_ICONS: Record<string, { icon: typeof FileEdit; color: string }> = {
   modified: { icon: FileEdit, color: "#eab308" },
   added: { icon: Plus, color: "#22c55e" },
   deleted: { icon: Minus, color: "#ef4444" },
-  untracked: { icon: FileQuestion, color: "#a1a1aa" },
+  untracked: { icon: FileQuestion, color: "#A1A1A8" },
 };
 
 function timeAgo(ts: number): string {
@@ -72,7 +72,7 @@ export function ActivityPanel() {
               variant="ghost"
               size="icon-xs"
               onClick={refreshGit}
-              className="size-5 text-[#52525b] hover:text-[#a1a1aa]"
+              className="size-5 text-[#6E6E76] hover:text-[#A1A1A8]"
             >
               <RefreshCw className="size-2.5" />
             </Button>
@@ -80,25 +80,25 @@ export function ActivityPanel() {
 
           {!hasContent && (
             <div className="flex flex-col items-center gap-1 py-6">
-              <span className="text-[11px] text-[#3f3f46]">{t("noActivityYet")}</span>
+              <span className="text-[11px] text-[#6E6E76]">{t("noActivityYet")}</span>
             </div>
           )}
 
           {/* Commands run */}
           {activityLog.filter((e) => e.type === "command").length > 0 && (
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
+              <span className="text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
                 {t("commandRun")}
               </span>
               {activityLog
                 .filter((e) => e.type === "command")
                 .map((entry) => (
                   <div key={entry.id} className="flex h-5 items-center gap-1.5">
-                    <TerminalSquare className="size-2.5 shrink-0 text-[#06b6d4]" />
-                    <span className="flex-1 truncate font-mono text-[10px] text-[#a1a1aa]">
+                    <TerminalSquare className="size-2.5 shrink-0 text-[#4DA3C7]" />
+                    <span className="flex-1 truncate font-mono text-[10px] text-[#A1A1A8]">
                       {entry.label}
                     </span>
-                    <span className="shrink-0 text-[9px] text-[#3f3f46] tabular-nums">
+                    <span className="shrink-0 text-[9px] text-[#6E6E76] tabular-nums">
                       {timeAgo(entry.timestamp)}
                     </span>
                   </div>
@@ -109,7 +109,7 @@ export function ActivityPanel() {
           {/* File changes since session start */}
           {fileChanges.length > 0 && (
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium tracking-wider text-[#52525b] uppercase">
+              <span className="text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
                 {t("fileChanged")} ({fileChanges.length})
               </span>
               {fileChanges.slice(0, 20).map((f) => {
@@ -119,12 +119,12 @@ export function ActivityPanel() {
                 return (
                   <div key={f.file} className="flex h-5 items-center gap-1.5">
                     <Icon className="size-2.5 shrink-0" style={{ color: cfg.color }} />
-                    <span className="truncate font-mono text-[10px] text-[#a1a1aa]">{f.file}</span>
+                    <span className="truncate font-mono text-[10px] text-[#A1A1A8]">{f.file}</span>
                   </div>
                 );
               })}
               {fileChanges.length > 20 && (
-                <span className="text-[10px] text-[#3f3f46]">+{fileChanges.length - 20}...</span>
+                <span className="text-[10px] text-[#6E6E76]">+{fileChanges.length - 20}...</span>
               )}
             </div>
           )}

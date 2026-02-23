@@ -26,10 +26,10 @@ export function SettingsDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="border-white/[0.06] bg-[#111113] sm:max-w-[420px]">
+      <DialogContent className="border-white/[0.06] bg-[#1A1A1D] sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-[14px] text-[#f4f4f5]">{t("settings")}</DialogTitle>
-          <DialogDescription className="text-[12px] text-[#52525b]">
+          <DialogTitle className="text-[14px] text-[#E6E6E9]">{t("settings")}</DialogTitle>
+          <DialogDescription className="text-[12px] text-[#6E6E76]">
             {t("settingsDesc")}
           </DialogDescription>
         </DialogHeader>
@@ -37,7 +37,7 @@ export function SettingsDialog() {
         <div className="mt-2 flex flex-col gap-5">
           {/* Shell */}
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium tracking-[0.06em] text-[#a1a1aa] uppercase">
+            <label className="text-[11px] font-medium tracking-[0.06em] text-[#A1A1A8] uppercase">
               {t("shell")}
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -59,7 +59,7 @@ export function SettingsDialog() {
 
           {/* Font size */}
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium tracking-[0.06em] text-[#a1a1aa] uppercase">
+            <label className="text-[11px] font-medium tracking-[0.06em] text-[#A1A1A8] uppercase">
               {t("fontSize")}
             </label>
             <div className="flex items-center gap-1.5">
@@ -75,15 +75,15 @@ export function SettingsDialog() {
                 </Button>
               ))}
             </div>
-            <p className="text-[10px] text-[#3f3f46]">{t("fontSizeNote")}</p>
+            <p className="text-[10px] text-[#6E6E76]">{t("fontSizeNote")}</p>
           </div>
 
           <Separator className="bg-white/[0.06]" />
 
           {/* Info */}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-[#3f3f46]">Kodiq v0.1.0</span>
-            <span className="text-[10px] text-[#3f3f46]">{t("openSettings")}</span>
+            <span className="text-[10px] text-[#6E6E76]">Kodiq v0.1.0</span>
+            <span className="text-[10px] text-[#6E6E76]">{t("openSettings")}</span>
           </div>
         </div>
       </DialogContent>

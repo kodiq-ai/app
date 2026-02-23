@@ -22,10 +22,10 @@ const KIND_ICON: Record<string, { icon: typeof Pencil; color: string }> = {
   modified: { icon: Pencil, color: "#eab308" },
   added: { icon: FilePlus, color: "#22c55e" },
   deleted: { icon: FileMinus, color: "#ef4444" },
-  untracked: { icon: FileQuestion, color: "#a1a1aa" },
-  renamed: { icon: CircleDot, color: "#06b6d4" },
-  copied: { icon: CircleDot, color: "#06b6d4" },
-  other: { icon: CircleDot, color: "#52525b" },
+  untracked: { icon: FileQuestion, color: "#A1A1A8" },
+  renamed: { icon: CircleDot, color: "#4DA3C7" },
+  copied: { icon: CircleDot, color: "#4DA3C7" },
+  other: { icon: CircleDot, color: "#6E6E76" },
 };
 
 interface FileListProps {
@@ -60,7 +60,7 @@ export function FileList({
       <button
         type="button"
         onClick={() => setCollapsed(!collapsed)}
-        className="flex h-6 items-center gap-1 px-2 text-[11px] font-medium text-[#a1a1aa] hover:text-[#f4f4f5]"
+        className="flex h-6 items-center gap-1 px-2 text-[11px] font-medium text-[#A1A1A8] hover:text-[#E6E6E9]"
       >
         {collapsed ? (
           <ChevronRight className="size-3 shrink-0" />
@@ -98,7 +98,7 @@ export function FileList({
       {!collapsed && (
         <div className="flex flex-col">
           {files.map((f) => {
-            const cfg = KIND_ICON[f.kind] ?? { icon: CircleDot, color: "#52525b" };
+            const cfg = KIND_ICON[f.kind] ?? { icon: CircleDot, color: "#6E6E76" };
             const Icon = cfg.icon;
             const fileName = f.file.split("/").pop() ?? f.file;
             const dir = f.file.includes("/") ? f.file.slice(0, f.file.lastIndexOf("/")) : "";
@@ -113,9 +113,9 @@ export function FileList({
                 onClick={() => onFileClick?.(f.file)}
               >
                 <Icon className="size-2.5 shrink-0" style={{ color: cfg.color }} />
-                <span className="truncate font-mono text-[10px] text-[#f4f4f5]">{fileName}</span>
+                <span className="truncate font-mono text-[10px] text-[#E6E6E9]">{fileName}</span>
                 {dir && (
-                  <span className="flex-1 truncate font-mono text-[10px] text-[#3f3f46]">
+                  <span className="flex-1 truncate font-mono text-[10px] text-[#6E6E76]">
                     {dir}
                   </span>
                 )}

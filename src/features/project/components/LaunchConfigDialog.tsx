@@ -147,9 +147,9 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/[0.06] bg-[#111113] sm:max-w-[420px]">
+      <DialogContent className="border-white/[0.06] bg-[#1A1A1D] sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-sm font-medium text-[#f4f4f5]">
+          <DialogTitle className="text-sm font-medium text-[#E6E6E9]">
             {isEditing ? t("editLaunchConfig") : t("newLaunchConfig")}
           </DialogTitle>
         </DialogHeader>
@@ -162,7 +162,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
               placeholder="e.g. sonnet-4, fast-mode"
-              className="h-8 border-white/[0.06] bg-white/[0.02] text-xs text-[#f4f4f5] placeholder:text-[#3f3f46]"
+              className="h-8 border-white/[0.06] bg-white/[0.02] text-xs text-[#E6E6E9] placeholder:text-[#6E6E76]"
               autoFocus
             />
           </div>
@@ -171,7 +171,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
           <div className="flex flex-col gap-1.5">
             <Label className="text-[11px] text-[#71717a]">{t("launchConfigCli")}</Label>
             <Select value={cliName} onValueChange={setCliName} disabled={isEditing}>
-              <SelectTrigger className="h-8 w-full border-white/[0.06] bg-white/[0.02] text-xs text-[#f4f4f5]">
+              <SelectTrigger className="h-8 w-full border-white/[0.06] bg-white/[0.02] text-xs text-[#E6E6E9]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-white/[0.06] bg-[#18181b]">
@@ -191,7 +191,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
               value={args}
               onChange={(e) => setArgs(e.target.value)}
               placeholder={t("launchConfigArgsPlaceholder")}
-              className="h-8 border-white/[0.06] bg-white/[0.02] font-mono text-xs text-[#f4f4f5] placeholder:text-[#3f3f46]"
+              className="h-8 border-white/[0.06] bg-white/[0.02] font-mono text-xs text-[#E6E6E9] placeholder:text-[#6E6E76]"
             />
           </div>
 
@@ -203,7 +203,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
               onChange={(e) => setEnvText(e.target.value)}
               placeholder={t("launchConfigEnvPlaceholder")}
               rows={3}
-              className="resize-none border-white/[0.06] bg-white/[0.02] font-mono text-xs text-[#f4f4f5] placeholder:text-[#3f3f46]"
+              className="resize-none border-white/[0.06] bg-white/[0.02] font-mono text-xs text-[#E6E6E9] placeholder:text-[#6E6E76]"
             />
           </div>
 
@@ -235,7 +235,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
             size="sm"
             onClick={handleSave}
             disabled={!profileName.trim() || !cliName || saving}
-            className="bg-[#06b6d4] text-xs text-black hover:bg-[#22d3ee]"
+            className="bg-[#4DA3C7] text-xs text-black hover:bg-[#5CB2D6]"
           >
             {t("launchConfigSave")}
           </Button>

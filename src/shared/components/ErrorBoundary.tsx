@@ -48,10 +48,10 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10">
               <span className="text-lg text-red-400">!</span>
             </div>
-            <p className="text-[13px] font-medium text-[#f4f4f5]">
+            <p className="text-[13px] font-medium text-[#E6E6E9]">
               {this.props.fallbackTitle || t("somethingWentWrong")}
             </p>
-            <p className="text-[11px] leading-relaxed text-[#52525b]">
+            <p className="text-[11px] leading-relaxed text-[#6E6E76]">
               {this.state.error?.message || t("unknownError")}
             </p>
           </div>
@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
             variant="ghost"
             size="sm"
             onClick={this.handleReset}
-            className="gap-1.5 text-[11px] text-[#a1a1aa] hover:text-[#a1a1aa]"
+            className="gap-1.5 text-[11px] text-[#A1A1A8] hover:text-[#A1A1A8]"
           >
             <RotateCcw className="size-3" />
             {t("reload")}

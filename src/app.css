@@ -18,24 +18,24 @@
 /* Kodiq is always dark — dark theme values go directly in :root */
 
 :root {
-  /* Kodiq custom tokens — Cyan Terminal */
-  --bg-base: #09090b;
-  --bg-surface: #111113;
-  --bg-raised: #18181b;
-  --bg-overlay: #1e1e22;
-  --bg-elevated: #27272a;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-dim: rgba(255, 255, 255, 0.03);
-  --border-default: #3f3f46;
-  --border-focus: #06b6d4;
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-tertiary: #52525b;
-  --kodiq-accent: #06b6d4;
-  --accent-light: #22d3ee;
-  --accent-dark: #0891b2;
-  --accent-dim: rgba(6, 182, 212, 0.12);
-  --accent-glow: rgba(6, 182, 212, 0.25);
+  /* Kodiq custom tokens — Graphite Calm */
+  --bg-base: #141416;
+  --bg-surface: #1a1a1d;
+  --bg-raised: #1a1a1d;
+  --bg-overlay: #202024;
+  --bg-elevated: #202024;
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-dim: rgba(255, 255, 255, 0.02);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-focus: #4da3c7;
+  --text-primary: #e6e6e9;
+  --text-secondary: #a1a1a8;
+  --text-tertiary: #6e6e76;
+  --kodiq-accent: #4da3c7;
+  --accent-light: #5cb2d6;
+  --accent-dark: #3e8aad;
+  --accent-dim: rgba(77, 163, 199, 0.15);
+  --accent-glow: rgba(77, 163, 199, 0.12);
 
   /* Typography */
   --font-display: "Monaspace Krypton", monospace;
@@ -43,39 +43,39 @@
   --font-body: "Monaspace Argon", monospace;
   --font-code: "Monaspace Neon", monospace;
 
-  /* shadcn tokens — dark theme as default */
+  /* shadcn tokens — Graphite Calm dark */
   --radius: 0.625rem;
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --background: #141416;
+  --foreground: #e6e6e9;
+  --card: #1a1a1d;
+  --card-foreground: #e6e6e9;
+  --popover: #1a1a1d;
+  --popover-foreground: #e6e6e9;
+  --primary: #4da3c7;
+  --primary-foreground: #141416;
+  --secondary: #202024;
+  --secondary-foreground: #e6e6e9;
+  --muted: #202024;
+  --muted-foreground: #6e6e76;
+  --accent: #202024;
+  --accent-foreground: #e6e6e9;
+  --destructive: #c36a6a;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #4da3c7;
+  --chart-1: #4da3c7;
+  --chart-2: #6faf8f;
+  --chart-3: #c9a95e;
+  --chart-4: #8da1f2;
+  --chart-5: #c36a6a;
+  --sidebar: #121214;
+  --sidebar-foreground: #e6e6e9;
+  --sidebar-primary: #4da3c7;
+  --sidebar-primary-foreground: #e6e6e9;
+  --sidebar-accent: #1c1c20;
+  --sidebar-accent-foreground: #e6e6e9;
+  --sidebar-border: rgba(255, 255, 255, 0.04);
+  --sidebar-ring: #4da3c7;
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
@@ -248,11 +248,11 @@ body {
 /* ─── Selection & Focus ─────────────────────────────────────────────────────── */
 
 ::selection {
-  background: rgba(6, 182, 212, 0.25);
+  background: rgba(77, 163, 199, 0.18);
 }
 
 *:focus-visible {
-  outline: 1px solid rgba(6, 182, 212, 0.4);
+  outline: 1px solid rgba(77, 163, 199, 0.3);
   outline-offset: -1px;
   border-radius: 4px;
 }
@@ -307,14 +307,14 @@ body {
 }
 
 .dark {
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --sidebar: #121214;
+  --sidebar-foreground: #e6e6e9;
+  --sidebar-primary: #4da3c7;
+  --sidebar-primary-foreground: #e6e6e9;
+  --sidebar-accent: #1c1c20;
+  --sidebar-accent-foreground: #e6e6e9;
+  --sidebar-border: rgba(255, 255, 255, 0.04);
+  --sidebar-ring: #4da3c7;
 }
 
 @layer base {
