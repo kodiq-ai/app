@@ -241,5 +241,32 @@ jobs:
           echo ""
           echo "✅ latest.json uploaded to release $TAG"
 
+          # Upload unversioned installer aliases for the landing page download buttons.
+          # GitHub releases/latest/download/<name> requires an exact filename match,
+          # so we publish permanent-name copies alongside the versioned ones.
+          echo ""
+          echo "=== Uploading unversioned installer aliases ==="
+          gh release download "$TAG" --repo "$REPO" -D bundles \
+            -p "Kodiq_${VER}_aarch64.dmg" \
+            -p "Kodiq_${VER}_x64.dmg" \
+            -p "Kodiq_${VER}_x64-setup.exe" \
+            -p "Kodiq_${VER}_amd64.deb" || true
+
+          upload_alias() {
+            local src="bundles/$1" dst="bundles/$2"
+            if [ -f "$src" ]; then
+              cp "$src" "$dst"
+              gh release upload "$TAG" "$dst" --repo "$REPO" --clobber
+              echo "✅ $2"
+            else
+              echo "⚠️  Not found: $1"
+            fi
+          }
+
+          upload_alias "Kodiq_${VER}_aarch64.dmg"  "Kodiq_aarch64.dmg"
+          upload_alias "Kodiq_${VER}_x64.dmg"       "Kodiq_x64.dmg"
+          upload_alias "Kodiq_${VER}_x64-setup.exe" "Kodiq_x64-setup.exe"
+          upload_alias "Kodiq_${VER}_amd64.deb"     "Kodiq_amd64.deb"
+
           # Cleanup
           rm -f /tmp/signing.key
