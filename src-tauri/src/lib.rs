@@ -3,6 +3,7 @@ mod db;
 pub mod error;
 mod filesystem;
 mod git;
+mod preview;
 mod state;
 mod terminal;
 
@@ -44,6 +45,7 @@ pub fn run() {
         .manage(state::new_app_state())
         .manage(db_state)
         .manage(filesystem::watcher::WatcherState::new())
+        .manage(preview::manager::new_preview_state())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
@@ -105,6 +107,12 @@ pub fn run() {
             db::launch_configs::db_create_launch_config,
             db::launch_configs::db_update_launch_config,
             db::launch_configs::db_delete_launch_config,
+            // Preview
+            preview::manager::preview_navigate,
+            preview::manager::preview_resize,
+            preview::manager::preview_reload,
+            preview::manager::preview_execute_js,
+            preview::manager::preview_destroy,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

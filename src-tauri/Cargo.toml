@@ -21,7 +21,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # Tauri core
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["unstable"] }
 tauri-plugin-shell = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-store = "2"
@@ -53,6 +53,9 @@ notify-debouncer-mini = "0.6"
 
 # Typed errors
 thiserror = "2"
+
+# URL parsing (preview webview)
+url = "2"
 
 # Future additions (uncomment when needed):
 # reqwest = { version = "0.12", optional = true }  # Pro HTTP client

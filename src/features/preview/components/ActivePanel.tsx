@@ -1,40 +1,101 @@
-import type React from "react";
-import { RefreshCw, Monitor, Tablet, Smartphone, Zap, Globe } from "lucide-react";
-import { useAppStore, type Viewport } from "@/lib/store";
+import { useRef, useEffect, useCallback } from "react";
+import { RefreshCw, Monitor, Tablet, Smartphone, Zap, Globe, X } from "lucide-react";
+import { useAppStore } from "@/lib/store";
+import type { Viewport } from "@shared/lib/types";
+import { preview } from "@shared/lib/tauri";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { t } from "@/lib/i18n";
 
+// -- Viewport Dimensions ─────────────────────────────────
+const VIEWPORT_SIZES: Record<Viewport, { width?: number; height?: number }> = {
+  desktop: {},
+  tablet: { width: 768, height: 1024 },
+  mobile: { width: 390, height: 844 },
+};
+
 function getViewportStyle(viewport: Viewport): React.CSSProperties {
-  if (viewport === "tablet") {
-    return {
-      width: 768,
-      height: "100%",
-      maxHeight: 1024,
-      borderRadius: 8,
-      boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
-    };
-  }
-  if (viewport === "mobile") {
-    return {
-      width: 390,
-      height: "100%",
-      maxHeight: 844,
-      borderRadius: 12,
-      boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
-    };
-  }
-  return { width: "100%", height: "100%" };
+  const size = VIEWPORT_SIZES[viewport];
+  if (!size.width) return { width: "100%", height: "100%" };
+  return {
+    width: size.width,
+    height: "100%",
+    maxHeight: size.height,
+    borderRadius: viewport === "mobile" ? 12 : 8,
+    boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
+  };
 }
 
+// -- ActivePanel ─────────────────────────────────────────
 export function ActivePanel() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const viewport = useAppStore((s) => s.viewport);
   const setViewport = useAppStore((s) => s.setViewport);
   const previewUrl = useAppStore((s) => s.previewUrl);
-  const setPreviewUrl = useAppStore((s) => s.setPreviewUrl);
+  const webviewReady = useAppStore((s) => s.webviewReady);
+  const setWebviewReady = useAppStore((s) => s.setWebviewReady);
+  const updateWebviewBounds = useAppStore((s) => s.updateWebviewBounds);
+  const destroyWebview = useAppStore((s) => s.destroyWebview);
 
+  // -- Report bounds to Rust ───────────────────────────────
+  const reportBounds = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    // Account for device pixel ratio — Tauri uses logical pixels
+    updateWebviewBounds({
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, [updateWebviewBounds]);
+
+  // -- ResizeObserver: keep webview positioned over placeholder
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !webviewReady) return;
+
+    const observer = new ResizeObserver(() => reportBounds());
+    observer.observe(el);
+
+    // Also report on scroll (bounds change relative to window)
+    window.addEventListener("scroll", reportBounds, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", reportBounds);
+    };
+  }, [webviewReady, reportBounds]);
+
+  // -- Create / navigate webview when URL changes ──────────
+  useEffect(() => {
+    if (!previewUrl) return;
+
+    const el = containerRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const bounds = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+
+    preview
+      .navigate(previewUrl, bounds)
+      .then(() => setWebviewReady(true))
+      .catch((e) => console.error("[Preview] navigate:", e));
+  }, [previewUrl, setWebviewReady]);
+
+  // -- Destroy webview on unmount ──────────────────────────
+  useEffect(() => {
+    return () => {
+      if (webviewReady) {
+        preview.destroy().catch((e) => console.error("[Preview] cleanup:", e));
+      }
+    };
+  }, [webviewReady]);
+
+  // -- Viewport options ────────────────────────────────────
   const viewportOptions: { v: Viewport; icon: typeof Monitor; label: string }[] = [
     { v: "desktop", icon: Monitor, label: t("desktop") },
     { v: "tablet", icon: Tablet, label: t("tablet") },
@@ -50,9 +111,7 @@ export function ActivePanel() {
             <Button
               variant="ghost"
               size="icon-xs"
-              onClick={() =>
-                previewUrl && setPreviewUrl(`${previewUrl.split("?")[0]}?_r=${Date.now()}`)
-              }
+              onClick={() => preview.reload().catch(console.error)}
               aria-label="refresh preview"
               className="text-k-text-tertiary hover:text-k-text-secondary"
             >
@@ -64,7 +123,7 @@ export function ActivePanel() {
 
         <Input
           type="text"
-          value={previewUrl?.split("?")[0] || ""}
+          value={previewUrl ?? ""}
           readOnly
           placeholder={t("waitingForServer")}
           className="text-k-text-secondary focus:border-k-accent/40 h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px]"
@@ -96,24 +155,38 @@ export function ActivePanel() {
           <>
             <div className="text-k-accent flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium">
               <Zap className="size-2" />
-              auto
+              native
             </div>
             <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500/80" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={destroyWebview}
+                  className="text-k-text-tertiary hover:text-red-400"
+                  aria-label="close preview"
+                >
+                  <X className="size-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("close")}</TooltipContent>
+            </Tooltip>
           </>
         ) : (
           <div className="bg-k-border h-1.5 w-1.5 shrink-0 rounded-full" />
         )}
       </div>
 
-      {/* Preview content */}
+      {/* Preview content — native webview is positioned over this div by Rust */}
       <div className="relative flex-1 overflow-hidden">
         {previewUrl ? (
           <div className="flex h-full w-full items-center justify-center">
-            <iframe
-              key={previewUrl}
-              src={previewUrl}
-              className="border-0 bg-white"
+            <div
+              ref={containerRef}
+              className="bg-white"
               style={getViewportStyle(viewport)}
+              data-preview-container
             />
           </div>
         ) : (

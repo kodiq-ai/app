@@ -18,6 +18,7 @@ import type {
   LaunchConfig,
   NewLaunchConfig,
   UpdateLaunchConfig,
+  PreviewBounds,
 } from "./types";
 
 // ── Terminal ─────────────────────────────────────────────
@@ -55,6 +56,16 @@ export const git = {
     invoke<{ hash: string; message: string }>("git_commit", { path, message }),
   diff: (path: string, file: string, staged: boolean) =>
     invoke<string>("git_diff", { path, file, staged }),
+};
+
+// ── Preview ─────────────────────────────────────────────
+export const preview = {
+  navigate: (url: string, bounds: PreviewBounds) =>
+    invoke<void>("preview_navigate", { url, bounds }),
+  resize: (bounds: PreviewBounds) => invoke<void>("preview_resize", { bounds }),
+  reload: () => invoke<void>("preview_reload"),
+  executeJs: (expression: string) => invoke<void>("preview_execute_js", { expression }),
+  destroy: () => invoke<void>("preview_destroy"),
 };
 
 // ── CLI ──────────────────────────────────────────────────

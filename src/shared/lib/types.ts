@@ -201,6 +201,14 @@ export interface SavedTab {
   command?: string;
 }
 
+// ── Preview ─────────────────────────────────────────────
+export interface PreviewBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 // ── UI Types ─────────────────────────────────────────────
 export type Viewport = "desktop" | "tablet" | "mobile";
 export type SidebarTab = "files" | "project" | "activity" | "git";
