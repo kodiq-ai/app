@@ -40,9 +40,12 @@ function listenOnce<T>(
 ): Promise<T | null> {
   return new Promise<T | null>((resolve) => {
     let done = false;
+    let unlistenRef: (() => void) | null = null;
+
     const finish = (val: T | null) => {
       if (done) return;
       done = true;
+      unlistenRef?.();
       resolve(val);
     };
 
@@ -53,7 +56,9 @@ function listenOnce<T>(
       finish(event.payload);
     }).then(
       (unlisten) => {
-        setTimeout(() => unlisten(), timeoutMs + 500);
+        unlistenRef = unlisten;
+        // If finish() was already called (e.g. trigger failed), clean up immediately
+        if (done) unlisten();
         void trigger().catch(() => {
           clearTimeout(timer);
           finish(null);

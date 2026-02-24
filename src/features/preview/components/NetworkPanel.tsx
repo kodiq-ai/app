@@ -25,9 +25,9 @@ const METHOD_COLORS: Record<string, string> = {
 type TypeFilter = "all" | "fetch" | "xhr";
 
 const TYPE_FILTERS: { value: TypeFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "fetch", label: "Fetch" },
-  { value: "xhr", label: "XHR" },
+  { value: "all", label: "filterAll" },
+  { value: "fetch", label: "filterFetch" },
+  { value: "xhr", label: "filterXhr" },
 ];
 
 // -- Helpers ──────────────────────────────────────────────
@@ -126,17 +126,26 @@ function RequestEntry({ entry }: { entry: NetworkEntry }) {
             <span className="text-k-text-secondary">{entry.method}</span>{" "}
             <span className="break-all">{entry.url}</span>
           </div>
-          {entry.error && <div className="text-red-400">Error: {entry.error}</div>}
+          {entry.error && (
+            <div className="text-red-400">
+              {t("networkError")}: {entry.error}
+            </div>
+          )}
           {entry.statusText && (
             <div className="text-k-text-tertiary">
-              Status: <span className={statusColor}>{entry.status}</span> {entry.statusText}
+              {t("networkStatus")}: <span className={statusColor}>{entry.status}</span>{" "}
+              {entry.statusText}
             </div>
           )}
           {entry.duration !== null && (
-            <div className="text-k-text-tertiary">Duration: {formatDuration(entry.duration)}</div>
+            <div className="text-k-text-tertiary">
+              {t("networkDuration")}: {formatDuration(entry.duration)}
+            </div>
           )}
           {entry.responseSize !== null && (
-            <div className="text-k-text-tertiary">Size: {formatSize(entry.responseSize)}</div>
+            <div className="text-k-text-tertiary">
+              {t("networkSize")}: {formatSize(entry.responseSize)}
+            </div>
           )}
         </div>
       )}
@@ -198,7 +207,7 @@ export function NetworkPanel() {
                     : "text-k-text-tertiary hover:text-k-text-secondary",
                 )}
               >
-                {label}
+                {t(label)}
                 {count !== null && count > 0 && (
                   <span className="text-k-text-tertiary ml-0.5">{count}</span>
                 )}
@@ -211,7 +220,7 @@ export function NetworkPanel() {
 
         {/* Request count */}
         <span className="text-k-text-tertiary text-[10px] tabular-nums">
-          {filtered.length} requests
+          {filtered.length} {t("requests")}
         </span>
 
         {/* Scroll to bottom */}
@@ -232,7 +241,7 @@ export function NetworkPanel() {
                 <ArrowDownToLine className="size-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Scroll to bottom</TooltipContent>
+            <TooltipContent>{t("scrollToBottom")}</TooltipContent>
           </Tooltip>
         )}
 

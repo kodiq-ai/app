@@ -18,6 +18,7 @@ import {
 import { useAppStore } from "@/lib/store";
 import type { Viewport } from "@shared/lib/types";
 import { preview } from "@shared/lib/tauri";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -217,9 +218,12 @@ export function ActivePanel() {
                       const res = await fetch(data);
                       const blob = await res.blob();
                       await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                      toast.success(t("screenshotSaved"));
                     } catch {
-                      // fallback: silently ignore clipboard errors
+                      toast.error(t("screenshotFailed"));
                     }
+                  } else {
+                    toast.error(t("screenshotFailed"));
                   }
                 }}
                 aria-label={t("screenshot")}

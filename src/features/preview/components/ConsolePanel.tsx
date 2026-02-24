@@ -21,12 +21,12 @@ const LEVEL_CONFIG: Record<ConsoleLevel, { color: string; badge: string }> = {
 };
 
 const FILTER_OPTIONS: { value: ConsoleLevel | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "error", label: "Errors" },
-  { value: "warn", label: "Warnings" },
-  { value: "log", label: "Logs" },
-  { value: "info", label: "Info" },
-  { value: "debug", label: "Debug" },
+  { value: "all", label: "filterAll" },
+  { value: "error", label: "filterErrors" },
+  { value: "warn", label: "filterWarnings" },
+  { value: "log", label: "filterLogs" },
+  { value: "info", label: "filterInfo" },
+  { value: "debug", label: "filterDebug" },
 ];
 
 // -- Serialization ───────────────────────────────────────────
@@ -112,7 +112,7 @@ function LogEntry({ entry }: { entry: ConsoleEntry }) {
             onClick={() => setExpanded(true)}
             className="text-k-text-tertiary hover:text-k-text-secondary mt-0.5 text-[10px]"
           >
-            <ChevronDown className="inline size-2.5" /> more
+            <ChevronDown className="inline size-2.5" /> {t("andMore")}
           </button>
         )}
       </div>
@@ -176,7 +176,7 @@ export function ConsolePanel() {
                     : "text-k-text-tertiary hover:text-k-text-secondary",
                 )}
               >
-                {label}
+                {t(label)}
                 {count !== null && count > 0 && (
                   <span
                     className={cn(
@@ -196,7 +196,9 @@ export function ConsolePanel() {
         <div className="flex-1" />
 
         {/* Log count */}
-        <span className="text-k-text-tertiary text-[10px] tabular-nums">{logCount} logs</span>
+        <span className="text-k-text-tertiary text-[10px] tabular-nums">
+          {logCount} {t("logs")}
+        </span>
 
         {/* Scroll to bottom */}
         {!autoScroll && (
@@ -216,7 +218,7 @@ export function ConsolePanel() {
                 <ArrowDownToLine className="size-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Scroll to bottom</TooltipContent>
+            <TooltipContent>{t("scrollToBottom")}</TooltipContent>
           </Tooltip>
         )}
 

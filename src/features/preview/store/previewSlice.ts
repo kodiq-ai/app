@@ -141,7 +141,7 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
 
   destroyWebview: () => {
     preview.destroy().catch((e) => console.error("[Preview] destroy:", e));
-    set({ webviewReady: false, webviewBounds: null, previewUrl: null });
+    set({ webviewReady: false, webviewBounds: null, previewUrl: null, colorScheme: "dark" });
   },
 
   // -- Server Actions ────────────────────────────────────
