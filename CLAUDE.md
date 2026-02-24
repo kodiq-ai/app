@@ -53,6 +53,47 @@ src-tauri/src/         Rust modules: terminal/, filesystem/, git/, cli/, db/
 
 **shadcn component**: `pnpm dlx shadcn@latest add <name>`
 
+## Git & GitHub Workflow
+
+> **Repo**: `kodiq-ai/app` (PUBLIC, Apache 2.0)
+
+```bash
+# Новая ветка от main
+git fetch origin main && git checkout -b <type>/<desc> origin/main
+
+# Коммит и пуш
+git add <файлы> && git commit -m "type: description"
+git push -u origin HEAD
+
+# PR → CI → merge (squash)
+gh pr create --title "type: description" --body "..."
+gh pr merge --squash --delete-branch
+```
+
+### Branch Protection (main)
+
+- **Squash-only merge** — merge commit и rebase запрещены
+- **Required reviews: 0** — CI должен пройти, approve не требуется
+- **Enforce admins: true** — правила применяются ко всем, включая owner
+- **Force push / branch delete: blocked**
+- **Auto-merge: enabled** — `gh pr merge --auto --squash`
+
+### Security
+
+- **Secret scanning + push protection** — включён (блокирует коммиты с токенами/ключами)
+- **Dependabot security updates** — включён (автоматические PR для уязвимостей)
+- **Workflow permissions: read-only** — Actions не могут писать в репо без explicit permissions
+- **Actions cannot approve PRs**
+
+### CI Checks
+
+Все проверки должны пройти перед merge:
+- `lint-frontend` — ESLint
+- `lint-rust` — cargo clippy
+- `test-frontend` — Vitest
+- `test-rust` — cargo test
+- `build` — Tauri build (runs after all tests pass)
+
 ## Detailed Rules
 
 See `.claude/rules/` for: architecture, commands, conventions, testing.
