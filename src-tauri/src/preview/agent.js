@@ -219,5 +219,8 @@
     });
   });
 
+  // -- Expose send function for eval'd JS (inspect, snapshot) ──
+  window.__kodiq_send = send;
+
   connect();
 })();

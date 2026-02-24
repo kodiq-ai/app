@@ -113,6 +113,11 @@ pub fn run() {
             preview::manager::preview_resize,
             preview::manager::preview_reload,
             preview::manager::preview_execute_js,
+            preview::manager::preview_click,
+            preview::manager::preview_fill,
+            preview::manager::preview_hover,
+            preview::manager::preview_inspect,
+            preview::manager::preview_snapshot,
             preview::manager::preview_destroy,
             // Preview — Server
             preview::server::preview_start_server,

@@ -9,6 +9,7 @@ import type {
   ConsoleLevel,
   DevToolsTab,
   NetworkEntry,
+  InspectResult,
 } from "@shared/lib/types";
 import { db, preview } from "@shared/lib/tauri";
 
@@ -41,6 +42,10 @@ export interface PreviewSlice {
   devtoolsTab: DevToolsTab;
   consoleFilter: ConsoleLevel | "all";
 
+  // -- Inspect State ─────────────────────────────────────
+  inspectMode: boolean;
+  inspectResult: InspectResult | null;
+
   // -- Server Actions ─────────────────────────────────────
   startServer: (config: ServerConfig) => Promise<void>;
   stopServer: (id?: string) => Promise<void>;
@@ -57,6 +62,11 @@ export interface PreviewSlice {
   toggleDevtools: () => void;
   setDevtoolsTab: (tab: DevToolsTab) => void;
   setConsoleFilter: (filter: ConsoleLevel | "all") => void;
+
+  // -- Inspect Actions ────────────────────────────────────
+  setInspectMode: (on: boolean) => void;
+  setInspectResult: (result: InspectResult | null) => void;
+  clearInspectResult: () => void;
 }
 
 export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice> = (set, get) => ({
@@ -78,6 +88,10 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   devtoolsOpen: false,
   devtoolsTab: "console",
   consoleFilter: "all",
+
+  // -- Inspect Defaults ──────────────────────────────────
+  inspectMode: false,
+  inspectResult: null,
 
   // -- Webview Actions ───────────────────────────────────
 
@@ -185,4 +199,12 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   setDevtoolsTab: (devtoolsTab) => set({ devtoolsTab }),
 
   setConsoleFilter: (consoleFilter) => set({ consoleFilter }),
+
+  // -- Inspect Actions ─────────────────────────────────────
+
+  setInspectMode: (inspectMode) => set({ inspectMode }),
+
+  setInspectResult: (inspectResult) => set({ inspectResult }),
+
+  clearInspectResult: () => set({ inspectResult: null }),
 });

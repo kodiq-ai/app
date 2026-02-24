@@ -3,6 +3,7 @@
 // No raw invoke() calls elsewhere in the codebase.
 
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import type {
   FileEntry,
   GitInfo,
@@ -22,7 +23,49 @@ import type {
   ServerInfo,
   ServerLogEntry,
   ServerConfig,
+  InspectResult,
+  SnapshotNode,
 } from "./types";
+
+// -- Helpers ─────────────────────────────────────────────
+
+/**
+ * One-shot Tauri event listener with timeout.
+ * Sets up listener BEFORE trigger to avoid race conditions.
+ */
+function listenOnce<T>(
+  eventName: string,
+  timeoutMs: number,
+  trigger: () => Promise<void>,
+): Promise<T | null> {
+  return new Promise<T | null>((resolve) => {
+    let done = false;
+    const finish = (val: T | null) => {
+      if (done) return;
+      done = true;
+      resolve(val);
+    };
+
+    const timer = setTimeout(() => finish(null), timeoutMs);
+
+    void listen<T | null>(eventName, (event) => {
+      clearTimeout(timer);
+      finish(event.payload);
+    }).then(
+      (unlisten) => {
+        setTimeout(() => unlisten(), timeoutMs + 500);
+        void trigger().catch(() => {
+          clearTimeout(timer);
+          finish(null);
+        });
+      },
+      () => {
+        clearTimeout(timer);
+        finish(null);
+      },
+    );
+  });
+}
 
 // ── Terminal ─────────────────────────────────────────────
 export const terminal = {
@@ -68,6 +111,22 @@ export const preview = {
   resize: (bounds: PreviewBounds) => invoke<void>("preview_resize", { bounds }),
   reload: () => invoke<void>("preview_reload"),
   executeJs: (expression: string) => invoke<void>("preview_execute_js", { expression }),
+
+  // ── Interaction ─────────────────────────────────────────
+  click: (selector: string) => invoke<void>("preview_click", { selector }),
+  fill: (selector: string, value: string) => invoke<void>("preview_fill", { selector, value }),
+  hover: (selector: string) => invoke<void>("preview_hover", { selector }),
+
+  // ── Inspection ──────────────────────────────────────────
+  inspect: (selector: string) =>
+    listenOnce<InspectResult>("preview://inspect-result", 5000, () =>
+      invoke<void>("preview_inspect", { selector }),
+    ),
+  snapshot: () =>
+    listenOnce<SnapshotNode>("preview://snapshot-result", 5000, () =>
+      invoke<void>("preview_snapshot"),
+    ),
+
   destroy: () => invoke<void>("preview_destroy"),
 
   // ── Preview — Server ────────────────────────────────────

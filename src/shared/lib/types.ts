@@ -248,7 +248,7 @@ export interface ServerExitEvent {
 
 // ── DevTools ─────────────────────────────────────────────
 export type ConsoleLevel = "log" | "info" | "warn" | "error" | "debug";
-export type DevToolsTab = "console" | "network";
+export type DevToolsTab = "console" | "network" | "inspect";
 
 export interface ConsoleEntry {
   id: string;
@@ -292,6 +292,29 @@ export interface NetworkEvent {
   duration: number | null;
   responseSize: number | null;
   error: string | null;
+}
+
+export interface InspectResult {
+  tagName: string;
+  id: string | null;
+  className: string | null;
+  textContent: string;
+  boundingBox: { x: number; y: number; width: number; height: number };
+  computedStyles: Record<string, string>;
+}
+
+export interface SnapshotNode {
+  tag: string;
+  role: string | null;
+  text: string | null;
+  id?: string;
+  ariaLabel?: string;
+  href?: string;
+  src?: string;
+  type?: string;
+  name?: string;
+  value?: string;
+  children: SnapshotNode[];
 }
 
 // ── UI Types ─────────────────────────────────────────────

@@ -10,6 +10,7 @@ import {
   Square,
   Loader2,
   TerminalSquare,
+  Crosshair,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import type { Viewport } from "@shared/lib/types";
@@ -21,6 +22,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { t } from "@/lib/i18n";
 import { ConsolePanel } from "./ConsolePanel";
 import { NetworkPanel } from "./NetworkPanel";
+import { InspectOverlay } from "./InspectOverlay";
 
 // -- Viewport Dimensions ─────────────────────────────────
 const VIEWPORT_SIZES: Record<Viewport, { width?: number; height?: number }> = {
@@ -60,6 +62,8 @@ export function ActivePanel() {
   const devtoolsTab = useAppStore((s) => s.devtoolsTab);
   const setDevtoolsTab = useAppStore((s) => s.setDevtoolsTab);
   const networkEntries = useAppStore((s) => s.networkEntries);
+  const inspectMode = useAppStore((s) => s.inspectMode);
+  const setInspectMode = useAppStore((s) => s.setInspectMode);
 
   // -- Report bounds to Rust ───────────────────────────────
   const reportBounds = useCallback(() => {
@@ -197,6 +201,34 @@ export function ActivePanel() {
           </Tooltip>
         )}
 
+        {/* Inspect toggle */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => {
+                  const next = !inspectMode;
+                  setInspectMode(next);
+                  if (next) {
+                    setDevtoolsTab("inspect");
+                    if (!devtoolsOpen) toggleDevtools();
+                  }
+                }}
+                aria-label={t("inspectElement")}
+                className={cn(
+                  "text-k-text-tertiary hover:text-k-text-secondary",
+                  inspectMode && "!text-k-accent bg-white/[0.04]",
+                )}
+              >
+                <Crosshair className="size-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("inspectElement")}</TooltipContent>
+          </Tooltip>
+        )}
+
         {/* DevTools toggle */}
         {previewUrl && (
           <Tooltip>
@@ -318,10 +350,24 @@ export function ActivePanel() {
                 <span className="text-k-text-tertiary ml-1">{networkEntries.length}</span>
               )}
             </button>
+            <button
+              onClick={() => setDevtoolsTab("inspect")}
+              className={cn(
+                "relative rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                devtoolsTab === "inspect"
+                  ? "text-k-text-secondary bg-white/[0.06]"
+                  : "text-k-text-tertiary hover:text-k-text-secondary",
+                inspectMode && "!text-k-accent",
+              )}
+            >
+              {t("inspectMode")}
+            </button>
           </div>
 
           {/* Active panel */}
-          {devtoolsTab === "console" ? <ConsolePanel /> : <NetworkPanel />}
+          {devtoolsTab === "console" && <ConsolePanel />}
+          {devtoolsTab === "network" && <NetworkPanel />}
+          {devtoolsTab === "inspect" && <InspectOverlay />}
         </div>
       )}
     </div>

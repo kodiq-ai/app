@@ -222,5 +222,14 @@
   "console": "Консоль",
   "network": "Сеть",
   "clearNetwork": "Очистить сеть",
-  "noNetworkRequests": "Нет сетевых запросов"
+  "noNetworkRequests": "Нет сетевых запросов",
+
+  "inspectElement": "Инспектировать элемент",
+  "inspectMode": "Режим инспекции",
+  "noInspectResult": "Нажмите на элемент для инспекции",
+  "tagName": "Тег",
+  "boundingBox": "Размер",
+  "computedStyles": "Стили",
+  "className": "Класс",
+  "textContent": "Текст"
 }

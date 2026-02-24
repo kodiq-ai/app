@@ -210,6 +210,12 @@ impl DevToolsBridge {
                         };
 
                         let _ = app.emit("preview://network", &event);
+                    } else if msg_type == Some("inspect-result") {
+                        let data = raw.get("data").cloned().unwrap_or(serde_json::Value::Null);
+                        let _ = app.emit("preview://inspect-result", &data);
+                    } else if msg_type == Some("snapshot-result") {
+                        let data = raw.get("data").cloned().unwrap_or(serde_json::Value::Null);
+                        let _ = app.emit("preview://snapshot-result", &data);
                     }
                 }
             }

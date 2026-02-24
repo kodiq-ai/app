@@ -223,5 +223,14 @@
   "console": "Console",
   "network": "Network",
   "clearNetwork": "Clear network",
-  "noNetworkRequests": "No network requests"
+  "noNetworkRequests": "No network requests",
+
+  "inspectElement": "Inspect element",
+  "inspectMode": "Inspect mode",
+  "noInspectResult": "Click an element to inspect it",
+  "tagName": "Tag",
+  "boundingBox": "Box",
+  "computedStyles": "Styles",
+  "className": "Class",
+  "textContent": "Text"
 }

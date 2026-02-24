@@ -25,6 +25,71 @@ pub fn new_preview_state() -> PreviewManager {
     Mutex::new(PreviewState::new())
 }
 
+// -- JS Templates (injected into preview via eval) ───────────────
+
+const JS_CLICK: &str = r#"{ var el = document.querySelector(__SEL__); if (el) el.click(); }"#;
+
+const JS_FILL: &str = r#"{
+  var el = document.querySelector(__SEL__);
+  if (el) {
+    el.value = __VAL__;
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+}"#;
+
+const JS_HOVER: &str = r#"{ var el = document.querySelector(__SEL__); if (el) el.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })); }"#;
+
+const JS_INSPECT: &str = r#"(function() {
+  var el = document.querySelector(__SEL__);
+  if (!el) { window.__kodiq_send({ type: "inspect-result", data: null }); return; }
+  var rect = el.getBoundingClientRect();
+  var cs = window.getComputedStyle(el);
+  var styles = {};
+  var keys = ["color","background-color","font-size","font-family","padding","margin","border","display","position","width","height"];
+  for (var i = 0; i < keys.length; i++) styles[keys[i]] = cs.getPropertyValue(keys[i]);
+  window.__kodiq_send({
+    type: "inspect-result",
+    data: {
+      tagName: el.tagName.toLowerCase(),
+      id: el.id || null,
+      className: el.className || null,
+      textContent: (el.textContent || "").substring(0, 500),
+      boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+      computedStyles: styles
+    }
+  });
+})()"#;
+
+const JS_SNAPSHOT: &str = r##"(function() {
+  function walk(node, depth) {
+    if (depth > 10) return null;
+    if (node.nodeType === 3) {
+      var t = node.textContent.trim();
+      return t ? { tag: "#text", role: null, text: t, children: [] } : null;
+    }
+    if (node.nodeType !== 1) return null;
+    var el = node;
+    var tag = el.tagName.toLowerCase();
+    if (tag === "script" || tag === "style" || tag === "noscript") return null;
+    var o = { tag: tag, role: el.getAttribute("role") || null, text: null, children: [] };
+    if (el.id) o.id = el.id;
+    if (el.getAttribute("aria-label")) o.ariaLabel = el.getAttribute("aria-label");
+    if (el.href) o.href = el.href;
+    if (el.src) o.src = el.src;
+    if (el.type) o.type = el.type;
+    if (el.name) o.name = el.name;
+    if (el.value !== undefined && el.value !== "") o.value = String(el.value);
+    for (var i = 0; i < el.childNodes.length; i++) {
+      var child = walk(el.childNodes[i], depth + 1);
+      if (child) o.children.push(child);
+    }
+    if (o.children.length === 0) o.text = (el.textContent || "").trim().substring(0, 200) || null;
+    return o;
+  }
+  window.__kodiq_send({ type: "snapshot-result", data: walk(document.body, 0) });
+})()"##;
+
 // -- Tauri Commands ───────────────────────────────────────────────
 
 #[derive(serde::Deserialize)]
@@ -118,6 +183,75 @@ pub fn preview_execute_js(
     if let Some(ref wv) = preview.webview {
         // Tauri Webview::eval — executes JS in the webview context
         Webview::eval(wv, &expression).map_err(|e: tauri::Error| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn preview_click(
+    state: tauri::State<'_, PreviewManager>,
+    selector: String,
+) -> Result<(), String> {
+    let preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(ref wv) = preview.webview {
+        let sel = serde_json::to_string(&selector).map_err(|e| e.to_string())?;
+        let js = JS_CLICK.replace("__SEL__", &sel);
+        Webview::eval(wv, &js).map_err(|e: tauri::Error| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn preview_fill(
+    state: tauri::State<'_, PreviewManager>,
+    selector: String,
+    value: String,
+) -> Result<(), String> {
+    let preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(ref wv) = preview.webview {
+        let sel = serde_json::to_string(&selector).map_err(|e| e.to_string())?;
+        let val = serde_json::to_string(&value).map_err(|e| e.to_string())?;
+        let js = JS_FILL.replace("__SEL__", &sel).replace("__VAL__", &val);
+        Webview::eval(wv, &js).map_err(|e: tauri::Error| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn preview_hover(
+    state: tauri::State<'_, PreviewManager>,
+    selector: String,
+) -> Result<(), String> {
+    let preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(ref wv) = preview.webview {
+        let sel = serde_json::to_string(&selector).map_err(|e| e.to_string())?;
+        let js = JS_HOVER.replace("__SEL__", &sel);
+        Webview::eval(wv, &js).map_err(|e: tauri::Error| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn preview_inspect(
+    state: tauri::State<'_, PreviewManager>,
+    selector: String,
+) -> Result<(), String> {
+    let preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(ref wv) = preview.webview {
+        let sel = serde_json::to_string(&selector).map_err(|e| e.to_string())?;
+        let js = JS_INSPECT.replace("__SEL__", &sel);
+        Webview::eval(wv, &js).map_err(|e: tauri::Error| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn preview_snapshot(
+    state: tauri::State<'_, PreviewManager>,
+) -> Result<(), String> {
+    let preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(ref wv) = preview.webview {
+        Webview::eval(wv, JS_SNAPSHOT).map_err(|e: tauri::Error| e.to_string())?;
     }
     Ok(())
 }
