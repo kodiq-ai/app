@@ -32,6 +32,22 @@ pub struct ConsoleEvent {
     pub stack: Option<String>,
 }
 
+// -- Network Event ────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkEvent {
+    pub method: String,
+    pub url: String,
+    pub status: Option<i64>,
+    pub status_text: String,
+    pub req_type: String,
+    pub start_time: f64,
+    pub duration: Option<f64>,
+    pub response_size: Option<i64>,
+    pub error: Option<String>,
+}
+
 // -- DevTools Bridge ──────────────────────────────────────────────────────────
 
 pub struct DevToolsBridge {
@@ -131,8 +147,9 @@ impl DevToolsBridge {
             if msg.is_text() {
                 let text = msg.into_text().unwrap_or_default();
                 if let Ok(raw) = serde_json::from_str::<serde_json::Value>(&text) {
-                    // Only forward "console" type messages
-                    if raw.get("type").and_then(|v| v.as_str()) == Some("console") {
+                    let msg_type = raw.get("type").and_then(|v| v.as_str());
+
+                    if msg_type == Some("console") {
                         let event = ConsoleEvent {
                             level: raw
                                 .get("level")
@@ -155,6 +172,44 @@ impl DevToolsBridge {
                         };
 
                         let _ = app.emit("preview://console", &event);
+                    } else if msg_type == Some("network") {
+                        let event = NetworkEvent {
+                            method: raw
+                                .get("method")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("GET")
+                                .to_string(),
+                            url: raw
+                                .get("url")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("")
+                                .to_string(),
+                            status: raw.get("status").and_then(|v| v.as_i64()),
+                            status_text: raw
+                                .get("statusText")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("")
+                                .to_string(),
+                            req_type: raw
+                                .get("reqType")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("fetch")
+                                .to_string(),
+                            start_time: raw
+                                .get("startTime")
+                                .and_then(|v| v.as_f64())
+                                .unwrap_or(0.0),
+                            duration: raw.get("duration").and_then(|v| v.as_f64()),
+                            response_size: raw
+                                .get("responseSize")
+                                .and_then(|v| v.as_i64()),
+                            error: raw
+                                .get("error")
+                                .and_then(|v| v.as_str())
+                                .map(|s| s.to_string()),
+                        };
+
+                        let _ = app.emit("preview://network", &event);
                     }
                 }
             }

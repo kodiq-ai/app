@@ -265,6 +265,35 @@ export interface ConsoleEvent {
   stack?: string;
 }
 
+export type NetworkMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
+
+export interface NetworkEntry {
+  id: string;
+  method: string;
+  url: string;
+  status: number | null;
+  statusText: string;
+  type: "fetch" | "xhr";
+  startTime: number;
+  duration: number | null;
+  requestHeaders?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  responseSize: number | null;
+  error: string | null;
+}
+
+export interface NetworkEvent {
+  method: string;
+  url: string;
+  status: number | null;
+  statusText: string;
+  reqType: string;
+  startTime: number;
+  duration: number | null;
+  responseSize: number | null;
+  error: string | null;
+}
+
 // ── UI Types ─────────────────────────────────────────────
 export type Viewport = "desktop" | "tablet" | "mobile";
 export type SidebarTab = "files" | "project" | "activity" | "git";

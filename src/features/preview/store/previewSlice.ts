@@ -8,6 +8,7 @@ import type {
   ConsoleEntry,
   ConsoleLevel,
   DevToolsTab,
+  NetworkEntry,
 } from "@shared/lib/types";
 import { db, preview } from "@shared/lib/tauri";
 
@@ -35,6 +36,7 @@ export interface PreviewSlice {
 
   // -- DevTools State ─────────────────────────────────────
   consoleLogs: ConsoleEntry[];
+  networkEntries: NetworkEntry[];
   devtoolsOpen: boolean;
   devtoolsTab: DevToolsTab;
   consoleFilter: ConsoleLevel | "all";
@@ -49,6 +51,8 @@ export interface PreviewSlice {
   // -- DevTools Actions ──────────────────────────────────
   pushConsoleEntry: (entry: ConsoleEntry) => void;
   clearConsole: () => void;
+  pushNetworkEntry: (entry: NetworkEntry) => void;
+  clearNetwork: () => void;
   setDevtoolsOpen: (open: boolean) => void;
   toggleDevtools: () => void;
   setDevtoolsTab: (tab: DevToolsTab) => void;
@@ -70,6 +74,7 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
 
   // -- DevTools Defaults ────────────────────────────────
   consoleLogs: [],
+  networkEntries: [],
   devtoolsOpen: false,
   devtoolsTab: "console",
   consoleFilter: "all",
@@ -165,6 +170,13 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
     })),
 
   clearConsole: () => set({ consoleLogs: [] }),
+
+  pushNetworkEntry: (entry) =>
+    set((s) => ({
+      networkEntries: [...s.networkEntries.slice(-499), entry], // Keep last 500
+    })),
+
+  clearNetwork: () => set({ networkEntries: [] }),
 
   setDevtoolsOpen: (devtoolsOpen) => set({ devtoolsOpen }),
 

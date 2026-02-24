@@ -221,5 +221,7 @@
   "scrollToBottom": "Scroll to bottom",
   "toggleDevtools": "Toggle DevTools",
   "console": "Console",
-  "network": "Network"
+  "network": "Network",
+  "clearNetwork": "Clear network",
+  "noNetworkRequests": "No network requests"
 }

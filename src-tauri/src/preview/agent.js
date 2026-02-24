@@ -77,6 +77,128 @@
     })(levels[i]);
   }
 
+  // -- Fetch Interception ─────────────────────────────────────
+  var originalFetch = window.fetch;
+  window.fetch = function () {
+    var args = Array.prototype.slice.call(arguments);
+    var input = args[0];
+    var init = args[1] || {};
+    var method = (init.method || "GET").toUpperCase();
+    var url = typeof input === "string" ? input : (input && input.url ? input.url : String(input));
+    var startTime = Date.now();
+
+    return originalFetch.apply(window, args).then(
+      function (response) {
+        var clone = response.clone();
+        clone.text().then(function (body) {
+          send({
+            type: "network",
+            method: method,
+            url: url,
+            status: response.status,
+            statusText: response.statusText || "",
+            reqType: "fetch",
+            startTime: startTime,
+            duration: Date.now() - startTime,
+            responseSize: body.length,
+            error: null,
+          });
+        }).catch(function () {
+          send({
+            type: "network",
+            method: method,
+            url: url,
+            status: response.status,
+            statusText: response.statusText || "",
+            reqType: "fetch",
+            startTime: startTime,
+            duration: Date.now() - startTime,
+            responseSize: null,
+            error: null,
+          });
+        });
+        return response;
+      },
+      function (err) {
+        send({
+          type: "network",
+          method: method,
+          url: url,
+          status: null,
+          statusText: "",
+          reqType: "fetch",
+          startTime: startTime,
+          duration: Date.now() - startTime,
+          responseSize: null,
+          error: err ? err.message || String(err) : "Network error",
+        });
+        throw err;
+      }
+    );
+  };
+
+  // -- XHR Interception ──────────────────────────────────────
+  var XHR = XMLHttpRequest.prototype;
+  var originalOpen = XHR.open;
+  var originalSend = XHR.send;
+
+  XHR.open = function (method, url) {
+    this.__kodiq = { method: (method || "GET").toUpperCase(), url: url };
+    return originalOpen.apply(this, arguments);
+  };
+
+  XHR.send = function () {
+    var meta = this.__kodiq;
+    if (meta) {
+      meta.startTime = Date.now();
+      var xhr = this;
+      var onDone = function () {
+        send({
+          type: "network",
+          method: meta.method,
+          url: meta.url,
+          status: xhr.status || null,
+          statusText: xhr.statusText || "",
+          reqType: "xhr",
+          startTime: meta.startTime,
+          duration: Date.now() - meta.startTime,
+          responseSize: xhr.responseText ? xhr.responseText.length : null,
+          error: xhr.status === 0 ? "Network error" : null,
+        });
+      };
+      this.addEventListener("load", onDone);
+      this.addEventListener("error", function () {
+        send({
+          type: "network",
+          method: meta.method,
+          url: meta.url,
+          status: null,
+          statusText: "",
+          reqType: "xhr",
+          startTime: meta.startTime,
+          duration: Date.now() - meta.startTime,
+          responseSize: null,
+          error: "Network error",
+        });
+      });
+      this.addEventListener("abort", function () {
+        send({
+          type: "network",
+          method: meta.method,
+          url: meta.url,
+          status: null,
+          statusText: "",
+          reqType: "xhr",
+          startTime: meta.startTime,
+          duration: Date.now() - meta.startTime,
+          responseSize: null,
+          error: "Aborted",
+        });
+      });
+    }
+    return originalSend.apply(this, arguments);
+  };
+
   // -- Error Capture ────────────────────────────────────────────
   window.addEventListener("error", function (e) {
     send({

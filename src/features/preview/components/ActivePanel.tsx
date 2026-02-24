@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { t } from "@/lib/i18n";
 import { ConsolePanel } from "./ConsolePanel";
+import { NetworkPanel } from "./NetworkPanel";
 
 // -- Viewport Dimensions ─────────────────────────────────
 const VIEWPORT_SIZES: Record<Viewport, { width?: number; height?: number }> = {
@@ -56,6 +57,9 @@ export function ActivePanel() {
   const toggleDevtools = useAppStore((s) => s.toggleDevtools);
   const consoleLogs = useAppStore((s) => s.consoleLogs);
   const errorCount = consoleLogs.filter((e) => e.level === "error").length;
+  const devtoolsTab = useAppStore((s) => s.devtoolsTab);
+  const setDevtoolsTab = useAppStore((s) => s.setDevtoolsTab);
+  const networkEntries = useAppStore((s) => s.networkEntries);
 
   // -- Report bounds to Rust ───────────────────────────────
   const reportBounds = useCallback(() => {
@@ -283,8 +287,43 @@ export function ActivePanel() {
         )}
       </div>
 
-      {/* DevTools Console — shown below preview */}
-      {devtoolsOpen && previewUrl && <ConsolePanel />}
+      {/* DevTools — tabbed Console / Network below preview */}
+      {devtoolsOpen && previewUrl && (
+        <div className="flex flex-col border-t border-white/[0.06]">
+          {/* Tab bar */}
+          <div className="flex h-7 shrink-0 items-center gap-px border-b border-white/[0.06] px-2">
+            <button
+              onClick={() => setDevtoolsTab("console")}
+              className={cn(
+                "relative rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                devtoolsTab === "console"
+                  ? "text-k-text-secondary bg-white/[0.06]"
+                  : "text-k-text-tertiary hover:text-k-text-secondary",
+              )}
+            >
+              {t("console")}
+              {errorCount > 0 && <span className="ml-1 text-red-400/80">{errorCount}</span>}
+            </button>
+            <button
+              onClick={() => setDevtoolsTab("network")}
+              className={cn(
+                "relative rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                devtoolsTab === "network"
+                  ? "text-k-text-secondary bg-white/[0.06]"
+                  : "text-k-text-tertiary hover:text-k-text-secondary",
+              )}
+            >
+              {t("network")}
+              {networkEntries.length > 0 && (
+                <span className="text-k-text-tertiary ml-1">{networkEntries.length}</span>
+              )}
+            </button>
+          </div>
+
+          {/* Active panel */}
+          {devtoolsTab === "console" ? <ConsolePanel /> : <NetworkPanel />}
+        </div>
+      )}
     </div>
   );
 }

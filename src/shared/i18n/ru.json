@@ -220,5 +220,7 @@
   "scrollToBottom": "Прокрутить вниз",
   "toggleDevtools": "Переключить DevTools",
   "console": "Консоль",
-  "network": "Сеть"
+  "network": "Сеть",
+  "clearNetwork": "Очистить сеть",
+  "noNetworkRequests": "Нет сетевых запросов"
 }
