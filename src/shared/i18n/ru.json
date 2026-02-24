@@ -77,6 +77,7 @@
   "npmRunDev": "npm run dev",
   "inTerminal": "в терминале",
   "waitingForServer": "Ожидание сервера…",
+  "stop": "Стоп",
 
   "failedToLoadFiles": "Не удалось загрузить файлы",
   "failedToSpawnTerminal": "Не удалось создать терминал",

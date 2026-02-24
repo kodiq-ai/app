@@ -1,5 +1,15 @@
 import { useRef, useEffect, useCallback } from "react";
-import { RefreshCw, Monitor, Tablet, Smartphone, Zap, Globe, X } from "lucide-react";
+import {
+  RefreshCw,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Zap,
+  Globe,
+  X,
+  Square,
+  Loader2,
+} from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import type { Viewport } from "@shared/lib/types";
 import { preview } from "@shared/lib/tauri";
@@ -38,6 +48,8 @@ export function ActivePanel() {
   const setWebviewReady = useAppStore((s) => s.setWebviewReady);
   const updateWebviewBounds = useAppStore((s) => s.updateWebviewBounds);
   const destroyWebview = useAppStore((s) => s.destroyWebview);
+  const serverStatus = useAppStore((s) => s.serverStatus);
+  const stopServer = useAppStore((s) => s.stopServer);
 
   // -- Report bounds to Rust ───────────────────────────────
   const reportBounds = useCallback(() => {
@@ -151,6 +163,30 @@ export function ActivePanel() {
           ))}
         </div>
 
+        {/* Server status indicator */}
+        {serverStatus === "starting" && (
+          <div className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium text-amber-400/80">
+            <Loader2 className="size-2 animate-spin" />
+            starting
+          </div>
+        )}
+        {serverStatus === "running" && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => stopServer()}
+                className="text-k-text-tertiary hover:text-red-400"
+                aria-label="stop server"
+              >
+                <Square className="size-2.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("stop")}</TooltipContent>
+          </Tooltip>
+        )}
+
         {previewUrl ? (
           <>
             <div className="text-k-accent flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium">
@@ -192,15 +228,24 @@ export function ActivePanel() {
         ) : (
           <div className="flex h-full flex-1 items-center justify-center">
             <div className="flex flex-col items-center gap-3 text-center">
-              <Globe className="text-k-border size-5" />
-              <div>
-                <p className="text-k-text-tertiary text-[12px]">{t("serverNotRunning")}</p>
-                <p className="text-k-border mt-1 text-[11px]">
-                  {t("runDevServer")}{" "}
-                  <code className="text-k-text-tertiary font-mono">{t("npmRunDev")}</code>{" "}
-                  {t("inTerminal")}
-                </p>
-              </div>
+              {serverStatus === "starting" ? (
+                <>
+                  <Loader2 className="text-k-accent size-5 animate-spin" />
+                  <p className="text-k-text-tertiary text-[12px]">{t("waitingForServer")}</p>
+                </>
+              ) : (
+                <>
+                  <Globe className="text-k-border size-5" />
+                  <div>
+                    <p className="text-k-text-tertiary text-[12px]">{t("serverNotRunning")}</p>
+                    <p className="text-k-border mt-1 text-[11px]">
+                      {t("runDevServer")}{" "}
+                      <code className="text-k-text-tertiary font-mono">{t("npmRunDev")}</code>{" "}
+                      {t("inTerminal")}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

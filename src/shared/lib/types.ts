@@ -209,6 +209,43 @@ export interface PreviewBounds {
   height: number;
 }
 
+export interface ServerInfo {
+  id: string;
+  name: string;
+  port: number | null;
+  status: "starting" | "running" | "stopped";
+  started_at: number;
+}
+
+export interface ServerLogEntry {
+  timestamp: number;
+  level: "info" | "warn" | "error";
+  message: string;
+}
+
+export interface ServerConfig {
+  name: string;
+  command: string;
+  args: string[];
+  cwd?: string;
+  env?: Record<string, string>;
+}
+
+export interface ServerReadyEvent {
+  id: string;
+  port: number;
+  url: string;
+}
+
+export interface ServerLogEvent {
+  id: string;
+  entry: ServerLogEntry;
+}
+
+export interface ServerExitEvent {
+  id: string;
+}
+
 // ── UI Types ─────────────────────────────────────────────
 export type Viewport = "desktop" | "tablet" | "mobile";
 export type SidebarTab = "files" | "project" | "activity" | "git";

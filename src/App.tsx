@@ -329,6 +329,29 @@ export default function App() {
     };
   }, [setPreviewUrl]);
 
+  // ── Server events (from preview::server) ───────────────────────────
+  useEffect(() => {
+    const unlistenReady = listen<{ id: string; port: number; url: string }>(
+      "preview://server-ready",
+      (event) => {
+        const { id, port, url } = event.payload;
+        const store = useAppStore.getState();
+        store.setServerReady(id, port);
+        if (store.settings.autoOpenPreview !== false && !store.previewOpen) {
+          store.setPreviewOpen(true);
+        }
+        toast.success(t("devServerDetected"), { description: url });
+      },
+    );
+    const unlistenExit = listen<{ id: string }>("preview://server-exit", (event) => {
+      useAppStore.getState().setServerStopped(event.payload.id);
+    });
+    return () => {
+      unlistenReady.then((fn) => fn());
+      unlistenExit.then((fn) => fn());
+    };
+  }, []);
+
   // ── Update dialog listener (from toast action) ──────────────────────
   useEffect(() => {
     const handler = () => setUpdateDialogOpen(true);

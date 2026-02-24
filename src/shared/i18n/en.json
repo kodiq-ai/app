@@ -77,6 +77,7 @@
   "npmRunDev": "npm run dev",
   "inTerminal": "in terminal",
   "waitingForServer": "Waiting for server...",
+  "stop": "Stop",
 
   "failedToLoadFiles": "Failed to load files",
   "failedToSpawnTerminal": "Failed to create terminal",

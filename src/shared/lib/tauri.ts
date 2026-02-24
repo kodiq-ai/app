@@ -19,6 +19,9 @@ import type {
   NewLaunchConfig,
   UpdateLaunchConfig,
   PreviewBounds,
+  ServerInfo,
+  ServerLogEntry,
+  ServerConfig,
 } from "./types";
 
 // ── Terminal ─────────────────────────────────────────────
@@ -58,7 +61,7 @@ export const git = {
     invoke<string>("git_diff", { path, file, staged }),
 };
 
-// ── Preview ─────────────────────────────────────────────
+// ── Preview — Webview ────────────────────────────────────
 export const preview = {
   navigate: (url: string, bounds: PreviewBounds) =>
     invoke<void>("preview_navigate", { url, bounds }),
@@ -66,6 +69,17 @@ export const preview = {
   reload: () => invoke<void>("preview_reload"),
   executeJs: (expression: string) => invoke<void>("preview_execute_js", { expression }),
   destroy: () => invoke<void>("preview_destroy"),
+
+  // ── Preview — Server ────────────────────────────────────
+  startServer: (config: ServerConfig) => invoke<string>("preview_start_server", { config }),
+  stopServer: (id: string) => invoke<void>("preview_stop_server", { id }),
+  listServers: () => invoke<ServerInfo[]>("preview_list_servers"),
+  serverLogs: (id: string, level?: string, search?: string) =>
+    invoke<ServerLogEntry[]>("preview_server_logs", {
+      id,
+      level: level ?? null,
+      search: search ?? null,
+    }),
 };
 
 // ── CLI ──────────────────────────────────────────────────

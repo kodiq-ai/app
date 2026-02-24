@@ -1,17 +1,22 @@
 // ── Preview Slice ────────────────────────────────────────────────────────────
 import type { StateCreator } from "zustand";
-import type { Viewport, PreviewBounds } from "@shared/lib/types";
+import type { Viewport, PreviewBounds, ServerInfo, ServerConfig } from "@shared/lib/types";
 import { db, preview } from "@shared/lib/tauri";
 
 export interface PreviewSlice {
-  // State
+  // -- Webview State ──────────────────────────────────────
   previewUrl: string | null;
   previewOpen: boolean;
   viewport: Viewport;
   webviewReady: boolean;
   webviewBounds: PreviewBounds | null;
 
-  // Actions
+  // -- Server State ───────────────────────────────────────
+  serverId: string | null;
+  serverStatus: "idle" | "starting" | "running" | "stopped";
+  servers: ServerInfo[];
+
+  // -- Webview Actions ────────────────────────────────────
   setPreviewUrl: (url: string | null) => void;
   setPreviewOpen: (open: boolean) => void;
   togglePreview: () => void;
@@ -19,14 +24,29 @@ export interface PreviewSlice {
   setWebviewReady: (ready: boolean) => void;
   updateWebviewBounds: (bounds: PreviewBounds) => void;
   destroyWebview: () => void;
+
+  // -- Server Actions ─────────────────────────────────────
+  startServer: (config: ServerConfig) => Promise<void>;
+  stopServer: (id?: string) => Promise<void>;
+  refreshServers: () => Promise<void>;
+  setServerReady: (id: string, port: number) => void;
+  setServerStopped: (id: string) => void;
 }
 
-export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice> = (set) => ({
+export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice> = (set, get) => ({
+  // -- Webview Defaults ──────────────────────────────────
   previewUrl: null,
   previewOpen: true, // Default; hydrated from DB via loadSettingsFromDB
   viewport: "desktop",
   webviewReady: false,
   webviewBounds: null,
+
+  // -- Server Defaults ───────────────────────────────────
+  serverId: null,
+  serverStatus: "idle",
+  servers: [],
+
+  // -- Webview Actions ───────────────────────────────────
 
   setPreviewUrl: (previewUrl) => set({ previewUrl }),
 
@@ -56,5 +76,56 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   destroyWebview: () => {
     preview.destroy().catch((e) => console.error("[Preview] destroy:", e));
     set({ webviewReady: false, webviewBounds: null, previewUrl: null });
+  },
+
+  // -- Server Actions ────────────────────────────────────
+
+  startServer: async (config) => {
+    try {
+      set({ serverStatus: "starting" });
+      const id = await preview.startServer(config);
+      set({ serverId: id, serverStatus: "starting" });
+      // Status transitions to "running" via setServerReady (called from event listener)
+      await get().refreshServers();
+    } catch (e) {
+      console.error("[Preview] start server:", e);
+      set({ serverStatus: "idle" });
+    }
+  },
+
+  stopServer: async (id) => {
+    const targetId = id ?? get().serverId;
+    if (!targetId) return;
+    try {
+      await preview.stopServer(targetId);
+      set((s) => ({
+        serverStatus: s.serverId === targetId ? "stopped" : s.serverStatus,
+      }));
+      await get().refreshServers();
+    } catch (e) {
+      console.error("[Preview] stop server:", e);
+    }
+  },
+
+  refreshServers: async () => {
+    try {
+      const servers = await preview.listServers();
+      set({ servers });
+    } catch (e) {
+      console.error("[Preview] list servers:", e);
+    }
+  },
+
+  setServerReady: (id, port) => {
+    set((s) => ({
+      serverStatus: s.serverId === id ? "running" : s.serverStatus,
+      previewUrl: s.serverId === id ? `http://localhost:${port}` : s.previewUrl,
+    }));
+  },
+
+  setServerStopped: (id) => {
+    set((s) => ({
+      serverStatus: s.serverId === id ? "stopped" : s.serverStatus,
+    }));
   },
 });
