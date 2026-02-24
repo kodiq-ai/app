@@ -7,9 +7,9 @@ import { tags as t } from "@lezer/highlight";
 
 // -- Design Tokens -------
 const tokens = {
-  bg: "#141416",
-  bgSurface: "#1A1A1D",
-  bgHighlight: "#18181b",
+  bg: "#0f1217",
+  bgSurface: "#161a21",
+  bgHighlight: "#1e232b",
   accent: "#4DA3C7",
   text: "#E6E6E9",
   textSecondary: "#A1A1A8",
@@ -17,7 +17,7 @@ const tokens = {
   border: "#6E6E76",
   selection: "rgba(77, 163, 199, 0.15)",
   lineHighlight: "rgba(255, 255, 255, 0.03)",
-  gutter: "#202024",
+  gutter: "#1e232b",
   gutterActive: "#A1A1A8",
 };
 

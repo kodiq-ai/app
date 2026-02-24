@@ -6,7 +6,7 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" fill="none">
       {/* Background */}
-      <rect width="512" height="512" rx="114" fill="#0a0a0a" />
+      <rect width="512" height="512" rx="114" fill="#0f1217" />
       <rect
         x="1"
         y="1"
@@ -33,7 +33,7 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
 export function KodiqDot({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" fill="none">
-      <rect width="512" height="512" rx="114" fill="#111113" />
+      <rect width="512" height="512" rx="114" fill="#161a21" />
       <path
         d="M29 79H150.658V222.556L304.758 79H414.25L262.583 221.745L484 432.619H332.333L150.658 260.676V336.914H29V79Z"
         fill="#f4f4f5"
