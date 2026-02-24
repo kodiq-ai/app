@@ -5,6 +5,11 @@ import en from "./en.json";
 
 export type Locale = "en" | "ru";
 
+// -- Lazy-loaded locale map (explicit imports for Vite static analysis) -------
+const loaders: Record<string, () => Promise<{ default: Record<string, string> }>> = {
+  ru: () => import("./ru.json"),
+};
+
 let current: Record<string, string> = en;
 let currentLocale: Locale = "en";
 
@@ -15,7 +20,9 @@ export async function setLocale(locale: Locale): Promise<void> {
   if (locale === "en") {
     current = en;
   } else {
-    const mod = await import(`./${locale}.json`);
+    const loader = loaders[locale];
+    if (!loader) throw new Error(`Unknown locale: ${locale}`);
+    const mod = await loader();
     current = mod.default;
   }
   currentLocale = locale;

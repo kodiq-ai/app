@@ -44,6 +44,7 @@
   "desktop": "Desktop",
   "tablet": "Tablet",
   "mobile": "Mobile",
+  "preview": "Preview",
   "refreshPreview": "Refresh preview panel",
   "refresh": "Refresh",
   "hidePreview": "Hide preview panel",

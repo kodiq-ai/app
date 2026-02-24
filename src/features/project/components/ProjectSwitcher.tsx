@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ChevronRight, ChevronDown, FolderOpen, Folder, X } from "lucide-react";
+import { ChevronDown, FolderOpen, Folder, X } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { KodiqDot } from "@/components/icons";
 import { t } from "@/lib/i18n";
 import type { RecentProject } from "@/lib/store";
 
@@ -27,14 +26,11 @@ export function ProjectSwitcher({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.04]">
-          <KodiqDot size={16} />
-          <span className="text-k-text-tertiary text-[12px] font-medium">Kodiq</span>
-          <ChevronRight className="text-k-bg-elevated size-2.5" />
+        <button className="flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.04]">
           <span className="text-k-text-secondary text-[12px] font-medium">
             {projectName || t("selectProject")}
           </span>
-          <ChevronDown className="text-k-border ml-0.5 size-2.5" />
+          <ChevronDown className="text-k-border size-2.5" />
         </button>
       </PopoverTrigger>
       <PopoverContent

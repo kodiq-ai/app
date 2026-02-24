@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { FolderOpen, BarChart3, ClipboardList, GitBranch } from "lucide-react";
+import { FolderOpen, BarChart3, ClipboardList, GitBranch, Settings } from "lucide-react";
 import { fs } from "@shared/lib/tauri";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -60,6 +60,7 @@ export function ActivityBar() {
   const sidebarTab = useAppStore((s) => s.sidebarTab);
   const setSidebarTab = useAppStore((s) => s.setSidebarTab);
   const fileTree = useAppStore((s) => s.fileTree);
+  const setSettingsOpen = useAppStore((s) => s.setSettingsOpen);
 
   const expandDir = useCallback(async (path: string): Promise<FileEntry[]> => {
     try {
@@ -125,7 +126,7 @@ export function ActivityBar() {
       </div>
 
       {/* Activity Bar — always visible */}
-      <div className="flex w-10 shrink-0 flex-col items-center gap-0.5 border-l border-white/[0.06] pt-1">
+      <div className="flex w-10 shrink-0 flex-col items-center gap-0.5 border-l border-white/[0.06] pt-1 pb-2">
         <ActivityIcon
           icon={FolderOpen}
           label={t("files")}
@@ -150,6 +151,21 @@ export function ActivityBar() {
           active={sidebarOpen && sidebarTab === "activity"}
           onClick={() => handleIconClick("activity")}
         />
+        <div className="flex-1" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setSettingsOpen(true)}
+              aria-label={t("settings")}
+              className="text-k-text-tertiary hover:text-k-text-secondary size-7"
+            >
+              <Settings className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">{t("settings")}</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );

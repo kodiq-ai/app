@@ -10,7 +10,7 @@ import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { X, Settings, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { KodiqLogo } from "@/components/icons";
 
 import { useSplitDrag } from "@/hooks/useSplitDrag";
 import { useVerticalSplit } from "@/hooks/useVerticalSplit";
@@ -420,7 +420,9 @@ export default function App() {
         className="flex h-[52px] shrink-0 items-center border-b border-white/[0.06] px-4 select-none"
         data-tauri-drag-region
       >
-        <div className="w-[80px] shrink-0" />
+        <div className="flex shrink-0 items-center pl-[80px]">
+          <KodiqLogo height={18} className="text-k-text-tertiary" />
+        </div>
         <div className="flex flex-1 items-center justify-center" data-tauri-drag-region>
           <ProjectSwitcher
             projectName={projectName}
@@ -437,59 +439,22 @@ export default function App() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="icon-xs"
+                  variant="outline"
+                  size="sm"
                   onClick={togglePreview}
                   aria-label={previewOpen ? "hide preview" : "show preview"}
                   className={cn(
-                    "text-k-text-tertiary hover:text-k-text-secondary",
-                    previewOpen && "text-k-text-secondary",
+                    "border-k-border text-k-text-tertiary hover:text-k-text-secondary h-6 rounded-md px-2.5 text-xs font-medium",
+                    previewOpen && "border-k-accent/40 text-k-accent",
                   )}
                 >
-                  {previewOpen ? (
-                    <PanelRightClose className="size-3.5" />
-                  ) : (
-                    <PanelRightOpen className="size-3.5" />
-                  )}
+                  {t("preview")}
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
                 {previewOpen ? t("hidePreviewShort") : t("showPreviewShort")}
               </TooltipContent>
             </Tooltip>
-          )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => setSettingsOpen(true)}
-                aria-label="settings"
-                className="text-k-text-tertiary hover:text-k-text-secondary"
-              >
-                <Settings className="size-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{t("settings")}</TooltipContent>
-          </Tooltip>
-          {projectPath && (
-            <>
-              <span className="text-k-border text-[10px] tabular-nums">{tabs.length}</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={closeProject}
-                    aria-label="close project"
-                    className="text-k-text-tertiary hover:text-k-text-secondary"
-                  >
-                    <X className="size-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{t("closeProject")}</TooltipContent>
-              </Tooltip>
-            </>
           )}
         </div>
       </header>
