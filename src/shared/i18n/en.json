@@ -232,5 +232,12 @@
   "boundingBox": "Box",
   "computedStyles": "Styles",
   "className": "Class",
-  "textContent": "Text"
+  "textContent": "Text",
+
+  "colorScheme": "Color scheme",
+  "lightMode": "Light mode",
+  "darkMode": "Dark mode",
+  "screenshot": "Screenshot",
+  "screenshotSaved": "Screenshot copied",
+  "screenshotFailed": "Screenshot failed"
 }

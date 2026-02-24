@@ -119,6 +119,8 @@ pub fn run() {
             preview::manager::preview_inspect,
             preview::manager::preview_snapshot,
             preview::manager::preview_destroy,
+            preview::manager::preview_set_color_scheme,
+            preview::manager::preview_screenshot,
             // Preview — Server
             preview::server::preview_start_server,
             preview::server::preview_stop_server,

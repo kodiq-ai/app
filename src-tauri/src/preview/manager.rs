@@ -90,6 +90,48 @@ const JS_SNAPSHOT: &str = r##"(function() {
   window.__kodiq_send({ type: "snapshot-result", data: walk(document.body, 0) });
 })()"##;
 
+const JS_COLOR_SCHEME: &str = r#"(function() {
+  var s = __VAL__;
+  document.documentElement.style.colorScheme = s;
+  var m = document.querySelector('meta[name="color-scheme"]');
+  if (!m) { m = document.createElement("meta"); m.name = "color-scheme"; document.head.appendChild(m); }
+  m.content = s;
+})()"#;
+
+const JS_SCREENSHOT: &str = r##"(function() {
+  try {
+    var html = document.documentElement;
+    var xml = new XMLSerializer().serializeToString(html);
+    var w = html.scrollWidth, h = html.scrollHeight;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+      + '<foreignObject width="100%" height="100%">'
+      + '<html xmlns="http://www.w3.org/1999/xhtml">' + xml + '</html>'
+      + '</foreignObject></svg>';
+    var blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var img = new Image();
+    img.onload = function() {
+      var c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      try {
+        var data = c.toDataURL("image/png");
+        window.__kodiq_send({ type: "screenshot-result", data: data });
+      } catch(e) {
+        window.__kodiq_send({ type: "screenshot-result", data: null });
+      }
+    };
+    img.onerror = function() {
+      URL.revokeObjectURL(url);
+      window.__kodiq_send({ type: "screenshot-result", data: null });
+    };
+    img.src = url;
+  } catch(e) {
+    window.__kodiq_send({ type: "screenshot-result", data: null });
+  }
+})()"##;
+
 // -- Tauri Commands ───────────────────────────────────────────────
 
 #[derive(serde::Deserialize)]
@@ -264,6 +306,31 @@ pub fn preview_destroy(state: tauri::State<'_, PreviewManager>) -> Result<(), St
     }
     if let Some(webview) = preview.webview.take() {
         webview.close().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn preview_set_color_scheme(
+    state: tauri::State<'_, PreviewManager>,
+    scheme: String,
+) -> Result<(), String> {
+    let preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(ref wv) = preview.webview {
+        let val = serde_json::to_string(&scheme).map_err(|e| e.to_string())?;
+        let js = JS_COLOR_SCHEME.replace("__VAL__", &val);
+        Webview::eval(wv, &js).map_err(|e: tauri::Error| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn preview_screenshot(
+    state: tauri::State<'_, PreviewManager>,
+) -> Result<(), String> {
+    let preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(ref wv) = preview.webview {
+        Webview::eval(wv, JS_SCREENSHOT).map_err(|e: tauri::Error| e.to_string())?;
     }
     Ok(())
 }

@@ -318,6 +318,7 @@ export interface SnapshotNode {
 }
 
 // ── UI Types ─────────────────────────────────────────────
+export type ColorScheme = "light" | "dark";
 export type Viewport = "desktop" | "tablet" | "mobile";
 export type SidebarTab = "files" | "project" | "activity" | "git";
 

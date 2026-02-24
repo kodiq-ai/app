@@ -11,6 +11,9 @@ import {
   Loader2,
   TerminalSquare,
   Crosshair,
+  Sun,
+  Moon,
+  Camera,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import type { Viewport } from "@shared/lib/types";
@@ -64,6 +67,9 @@ export function ActivePanel() {
   const networkEntries = useAppStore((s) => s.networkEntries);
   const inspectMode = useAppStore((s) => s.inspectMode);
   const setInspectMode = useAppStore((s) => s.setInspectMode);
+  const colorScheme = useAppStore((s) => s.colorScheme);
+  const setColorScheme = useAppStore((s) => s.setColorScheme);
+  const takeScreenshot = useAppStore((s) => s.takeScreenshot);
 
   // -- Report bounds to Rust ───────────────────────────────
   const reportBounds = useCallback(() => {
@@ -176,6 +182,55 @@ export function ActivePanel() {
             </Tooltip>
           ))}
         </div>
+
+        {/* Color scheme toggle */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => setColorScheme(colorScheme === "dark" ? "light" : "dark")}
+                aria-label={colorScheme === "dark" ? t("lightMode") : t("darkMode")}
+                className="text-k-text-tertiary hover:text-k-text-secondary"
+              >
+                {colorScheme === "dark" ? <Sun className="size-3" /> : <Moon className="size-3" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {colorScheme === "dark" ? t("lightMode") : t("darkMode")}
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Screenshot */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={async () => {
+                  const data = await takeScreenshot();
+                  if (data) {
+                    try {
+                      const res = await fetch(data);
+                      const blob = await res.blob();
+                      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                    } catch {
+                      // fallback: silently ignore clipboard errors
+                    }
+                  }
+                }}
+                aria-label={t("screenshot")}
+                className="text-k-text-tertiary hover:text-k-text-secondary"
+              >
+                <Camera className="size-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("screenshot")}</TooltipContent>
+          </Tooltip>
+        )}
 
         {/* Server status indicator */}
         {serverStatus === "starting" && (

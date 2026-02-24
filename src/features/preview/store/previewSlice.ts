@@ -1,6 +1,7 @@
 // ── Preview Slice ────────────────────────────────────────────────────────────
 import type { StateCreator } from "zustand";
 import type {
+  ColorScheme,
   Viewport,
   PreviewBounds,
   ServerInfo,
@@ -18,6 +19,7 @@ export interface PreviewSlice {
   previewUrl: string | null;
   previewOpen: boolean;
   viewport: Viewport;
+  colorScheme: ColorScheme;
   webviewReady: boolean;
   webviewBounds: PreviewBounds | null;
 
@@ -31,6 +33,8 @@ export interface PreviewSlice {
   setPreviewOpen: (open: boolean) => void;
   togglePreview: () => void;
   setViewport: (v: Viewport) => void;
+  setColorScheme: (scheme: ColorScheme) => void;
+  takeScreenshot: () => Promise<string | null>;
   setWebviewReady: (ready: boolean) => void;
   updateWebviewBounds: (bounds: PreviewBounds) => void;
   destroyWebview: () => void;
@@ -74,6 +78,7 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   previewUrl: null,
   previewOpen: true, // Default; hydrated from DB via loadSettingsFromDB
   viewport: "desktop",
+  colorScheme: "dark",
   webviewReady: false,
   webviewBounds: null,
 
@@ -112,6 +117,20 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
     }),
 
   setViewport: (viewport) => set({ viewport }),
+
+  setColorScheme: (colorScheme) => {
+    set({ colorScheme });
+    preview.setColorScheme(colorScheme).catch((e) => console.error("[Preview] color scheme:", e));
+  },
+
+  takeScreenshot: async () => {
+    try {
+      return await preview.screenshot();
+    } catch (e) {
+      console.error("[Preview] screenshot:", e);
+      return null;
+    }
+  },
 
   setWebviewReady: (webviewReady) => set({ webviewReady }),
 

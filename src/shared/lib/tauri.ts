@@ -127,6 +127,13 @@ export const preview = {
       invoke<void>("preview_snapshot"),
     ),
 
+  // ── Color scheme & screenshot ──────────────────────────
+  setColorScheme: (scheme: string) => invoke<void>("preview_set_color_scheme", { scheme }),
+  screenshot: () =>
+    listenOnce<string | null>("preview://screenshot-result", 10000, () =>
+      invoke<void>("preview_screenshot"),
+    ),
+
   destroy: () => invoke<void>("preview_destroy"),
 
   // ── Preview — Server ────────────────────────────────────
