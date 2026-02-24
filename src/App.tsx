@@ -4,7 +4,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 
 import { toast } from "sonner";
 import { useAppStore, type FileEntry } from "@/lib/store";
-import type { GitInfo } from "@shared/lib/types";
+import type { GitInfo, ConsoleLevel } from "@shared/lib/types";
 import { terminal, fs, git, cli, db } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -346,9 +346,31 @@ export default function App() {
     const unlistenExit = listen<{ id: string }>("preview://server-exit", (event) => {
       useAppStore.getState().setServerStopped(event.payload.id);
     });
+
+    // DevTools console events (from preview::devtools WebSocket bridge)
+    let consoleSeq = 0;
+    const unlistenConsole = listen<{
+      level: string;
+      args: unknown[];
+      timestamp: number;
+      stack?: string;
+    }>("preview://console", (event) => {
+      const { level, args, timestamp, stack } = event.payload;
+      useAppStore.getState().pushConsoleEntry({
+        id: `console-${Date.now()}-${consoleSeq++}`,
+        level: (["log", "info", "warn", "error", "debug"].includes(level)
+          ? level
+          : "log") as ConsoleLevel,
+        args,
+        timestamp,
+        stack,
+      });
+    });
+
     return () => {
       unlistenReady.then((fn) => fn());
       unlistenExit.then((fn) => fn());
+      unlistenConsole.then((fn) => fn());
     };
   }, []);
 

@@ -1,15 +1,21 @@
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager, Webview, WebviewBuilder, WebviewUrl};
 
+use super::devtools::DevToolsBridge;
+
 // -- Preview State ────────────────────────────────────────────────
 
 pub struct PreviewState {
     pub webview: Option<Webview>,
+    pub bridge: Option<DevToolsBridge>,
 }
 
 impl PreviewState {
     pub fn new() -> Self {
-        Self { webview: None }
+        Self {
+            webview: None,
+            bridge: None,
+        }
     }
 }
 
@@ -46,6 +52,10 @@ pub fn preview_navigate(
         return Ok(());
     }
 
+    // Start DevTools bridge (WebSocket server for agent.js)
+    let bridge = DevToolsBridge::start(app.clone()).map_err(|e| format!("DevTools bridge: {e}"))?;
+    let agent_js = super::devtools::agent_script(bridge.port);
+
     // Create new webview as a child of the main window
     let window = app
         .get_window("main")
@@ -59,6 +69,7 @@ pub fn preview_navigate(
                     url.parse().map_err(|e: url::ParseError| e.to_string())?,
                 ),
             )
+            .initialization_script(&agent_js)
             .auto_resize(),
             tauri::LogicalPosition::new(bounds.x, bounds.y),
             tauri::LogicalSize::new(bounds.width, bounds.height),
@@ -66,6 +77,7 @@ pub fn preview_navigate(
         .map_err(|e: tauri::Error| e.to_string())?;
 
     preview.webview = Some(webview);
+    preview.bridge = Some(bridge);
     Ok(())
 }
 
@@ -113,6 +125,9 @@ pub fn preview_execute_js(
 #[tauri::command]
 pub fn preview_destroy(state: tauri::State<'_, PreviewManager>) -> Result<(), String> {
     let mut preview = state.lock().map_err(|e| e.to_string())?;
+    if let Some(mut bridge) = preview.bridge.take() {
+        bridge.stop();
+    }
     if let Some(webview) = preview.webview.take() {
         webview.close().map_err(|e| e.to_string())?;
     }

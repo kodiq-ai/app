@@ -9,6 +9,7 @@ import {
   X,
   Square,
   Loader2,
+  TerminalSquare,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import type { Viewport } from "@shared/lib/types";
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { t } from "@/lib/i18n";
+import { ConsolePanel } from "./ConsolePanel";
 
 // -- Viewport Dimensions ─────────────────────────────────
 const VIEWPORT_SIZES: Record<Viewport, { width?: number; height?: number }> = {
@@ -50,6 +52,10 @@ export function ActivePanel() {
   const destroyWebview = useAppStore((s) => s.destroyWebview);
   const serverStatus = useAppStore((s) => s.serverStatus);
   const stopServer = useAppStore((s) => s.stopServer);
+  const devtoolsOpen = useAppStore((s) => s.devtoolsOpen);
+  const toggleDevtools = useAppStore((s) => s.toggleDevtools);
+  const consoleLogs = useAppStore((s) => s.consoleLogs);
+  const errorCount = consoleLogs.filter((e) => e.level === "error").length;
 
   // -- Report bounds to Rust ───────────────────────────────
   const reportBounds = useCallback(() => {
@@ -187,6 +193,32 @@ export function ActivePanel() {
           </Tooltip>
         )}
 
+        {/* DevTools toggle */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={toggleDevtools}
+                aria-label={t("toggleDevtools")}
+                className={cn(
+                  "text-k-text-tertiary hover:text-k-text-secondary relative",
+                  devtoolsOpen && "!text-k-text-secondary bg-white/[0.04]",
+                )}
+              >
+                <TerminalSquare className="size-3" />
+                {errorCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex size-3 items-center justify-center rounded-full bg-red-500 text-[7px] font-bold text-white">
+                    {errorCount > 9 ? "9+" : errorCount}
+                  </span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("toggleDevtools")}</TooltipContent>
+          </Tooltip>
+        )}
+
         {previewUrl ? (
           <>
             <div className="text-k-accent flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium">
@@ -250,6 +282,9 @@ export function ActivePanel() {
           </div>
         )}
       </div>
+
+      {/* DevTools Console — shown below preview */}
+      {devtoolsOpen && previewUrl && <ConsolePanel />}
     </div>
   );
 }

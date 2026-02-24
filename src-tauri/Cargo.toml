@@ -57,6 +57,9 @@ thiserror = "2"
 # URL parsing (preview webview)
 url = "2"
 
+# DevTools bridge (WebSocket for preview console/network)
+tungstenite = "0.24"
+
 # Future additions (uncomment when needed):
 # reqwest = { version = "0.12", optional = true }  # Pro HTTP client
 

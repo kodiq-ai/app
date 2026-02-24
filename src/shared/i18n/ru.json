@@ -213,5 +213,12 @@
   "failedToSave": "Не удалось сохранить файл",
   "noOpenFiles": "Нет открытых файлов",
   "closeTab": "Закрыть вкладку",
-  "closeOtherTabs": "Закрыть другие вкладки"
+  "closeOtherTabs": "Закрыть другие вкладки",
+
+  "clearConsole": "Очистить консоль",
+  "noConsoleLogs": "Нет вывода в консоль",
+  "scrollToBottom": "Прокрутить вниз",
+  "toggleDevtools": "Переключить DevTools",
+  "console": "Консоль",
+  "network": "Сеть"
 }

@@ -214,5 +214,12 @@
   "noOpenFiles": "No open files",
   "closeTab": "Close tab",
   "closeOtherTabs": "Close other tabs",
-  "andMore": "more…"
+  "andMore": "more…",
+
+  "clearConsole": "Clear console",
+  "noConsoleLogs": "No console output",
+  "scrollToBottom": "Scroll to bottom",
+  "toggleDevtools": "Toggle DevTools",
+  "console": "Console",
+  "network": "Network"
 }

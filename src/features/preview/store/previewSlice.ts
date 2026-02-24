@@ -1,6 +1,14 @@
 // ── Preview Slice ────────────────────────────────────────────────────────────
 import type { StateCreator } from "zustand";
-import type { Viewport, PreviewBounds, ServerInfo, ServerConfig } from "@shared/lib/types";
+import type {
+  Viewport,
+  PreviewBounds,
+  ServerInfo,
+  ServerConfig,
+  ConsoleEntry,
+  ConsoleLevel,
+  DevToolsTab,
+} from "@shared/lib/types";
 import { db, preview } from "@shared/lib/tauri";
 
 export interface PreviewSlice {
@@ -25,12 +33,26 @@ export interface PreviewSlice {
   updateWebviewBounds: (bounds: PreviewBounds) => void;
   destroyWebview: () => void;
 
+  // -- DevTools State ─────────────────────────────────────
+  consoleLogs: ConsoleEntry[];
+  devtoolsOpen: boolean;
+  devtoolsTab: DevToolsTab;
+  consoleFilter: ConsoleLevel | "all";
+
   // -- Server Actions ─────────────────────────────────────
   startServer: (config: ServerConfig) => Promise<void>;
   stopServer: (id?: string) => Promise<void>;
   refreshServers: () => Promise<void>;
   setServerReady: (id: string, port: number) => void;
   setServerStopped: (id: string) => void;
+
+  // -- DevTools Actions ──────────────────────────────────
+  pushConsoleEntry: (entry: ConsoleEntry) => void;
+  clearConsole: () => void;
+  setDevtoolsOpen: (open: boolean) => void;
+  toggleDevtools: () => void;
+  setDevtoolsTab: (tab: DevToolsTab) => void;
+  setConsoleFilter: (filter: ConsoleLevel | "all") => void;
 }
 
 export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice> = (set, get) => ({
@@ -45,6 +67,12 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   serverId: null,
   serverStatus: "idle",
   servers: [],
+
+  // -- DevTools Defaults ────────────────────────────────
+  consoleLogs: [],
+  devtoolsOpen: false,
+  devtoolsTab: "console",
+  consoleFilter: "all",
 
   // -- Webview Actions ───────────────────────────────────
 
@@ -128,4 +156,21 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
       serverStatus: s.serverId === id ? "stopped" : s.serverStatus,
     }));
   },
+
+  // -- DevTools Actions ───────────────────────────────────
+
+  pushConsoleEntry: (entry) =>
+    set((s) => ({
+      consoleLogs: [...s.consoleLogs.slice(-499), entry], // Keep last 500
+    })),
+
+  clearConsole: () => set({ consoleLogs: [] }),
+
+  setDevtoolsOpen: (devtoolsOpen) => set({ devtoolsOpen }),
+
+  toggleDevtools: () => set((s) => ({ devtoolsOpen: !s.devtoolsOpen })),
+
+  setDevtoolsTab: (devtoolsTab) => set({ devtoolsTab }),
+
+  setConsoleFilter: (consoleFilter) => set({ consoleFilter }),
 });

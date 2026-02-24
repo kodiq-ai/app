@@ -246,6 +246,25 @@ export interface ServerExitEvent {
   id: string;
 }
 
+// ── DevTools ─────────────────────────────────────────────
+export type ConsoleLevel = "log" | "info" | "warn" | "error" | "debug";
+export type DevToolsTab = "console" | "network";
+
+export interface ConsoleEntry {
+  id: string;
+  level: ConsoleLevel;
+  args: unknown[];
+  timestamp: number;
+  stack?: string;
+}
+
+export interface ConsoleEvent {
+  level: string;
+  args: unknown[];
+  timestamp: number;
+  stack?: string;
+}
+
 // ── UI Types ─────────────────────────────────────────────
 export type Viewport = "desktop" | "tablet" | "mobile";
 export type SidebarTab = "files" | "project" | "activity" | "git";
