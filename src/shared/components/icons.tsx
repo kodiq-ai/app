@@ -1,44 +1,29 @@
 import { Folder, FileText } from "lucide-react";
 
-// ─── Kodiq Logo (K + lightning bolt) ─────────────────────────────────────────
+// ─── Kodiq Logo (geometric K) ────────────────────────────────────────────────
 
 export function KodiqIcon({ size = 56 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 1024 1024" fill="none">
-      <defs>
-        <radialGradient id="ki-bg" cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor="#1a1a1a" />
-          <stop offset="100%" stopColor="#0a0a0a" />
-        </radialGradient>
-        <linearGradient id="ki-bolt" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#22d3ee" />
-          <stop offset="100%" stopColor="#0891b2" />
-        </linearGradient>
-      </defs>
+    <svg width={size} height={size} viewBox="0 0 512 512" fill="none">
       {/* Background */}
-      <rect width="1024" height="1024" rx="228" fill="url(#ki-bg)" />
+      <rect width="512" height="512" rx="114" fill="#0a0a0a" />
       <rect
-        x="2"
-        y="2"
-        width="1020"
-        height="1020"
-        rx="226"
+        x="1"
+        y="1"
+        width="510"
+        height="510"
+        rx="113"
         fill="none"
         stroke="rgba(255,255,255,0.04)"
-        strokeWidth="4"
+        strokeWidth="2"
       />
-      {/* K — vertical stroke */}
-      <path d="M310 260L310 764" stroke="#f4f4f5" strokeWidth="56" strokeLinecap="round" />
-      {/* K — upper diagonal */}
+      {/* K mark */}
       <path
-        d="M338 512L600 280"
-        stroke="#f4f4f5"
-        strokeWidth="56"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M29 79H150.658V222.556L304.758 79H414.25L262.583 221.745L484 432.619H332.333L150.658 260.676V336.914H29V79Z"
+        fill="#f4f4f5"
       />
-      {/* Lightning bolt (replaces K lower diagonal) */}
-      <path d="M440 500L580 500L500 620L680 620L400 800L470 650L338 650Z" fill="url(#ki-bolt)" />
+      <path d="M29 432.621V353.949H221.219L304.758 432.621H29Z" fill="#f4f4f5" />
+      <path d="M170.124 177.948L170.124 79L276.295 79L170.124 177.948Z" fill="#f4f4f5" />
     </svg>
   );
 }
@@ -47,23 +32,14 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
 
 export function KodiqDot({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 1024 1024" fill="none">
-      <defs>
-        <linearGradient id="kd-bolt" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#22d3ee" />
-          <stop offset="100%" stopColor="#0891b2" />
-        </linearGradient>
-      </defs>
-      <rect width="1024" height="1024" rx="228" fill="#111113" />
-      <path d="M310 260L310 764" stroke="#f4f4f5" strokeWidth="56" strokeLinecap="round" />
+    <svg width={size} height={size} viewBox="0 0 512 512" fill="none">
+      <rect width="512" height="512" rx="114" fill="#111113" />
       <path
-        d="M338 512L600 280"
-        stroke="#f4f4f5"
-        strokeWidth="56"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M29 79H150.658V222.556L304.758 79H414.25L262.583 221.745L484 432.619H332.333L150.658 260.676V336.914H29V79Z"
+        fill="#f4f4f5"
       />
-      <path d="M440 500L580 500L500 620L680 620L400 800L470 650L338 650Z" fill="url(#kd-bolt)" />
+      <path d="M29 432.621V353.949H221.219L304.758 432.621H29Z" fill="#f4f4f5" />
+      <path d="M170.124 177.948L170.124 79L276.295 79L170.124 177.948Z" fill="#f4f4f5" />
     </svg>
   );
 }
