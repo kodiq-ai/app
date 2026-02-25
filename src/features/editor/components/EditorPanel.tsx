@@ -110,6 +110,27 @@ export function EditorPanel() {
   );
 
   // -- Find & Replace handlers -------
+
+  // Shared helper: compute 1-based index of the match at/after the cursor head.
+  // TODO: debounce for large files — full-document iteration on every keystroke
+  // may lag for 10k+ line files with broad queries.
+  const updateCurrentMatchIndex = useCallback(() => {
+    const view = getActiveView();
+    if (!view) return;
+    const query = getSearchQuery(view.state);
+    if (!query.valid) return;
+    const cursor = query.getCursor(view.state.doc);
+    const head = view.state.selection.main.head;
+    let idx = 0;
+    let result = cursor.next();
+    while (!result.done) {
+      idx++;
+      if (result.value.from >= head) break;
+      result = cursor.next();
+    }
+    setFindCurrentMatch(idx);
+  }, [getActiveView]);
+
   const handleFindSearch = useCallback(
     (params: SearchParams) => {
       const view = getActiveView();
@@ -127,7 +148,7 @@ export function EditorPanel() {
         replace: params.replace,
       });
       view.dispatch({ effects: setSearchQuery.of(sq) });
-      // Count matches
+      // Count matches — TODO: debounce for large files
       const cursor = sq.getCursor(view.state.doc);
       let count = 0;
       while (!cursor.next().done) count++;
@@ -141,39 +162,15 @@ export function EditorPanel() {
     const view = getActiveView();
     if (!view) return;
     findNext(view);
-    const query = getSearchQuery(view.state);
-    if (query.valid) {
-      const cursor = query.getCursor(view.state.doc);
-      const head = view.state.selection.main.head;
-      let idx = 0;
-      let result = cursor.next();
-      while (!result.done) {
-        idx++;
-        if (result.value.from >= head) break;
-        result = cursor.next();
-      }
-      setFindCurrentMatch(idx);
-    }
-  }, [getActiveView]);
+    updateCurrentMatchIndex();
+  }, [getActiveView, updateCurrentMatchIndex]);
 
   const handleFindPrev = useCallback(() => {
     const view = getActiveView();
     if (!view) return;
     findPrevious(view);
-    const query = getSearchQuery(view.state);
-    if (query.valid) {
-      const cursor = query.getCursor(view.state.doc);
-      const head = view.state.selection.main.head;
-      let idx = 0;
-      let result = cursor.next();
-      while (!result.done) {
-        idx++;
-        if (result.value.from >= head) break;
-        result = cursor.next();
-      }
-      setFindCurrentMatch(idx);
-    }
-  }, [getActiveView]);
+    updateCurrentMatchIndex();
+  }, [getActiveView, updateCurrentMatchIndex]);
 
   const handleReplace = useCallback(
     (_replaceWith: string) => {
@@ -198,6 +195,11 @@ export function EditorPanel() {
       view.dispatch({ effects: setSearchQuery.of(new SearchQuery({ search: "" })) });
       view.focus();
     }
+  }, [getActiveView]);
+
+  const handleGoToLineClose = useCallback(() => {
+    setGoToLineOpen(false);
+    getActiveView()?.focus();
   }, [getActiveView]);
 
   // -- Shortcuts -------
@@ -279,10 +281,7 @@ export function EditorPanel() {
           open={goToLineOpen}
           totalLines={getActiveView()?.state.doc.lines ?? 1}
           onJump={handleGoToLine}
-          onClose={() => {
-            setGoToLineOpen(false);
-            getActiveView()?.focus();
-          }}
+          onClose={handleGoToLineClose}
         />
       </div>
 
