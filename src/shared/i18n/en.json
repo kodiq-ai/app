@@ -271,5 +271,8 @@
   "findReplaceRegex": "Regex",
   "findReplaceNoResults": "No results",
   "findReplaceReplaceAll": "Replace All",
-  "findReplaceOf": "of"
+  "findReplaceOf": "of",
+  "findReplacePrevious": "Previous",
+  "findReplaceNext": "Next",
+  "findReplaceClose": "Close"
 }

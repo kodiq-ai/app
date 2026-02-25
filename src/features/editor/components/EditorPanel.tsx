@@ -172,21 +172,15 @@ export function EditorPanel() {
     updateCurrentMatchIndex();
   }, [getActiveView, updateCurrentMatchIndex]);
 
-  const handleReplace = useCallback(
-    (_replaceWith: string) => {
-      const view = getActiveView();
-      if (view) replaceNext(view);
-    },
-    [getActiveView],
-  );
+  const handleReplace = useCallback(() => {
+    const view = getActiveView();
+    if (view) replaceNext(view);
+  }, [getActiveView]);
 
-  const handleReplaceAll = useCallback(
-    (_replaceWith: string) => {
-      const view = getActiveView();
-      if (view) replaceAll(view);
-    },
-    [getActiveView],
-  );
+  const handleReplaceAll = useCallback(() => {
+    const view = getActiveView();
+    if (view) replaceAll(view);
+  }, [getActiveView]);
 
   const handleFindClose = useCallback(() => {
     setFindOpen(false);

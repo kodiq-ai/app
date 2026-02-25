@@ -271,5 +271,8 @@
   "findReplaceRegex": "Регулярное выражение",
   "findReplaceNoResults": "Ничего не найдено",
   "findReplaceReplaceAll": "Заменить все",
-  "findReplaceOf": "из"
+  "findReplaceOf": "из",
+  "findReplacePrevious": "Назад",
+  "findReplaceNext": "Далее",
+  "findReplaceClose": "Закрыть"
 }

@@ -19,8 +19,8 @@ interface Props {
   onSearch: (params: SearchParams) => void;
   onNext: () => void;
   onPrev: () => void;
-  onReplace: (replaceWith: string) => void;
-  onReplaceAll: (replaceWith: string) => void;
+  onReplace: () => void;
+  onReplaceAll: () => void;
   onClose: () => void;
 }
 
@@ -103,7 +103,7 @@ export function FindReplacePanel({
       onClose();
     } else if (e.key === "Enter") {
       e.preventDefault();
-      onReplace(replaceValue);
+      onReplace();
     }
   };
 
@@ -141,6 +141,7 @@ export function FindReplacePanel({
         />
         <button
           title={t("findReplaceMatchCase")}
+          aria-label={t("findReplaceMatchCase")}
           className={`${btnClass} ${caseSensitive ? toggleOn : ""}`}
           onClick={toggleCase}
         >
@@ -148,6 +149,7 @@ export function FindReplacePanel({
         </button>
         <button
           title={t("findReplaceRegex")}
+          aria-label={t("findReplaceRegex")}
           className={`${btnClass} ${regexp ? toggleOn : ""}`}
           onClick={toggleRegex}
         >
@@ -156,13 +158,28 @@ export function FindReplacePanel({
         <span className="min-w-[50px] text-center text-[10px] text-[var(--text-tertiary)]">
           {matchLabel}
         </span>
-        <button title="Previous" className={btnClass} onClick={onPrev}>
+        <button
+          title={t("findReplacePrevious")}
+          aria-label={t("findReplacePrevious")}
+          className={btnClass}
+          onClick={onPrev}
+        >
           ↑
         </button>
-        <button title="Next" className={btnClass} onClick={onNext}>
+        <button
+          title={t("findReplaceNext")}
+          aria-label={t("findReplaceNext")}
+          className={btnClass}
+          onClick={onNext}
+        >
           ↓
         </button>
-        <button title="Close" className={btnClass} onClick={onClose}>
+        <button
+          title={t("findReplaceClose")}
+          aria-label={t("findReplaceClose")}
+          className={btnClass}
+          onClick={onClose}
+        >
           ×
         </button>
       </div>
@@ -179,13 +196,13 @@ export function FindReplacePanel({
           />
           <button
             className="h-6 rounded px-2 text-[10px] text-[var(--text-secondary)] hover:bg-white/[0.04]"
-            onClick={() => onReplace(replaceValue)}
+            onClick={onReplace}
           >
             {t("findReplaceReplace")}
           </button>
           <button
             className="h-6 rounded px-2 text-[10px] text-[var(--text-secondary)] hover:bg-white/[0.04]"
-            onClick={() => onReplaceAll(replaceValue)}
+            onClick={onReplaceAll}
           >
             {t("findReplaceReplaceAll")}
           </button>

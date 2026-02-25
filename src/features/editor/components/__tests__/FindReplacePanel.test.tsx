@@ -13,6 +13,9 @@ vi.mock("@/lib/i18n", () => ({
       findReplaceNoResults: "No results",
       findReplaceReplaceAll: "Replace All",
       findReplaceOf: "of",
+      findReplacePrevious: "Previous",
+      findReplaceNext: "Next",
+      findReplaceClose: "Close",
     };
     return map[key] ?? key;
   },
