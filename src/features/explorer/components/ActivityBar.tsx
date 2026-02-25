@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { FolderOpen, BarChart3, ClipboardList, GitBranch } from "lucide-react";
+import { FolderOpen, BarChart3, ClipboardList, GitBranch, Settings } from "lucide-react";
 import { fs } from "@shared/lib/tauri";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -34,13 +34,14 @@ function ActivityIcon({
           variant="ghost"
           size="icon-xs"
           onClick={onClick}
+          aria-label={label}
           className={cn(
             "relative size-7",
-            active ? "text-[#E6E6E9]" : "text-[#6E6E76] hover:text-[#A1A1A8]",
+            active ? "text-k-text" : "text-k-text-tertiary hover:text-k-text-secondary",
           )}
         >
           {active && (
-            <div className="absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-r bg-[#4DA3C7]" />
+            <div className="bg-k-accent absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-r" />
           )}
           <Icon className="size-4" />
         </Button>
@@ -59,6 +60,7 @@ export function ActivityBar() {
   const sidebarTab = useAppStore((s) => s.sidebarTab);
   const setSidebarTab = useAppStore((s) => s.setSidebarTab);
   const fileTree = useAppStore((s) => s.fileTree);
+  const setSettingsOpen = useAppStore((s) => s.setSettingsOpen);
 
   const expandDir = useCallback(async (path: string): Promise<FileEntry[]> => {
     try {
@@ -92,7 +94,7 @@ export function ActivityBar() {
       >
         {/* Panel header */}
         <div className="flex h-9 min-w-[13rem] shrink-0 items-center px-2.5">
-          <span className="flex-1 truncate text-[11px] font-medium tracking-wider text-[#A1A1A8] uppercase">
+          <span className="text-k-text-secondary flex-1 truncate text-[11px] font-medium tracking-wider uppercase">
             {sidebarTab === "files" && projectName}
             {sidebarTab === "activity" && t("activityLog")}
             {sidebarTab === "project" && t("projectInfo")}
@@ -111,7 +113,7 @@ export function ActivityBar() {
                 {fileTree.length === 0 && (
                   <div className="flex items-center gap-2 px-3 py-4">
                     <Loader size="sm" />
-                    <span className="text-[11px] text-[#6E6E76]">{t("loading")}</span>
+                    <span className="text-k-border text-[11px]">{t("loading")}</span>
                   </div>
                 )}
               </div>
@@ -124,7 +126,7 @@ export function ActivityBar() {
       </div>
 
       {/* Activity Bar — always visible */}
-      <div className="flex w-10 shrink-0 flex-col items-center gap-0.5 border-l border-white/[0.06] pt-1">
+      <div className="flex w-10 shrink-0 flex-col items-center gap-0.5 border-l border-white/[0.06] pt-1 pb-2">
         <ActivityIcon
           icon={FolderOpen}
           label={t("files")}
@@ -148,6 +150,12 @@ export function ActivityBar() {
           label={t("activityLog")}
           active={sidebarOpen && sidebarTab === "activity"}
           onClick={() => handleIconClick("activity")}
+        />
+        <ActivityIcon
+          icon={Settings}
+          label={t("settings")}
+          active={false}
+          onClick={() => setSettingsOpen(true)}
         />
       </div>
     </div>

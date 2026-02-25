@@ -45,5 +45,8 @@ desktop.ini
 # Signing certificates and private keys
 .secrets/
 
-# Playwright MCP
+# Playwright
 .playwright-mcp/
+test-results/
+playwright-report/
+blob-report/

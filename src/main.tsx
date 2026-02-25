@@ -7,6 +7,16 @@ import { initSentry } from "@/shared/lib/sentry";
 import App from "./App";
 import "./app.css";
 
+// -- Monaspace fonts (bundled locally for offline support) -------
+import "@fontsource/monaspace-krypton/400.css";
+import "@fontsource/monaspace-krypton/600.css";
+import "@fontsource/monaspace-krypton/700.css";
+import "@fontsource/monaspace-neon/400.css";
+import "@fontsource/monaspace-neon/500.css";
+import "@fontsource/monaspace-neon/600.css";
+import "@fontsource/monaspace-argon/400.css";
+import "@fontsource/monaspace-argon/500.css";
+
 initSentry();
 
 const rootEl = document.getElementById("root");

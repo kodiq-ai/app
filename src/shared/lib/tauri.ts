@@ -3,6 +3,7 @@
 // No raw invoke() calls elsewhere in the codebase.
 
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import type {
   FileEntry,
   GitInfo,
@@ -18,7 +19,58 @@ import type {
   LaunchConfig,
   NewLaunchConfig,
   UpdateLaunchConfig,
+  PreviewBounds,
+  ServerInfo,
+  ServerLogEntry,
+  ServerConfig,
+  InspectResult,
+  SnapshotNode,
 } from "./types";
+
+// -- Helpers ─────────────────────────────────────────────
+
+/**
+ * One-shot Tauri event listener with timeout.
+ * Sets up listener BEFORE trigger to avoid race conditions.
+ */
+function listenOnce<T>(
+  eventName: string,
+  timeoutMs: number,
+  trigger: () => Promise<void>,
+): Promise<T | null> {
+  return new Promise<T | null>((resolve) => {
+    let done = false;
+    let unlistenRef: (() => void) | null = null;
+
+    const finish = (val: T | null) => {
+      if (done) return;
+      done = true;
+      unlistenRef?.();
+      resolve(val);
+    };
+
+    const timer = setTimeout(() => finish(null), timeoutMs);
+
+    void listen<T | null>(eventName, (event) => {
+      clearTimeout(timer);
+      finish(event.payload);
+    }).then(
+      (unlisten) => {
+        unlistenRef = unlisten;
+        // If finish() was already called (e.g. trigger failed), clean up immediately
+        if (done) unlisten();
+        void trigger().catch(() => {
+          clearTimeout(timer);
+          finish(null);
+        });
+      },
+      () => {
+        clearTimeout(timer);
+        finish(null);
+      },
+    );
+  });
+}
 
 // ── Terminal ─────────────────────────────────────────────
 export const terminal = {
@@ -55,6 +107,50 @@ export const git = {
     invoke<{ hash: string; message: string }>("git_commit", { path, message }),
   diff: (path: string, file: string, staged: boolean) =>
     invoke<string>("git_diff", { path, file, staged }),
+};
+
+// ── Preview — Webview ────────────────────────────────────
+export const preview = {
+  navigate: (url: string, bounds: PreviewBounds) =>
+    invoke<void>("preview_navigate", { url, bounds }),
+  resize: (bounds: PreviewBounds) => invoke<void>("preview_resize", { bounds }),
+  reload: () => invoke<void>("preview_reload"),
+  executeJs: (expression: string) => invoke<void>("preview_execute_js", { expression }),
+
+  // ── Interaction ─────────────────────────────────────────
+  click: (selector: string) => invoke<void>("preview_click", { selector }),
+  fill: (selector: string, value: string) => invoke<void>("preview_fill", { selector, value }),
+  hover: (selector: string) => invoke<void>("preview_hover", { selector }),
+
+  // ── Inspection ──────────────────────────────────────────
+  inspect: (selector: string) =>
+    listenOnce<InspectResult>("preview://inspect-result", 5000, () =>
+      invoke<void>("preview_inspect", { selector }),
+    ),
+  snapshot: () =>
+    listenOnce<SnapshotNode>("preview://snapshot-result", 5000, () =>
+      invoke<void>("preview_snapshot"),
+    ),
+
+  // ── Color scheme & screenshot ──────────────────────────
+  setColorScheme: (scheme: string) => invoke<void>("preview_set_color_scheme", { scheme }),
+  screenshot: () =>
+    listenOnce<string | null>("preview://screenshot-result", 10000, () =>
+      invoke<void>("preview_screenshot"),
+    ),
+
+  destroy: () => invoke<void>("preview_destroy"),
+
+  // ── Preview — Server ────────────────────────────────────
+  startServer: (config: ServerConfig) => invoke<string>("preview_start_server", { config }),
+  stopServer: (id: string) => invoke<void>("preview_stop_server", { id }),
+  listServers: () => invoke<ServerInfo[]>("preview_list_servers"),
+  serverLogs: (id: string, level?: string, search?: string) =>
+    invoke<ServerLogEntry[]>("preview_server_logs", {
+      id,
+      level: level ?? null,
+      search: search ?? null,
+    }),
 };
 
 // ── CLI ──────────────────────────────────────────────────

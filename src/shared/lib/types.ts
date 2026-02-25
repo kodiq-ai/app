@@ -201,7 +201,124 @@ export interface SavedTab {
   command?: string;
 }
 
+// ── Preview ─────────────────────────────────────────────
+export interface PreviewBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface ServerInfo {
+  id: string;
+  name: string;
+  port: number | null;
+  status: "starting" | "running" | "stopped";
+  started_at: number;
+}
+
+export interface ServerLogEntry {
+  timestamp: number;
+  level: "info" | "warn" | "error";
+  message: string;
+}
+
+export interface ServerConfig {
+  name: string;
+  command: string;
+  args: string[];
+  cwd?: string;
+  env?: Record<string, string>;
+}
+
+export interface ServerReadyEvent {
+  id: string;
+  port: number;
+  url: string;
+}
+
+export interface ServerLogEvent {
+  id: string;
+  entry: ServerLogEntry;
+}
+
+export interface ServerExitEvent {
+  id: string;
+}
+
+// ── DevTools ─────────────────────────────────────────────
+export type ConsoleLevel = "log" | "info" | "warn" | "error" | "debug";
+export type DevToolsTab = "console" | "network" | "inspect";
+
+export interface ConsoleEntry {
+  id: string;
+  level: ConsoleLevel;
+  args: unknown[];
+  timestamp: number;
+  stack?: string;
+}
+
+export interface ConsoleEvent {
+  level: string;
+  args: unknown[];
+  timestamp: number;
+  stack?: string;
+}
+
+export type NetworkMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
+
+export interface NetworkEntry {
+  id: string;
+  method: string;
+  url: string;
+  status: number | null;
+  statusText: string;
+  type: "fetch" | "xhr";
+  startTime: number;
+  duration: number | null;
+  requestHeaders?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  responseSize: number | null;
+  error: string | null;
+}
+
+export interface NetworkEvent {
+  method: string;
+  url: string;
+  status: number | null;
+  statusText: string;
+  reqType: string;
+  startTime: number;
+  duration: number | null;
+  responseSize: number | null;
+  error: string | null;
+}
+
+export interface InspectResult {
+  tagName: string;
+  id: string | null;
+  className: string | null;
+  textContent: string;
+  boundingBox: { x: number; y: number; width: number; height: number };
+  computedStyles: Record<string, string>;
+}
+
+export interface SnapshotNode {
+  tag: string;
+  role: string | null;
+  text: string | null;
+  id?: string;
+  ariaLabel?: string;
+  href?: string;
+  src?: string;
+  type?: string;
+  name?: string;
+  value?: string;
+  children: SnapshotNode[];
+}
+
 // ── UI Types ─────────────────────────────────────────────
+export type ColorScheme = "light" | "dark";
 export type Viewport = "desktop" | "tablet" | "mobile";
 export type SidebarTab = "files" | "project" | "activity" | "git";
 

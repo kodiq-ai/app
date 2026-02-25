@@ -1,40 +1,134 @@
-import type React from "react";
-import { RefreshCw, Monitor, Tablet, Smartphone, Zap, Globe } from "lucide-react";
-import { useAppStore, type Viewport } from "@/lib/store";
+import { useRef, useEffect, useCallback } from "react";
+import {
+  RefreshCw,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Zap,
+  Globe,
+  X,
+  Square,
+  Loader2,
+  TerminalSquare,
+  Crosshair,
+  Sun,
+  Moon,
+  Camera,
+} from "lucide-react";
+import { useAppStore } from "@/lib/store";
+import type { Viewport } from "@shared/lib/types";
+import { preview } from "@shared/lib/tauri";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { t } from "@/lib/i18n";
+import { ConsolePanel } from "./ConsolePanel";
+import { NetworkPanel } from "./NetworkPanel";
+import { InspectOverlay } from "./InspectOverlay";
+
+// -- Viewport Dimensions ─────────────────────────────────
+const VIEWPORT_SIZES: Record<Viewport, { width?: number; height?: number }> = {
+  desktop: {},
+  tablet: { width: 768, height: 1024 },
+  mobile: { width: 390, height: 844 },
+};
 
 function getViewportStyle(viewport: Viewport): React.CSSProperties {
-  if (viewport === "tablet") {
-    return {
-      width: 768,
-      height: "100%",
-      maxHeight: 1024,
-      borderRadius: 8,
-      boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
-    };
-  }
-  if (viewport === "mobile") {
-    return {
-      width: 390,
-      height: "100%",
-      maxHeight: 844,
-      borderRadius: 12,
-      boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
-    };
-  }
-  return { width: "100%", height: "100%" };
+  const size = VIEWPORT_SIZES[viewport];
+  if (!size.width) return { width: "100%", height: "100%" };
+  return {
+    width: size.width,
+    height: "100%",
+    maxHeight: size.height,
+    borderRadius: viewport === "mobile" ? 12 : 8,
+    boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
+  };
 }
 
+// -- ActivePanel ─────────────────────────────────────────
 export function ActivePanel() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const viewport = useAppStore((s) => s.viewport);
   const setViewport = useAppStore((s) => s.setViewport);
   const previewUrl = useAppStore((s) => s.previewUrl);
-  const setPreviewUrl = useAppStore((s) => s.setPreviewUrl);
+  const webviewReady = useAppStore((s) => s.webviewReady);
+  const setWebviewReady = useAppStore((s) => s.setWebviewReady);
+  const updateWebviewBounds = useAppStore((s) => s.updateWebviewBounds);
+  const destroyWebview = useAppStore((s) => s.destroyWebview);
+  const serverStatus = useAppStore((s) => s.serverStatus);
+  const stopServer = useAppStore((s) => s.stopServer);
+  const devtoolsOpen = useAppStore((s) => s.devtoolsOpen);
+  const toggleDevtools = useAppStore((s) => s.toggleDevtools);
+  const consoleLogs = useAppStore((s) => s.consoleLogs);
+  const errorCount = consoleLogs.filter((e) => e.level === "error").length;
+  const devtoolsTab = useAppStore((s) => s.devtoolsTab);
+  const setDevtoolsTab = useAppStore((s) => s.setDevtoolsTab);
+  const networkEntries = useAppStore((s) => s.networkEntries);
+  const inspectMode = useAppStore((s) => s.inspectMode);
+  const setInspectMode = useAppStore((s) => s.setInspectMode);
+  const colorScheme = useAppStore((s) => s.colorScheme);
+  const setColorScheme = useAppStore((s) => s.setColorScheme);
+  const takeScreenshot = useAppStore((s) => s.takeScreenshot);
 
+  // -- Report bounds to Rust ───────────────────────────────
+  const reportBounds = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    // Account for device pixel ratio — Tauri uses logical pixels
+    updateWebviewBounds({
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, [updateWebviewBounds]);
+
+  // -- ResizeObserver: keep webview positioned over placeholder
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !webviewReady) return;
+
+    const observer = new ResizeObserver(() => reportBounds());
+    observer.observe(el);
+
+    // Also report on scroll (bounds change relative to window)
+    window.addEventListener("scroll", reportBounds, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", reportBounds);
+    };
+  }, [webviewReady, reportBounds]);
+
+  // -- Create / navigate webview when URL changes ──────────
+  useEffect(() => {
+    if (!previewUrl) return;
+
+    const el = containerRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const bounds = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+
+    preview
+      .navigate(previewUrl, bounds)
+      .then(() => setWebviewReady(true))
+      .catch((e) => console.error("[Preview] navigate:", e));
+  }, [previewUrl, setWebviewReady]);
+
+  // -- Destroy webview on unmount ──────────────────────────
+  useEffect(() => {
+    return () => {
+      if (webviewReady) {
+        preview.destroy().catch((e) => console.error("[Preview] cleanup:", e));
+      }
+    };
+  }, [webviewReady]);
+
+  // -- Viewport options ────────────────────────────────────
   const viewportOptions: { v: Viewport; icon: typeof Monitor; label: string }[] = [
     { v: "desktop", icon: Monitor, label: t("desktop") },
     { v: "tablet", icon: Tablet, label: t("tablet") },
@@ -50,10 +144,9 @@ export function ActivePanel() {
             <Button
               variant="ghost"
               size="icon-xs"
-              onClick={() =>
-                previewUrl && setPreviewUrl(`${previewUrl.split("?")[0]}?_r=${Date.now()}`)
-              }
-              className="text-[#6E6E76] hover:text-[#A1A1A8]"
+              onClick={() => preview.reload().catch(console.error)}
+              aria-label="refresh preview"
+              className="text-k-text-tertiary hover:text-k-text-secondary"
             >
               <RefreshCw className="size-3" />
             </Button>
@@ -63,10 +156,10 @@ export function ActivePanel() {
 
         <Input
           type="text"
-          value={previewUrl?.split("?")[0] || ""}
+          value={previewUrl ?? ""}
           readOnly
           placeholder={t("waitingForServer")}
-          className="h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px] text-[#A1A1A8] focus:border-[#4DA3C7]/40"
+          className="text-k-text-secondary focus:border-k-accent/40 h-7 flex-1 border-white/[0.06] bg-white/[0.015] px-2.5 font-mono text-[11px]"
         />
 
         <div className="flex shrink-0 items-center gap-px">
@@ -77,9 +170,10 @@ export function ActivePanel() {
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => setViewport(v)}
+                  aria-label={label}
                   className={cn(
-                    "text-[#6E6E76] hover:text-[#A1A1A8]",
-                    viewport === v && "bg-white/[0.04] !text-[#A1A1A8]",
+                    "text-k-text-tertiary hover:text-k-text-secondary",
+                    viewport === v && "!text-k-text-secondary bg-white/[0.04]",
                   )}
                 >
                   <Icon className="size-3.5" />
@@ -90,46 +184,251 @@ export function ActivePanel() {
           ))}
         </div>
 
+        {/* Color scheme toggle */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => setColorScheme(colorScheme === "dark" ? "light" : "dark")}
+                aria-label={colorScheme === "dark" ? t("lightMode") : t("darkMode")}
+                className="text-k-text-tertiary hover:text-k-text-secondary"
+              >
+                {colorScheme === "dark" ? <Sun className="size-3" /> : <Moon className="size-3" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {colorScheme === "dark" ? t("lightMode") : t("darkMode")}
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Screenshot */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={async () => {
+                  const data = await takeScreenshot();
+                  if (data) {
+                    try {
+                      const res = await fetch(data);
+                      const blob = await res.blob();
+                      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                      toast.success(t("screenshotSaved"));
+                    } catch {
+                      toast.error(t("screenshotFailed"));
+                    }
+                  } else {
+                    toast.error(t("screenshotFailed"));
+                  }
+                }}
+                aria-label={t("screenshot")}
+                className="text-k-text-tertiary hover:text-k-text-secondary"
+              >
+                <Camera className="size-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("screenshot")}</TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Server status indicator */}
+        {serverStatus === "starting" && (
+          <div className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium text-amber-400/80">
+            <Loader2 className="size-2 animate-spin" />
+            starting
+          </div>
+        )}
+        {serverStatus === "running" && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => stopServer()}
+                className="text-k-text-tertiary hover:text-red-400"
+                aria-label="stop server"
+              >
+                <Square className="size-2.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("stop")}</TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Inspect toggle */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => {
+                  const next = !inspectMode;
+                  setInspectMode(next);
+                  if (next) {
+                    setDevtoolsTab("inspect");
+                    if (!devtoolsOpen) toggleDevtools();
+                  }
+                }}
+                aria-label={t("inspectElement")}
+                className={cn(
+                  "text-k-text-tertiary hover:text-k-text-secondary",
+                  inspectMode && "!text-k-accent bg-white/[0.04]",
+                )}
+              >
+                <Crosshair className="size-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("inspectElement")}</TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* DevTools toggle */}
+        {previewUrl && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={toggleDevtools}
+                aria-label={t("toggleDevtools")}
+                className={cn(
+                  "text-k-text-tertiary hover:text-k-text-secondary relative",
+                  devtoolsOpen && "!text-k-text-secondary bg-white/[0.04]",
+                )}
+              >
+                <TerminalSquare className="size-3" />
+                {errorCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex size-3 items-center justify-center rounded-full bg-red-500 text-[7px] font-bold text-white">
+                    {errorCount > 9 ? "9+" : errorCount}
+                  </span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("toggleDevtools")}</TooltipContent>
+          </Tooltip>
+        )}
+
         {previewUrl ? (
           <>
-            <div className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium text-[#4DA3C7]">
+            <div className="text-k-accent flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium">
               <Zap className="size-2" />
-              auto
+              native
             </div>
             <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500/80" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={destroyWebview}
+                  className="text-k-text-tertiary hover:text-red-400"
+                  aria-label="close preview"
+                >
+                  <X className="size-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("close")}</TooltipContent>
+            </Tooltip>
           </>
         ) : (
-          <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E6E76]" />
+          <div className="bg-k-border h-1.5 w-1.5 shrink-0 rounded-full" />
         )}
       </div>
 
-      {/* Preview content */}
+      {/* Preview content — native webview is positioned over this div by Rust */}
       <div className="relative flex-1 overflow-hidden">
         {previewUrl ? (
           <div className="flex h-full w-full items-center justify-center">
-            <iframe
-              key={previewUrl}
-              src={previewUrl}
-              className="border-0 bg-white"
+            <div
+              ref={containerRef}
+              className="bg-white"
               style={getViewportStyle(viewport)}
+              data-preview-container
             />
           </div>
         ) : (
           <div className="flex h-full flex-1 items-center justify-center">
             <div className="flex flex-col items-center gap-3 text-center">
-              <Globe className="size-5 text-[#6E6E76]" />
-              <div>
-                <p className="text-[12px] text-[#6E6E76]">{t("serverNotRunning")}</p>
-                <p className="mt-1 text-[11px] text-[#6E6E76]">
-                  {t("runDevServer")}{" "}
-                  <code className="font-mono text-[#6E6E76]">{t("npmRunDev")}</code>{" "}
-                  {t("inTerminal")}
-                </p>
-              </div>
+              {serverStatus === "starting" ? (
+                <>
+                  <Loader2 className="text-k-accent size-5 animate-spin" />
+                  <p className="text-k-text-tertiary text-[12px]">{t("waitingForServer")}</p>
+                </>
+              ) : (
+                <>
+                  <Globe className="text-k-border size-5" />
+                  <div>
+                    <p className="text-k-text-tertiary text-[12px]">{t("serverNotRunning")}</p>
+                    <p className="text-k-border mt-1 text-[11px]">
+                      {t("runDevServer")}{" "}
+                      <code className="text-k-text-tertiary font-mono">{t("npmRunDev")}</code>{" "}
+                      {t("inTerminal")}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* DevTools — tabbed Console / Network below preview */}
+      {devtoolsOpen && previewUrl && (
+        <div className="flex flex-col border-t border-white/[0.06]">
+          {/* Tab bar */}
+          <div className="flex h-7 shrink-0 items-center gap-px border-b border-white/[0.06] px-2">
+            <button
+              onClick={() => setDevtoolsTab("console")}
+              className={cn(
+                "relative rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                devtoolsTab === "console"
+                  ? "text-k-text-secondary bg-white/[0.06]"
+                  : "text-k-text-tertiary hover:text-k-text-secondary",
+              )}
+            >
+              {t("console")}
+              {errorCount > 0 && <span className="ml-1 text-red-400/80">{errorCount}</span>}
+            </button>
+            <button
+              onClick={() => setDevtoolsTab("network")}
+              className={cn(
+                "relative rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                devtoolsTab === "network"
+                  ? "text-k-text-secondary bg-white/[0.06]"
+                  : "text-k-text-tertiary hover:text-k-text-secondary",
+              )}
+            >
+              {t("network")}
+              {networkEntries.length > 0 && (
+                <span className="text-k-text-tertiary ml-1">{networkEntries.length}</span>
+              )}
+            </button>
+            <button
+              onClick={() => setDevtoolsTab("inspect")}
+              className={cn(
+                "relative rounded px-2 py-0.5 text-[10px] font-medium transition-colors",
+                devtoolsTab === "inspect"
+                  ? "text-k-text-secondary bg-white/[0.06]"
+                  : "text-k-text-tertiary hover:text-k-text-secondary",
+                inspectMode && "!text-k-accent",
+              )}
+            >
+              {t("inspectMode")}
+            </button>
+          </div>
+
+          {/* Active panel */}
+          {devtoolsTab === "console" && <ConsolePanel />}
+          {devtoolsTab === "network" && <NetworkPanel />}
+          {devtoolsTab === "inspect" && <InspectOverlay />}
+        </div>
+      )}
     </div>
   );
 }

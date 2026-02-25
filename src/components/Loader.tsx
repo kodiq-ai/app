@@ -14,7 +14,7 @@ const SIZES = {
 export function Loader({ size = "md", className }: LoaderProps) {
   return (
     <svg
-      className={cn("kodiq-spinner text-[#4DA3C7]", SIZES[size], className)}
+      className={cn("kodiq-spinner text-k-accent", SIZES[size], className)}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

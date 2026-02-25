@@ -8,8 +8,8 @@ import { tags as t } from "@lezer/highlight";
 // -- Design Tokens -------
 const tokens = {
   bg: "#141416",
-  bgSurface: "#1A1A1D",
-  bgHighlight: "#18181b",
+  bgSurface: "#1a1a1d",
+  bgHighlight: "#202024",
   accent: "#4DA3C7",
   text: "#E6E6E9",
   textSecondary: "#A1A1A8",
@@ -111,50 +111,50 @@ const editorTheme = EditorView.theme(
 // -- Syntax Highlight Style -------
 const highlightStyle = HighlightStyle.define([
   // Comments
-  { tag: t.comment, color: "#6E6E76", fontStyle: "italic" },
-  { tag: t.lineComment, color: "#6E6E76", fontStyle: "italic" },
-  { tag: t.blockComment, color: "#6E6E76", fontStyle: "italic" },
+  { tag: t.comment, color: "#5C6370", fontStyle: "italic" },
+  { tag: t.lineComment, color: "#5C6370", fontStyle: "italic" },
+  { tag: t.blockComment, color: "#5C6370", fontStyle: "italic" },
 
   // Keywords & control
-  { tag: t.keyword, color: "#c084fc" }, // purple-400
-  { tag: t.controlKeyword, color: "#c084fc" },
-  { tag: t.operatorKeyword, color: "#c084fc" },
+  { tag: t.keyword, color: "#8DA1F2" },
+  { tag: t.controlKeyword, color: "#8DA1F2" },
+  { tag: t.operatorKeyword, color: "#8DA1F2" },
 
   // Types & classes
-  { tag: t.typeName, color: "#5CB2D6" }, // cyan-400
-  { tag: t.className, color: "#5CB2D6" },
-  { tag: t.namespace, color: "#5CB2D6" },
+  { tag: t.typeName, color: "#4DA3C7" },
+  { tag: t.className, color: "#4DA3C7" },
+  { tag: t.namespace, color: "#4DA3C7" },
 
   // Functions
-  { tag: t.function(t.variableName), color: "#60a5fa" }, // blue-400
-  { tag: t.function(t.propertyName), color: "#60a5fa" },
+  { tag: t.function(t.variableName), color: "#E5C07B" },
+  { tag: t.function(t.propertyName), color: "#E5C07B" },
 
   // Variables & properties
   { tag: t.variableName, color: "#E6E6E9" },
-  { tag: t.propertyName, color: "#67e8f9" }, // cyan-300
+  { tag: t.propertyName, color: "#4DA3C7" },
   { tag: t.definition(t.variableName), color: "#E6E6E9" },
 
   // Strings
-  { tag: t.string, color: "#86efac" }, // green-300
-  { tag: t.special(t.string), color: "#86efac" },
+  { tag: t.string, color: "#A8C97F" },
+  { tag: t.special(t.string), color: "#A8C97F" },
 
   // Numbers & booleans
-  { tag: t.number, color: "#fdba74" }, // orange-300
-  { tag: t.bool, color: "#fdba74" },
-  { tag: t.null, color: "#fdba74" },
+  { tag: t.number, color: "#C678DD" },
+  { tag: t.bool, color: "#C678DD" },
+  { tag: t.null, color: "#C678DD" },
 
   // Regex
-  { tag: t.regexp, color: "#f87171" }, // red-400
+  { tag: t.regexp, color: "#C36A6A" },
 
   // Operators & punctuation
   { tag: t.operator, color: "#A1A1A8" },
-  { tag: t.punctuation, color: "#71717a" },
+  { tag: t.punctuation, color: "#6E6E76" },
   { tag: t.bracket, color: "#A1A1A8" },
 
   // Tags (HTML/XML)
-  { tag: t.tagName, color: "#f87171" }, // red-400
-  { tag: t.attributeName, color: "#fdba74" },
-  { tag: t.attributeValue, color: "#86efac" },
+  { tag: t.tagName, color: "#C36A6A" },
+  { tag: t.attributeName, color: "#E5C07B" },
+  { tag: t.attributeValue, color: "#A8C97F" },
 
   // Meta
   { tag: t.meta, color: "#A1A1A8" },
@@ -167,7 +167,7 @@ const highlightStyle = HighlightStyle.define([
   { tag: t.link, color: "#4DA3C7", textDecoration: "underline" },
 
   // Invalid
-  { tag: t.invalid, color: "#f87171", textDecoration: "underline wavy" },
+  { tag: t.invalid, color: "#C36A6A", textDecoration: "underline wavy" },
 ]);
 
 // -- Combined Extension -------

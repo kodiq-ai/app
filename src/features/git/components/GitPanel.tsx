@@ -104,7 +104,7 @@ export function GitPanel() {
   if (!gitInfo?.isGit) {
     return (
       <div className="flex flex-1 items-center justify-center px-3">
-        <span className="text-[11px] text-[#6E6E76]">{t("gitNotRepo")}</span>
+        <span className="text-k-border text-[11px]">{t("gitNotRepo")}</span>
       </div>
     );
   }
@@ -115,7 +115,7 @@ export function GitPanel() {
   if (totalChanges === 0) {
     return (
       <div className="flex flex-1 items-center justify-center px-3">
-        <span className="text-[11px] text-[#6E6E76]">{t("gitNoChanges")}</span>
+        <span className="text-k-border text-[11px]">{t("gitNoChanges")}</span>
       </div>
     );
   }
@@ -137,13 +137,13 @@ export function GitPanel() {
           }}
           placeholder={t("gitCommitPlaceholder")}
           rows={2}
-          className="w-full resize-none rounded border border-white/[0.06] bg-white/[0.03] px-2 py-1.5 font-mono text-[11px] text-[#E6E6E9] placeholder:text-[#6E6E76] focus:border-[#4DA3C7]/40 focus:outline-none"
+          className="text-k-text placeholder:text-k-border focus:border-k-accent/40 w-full resize-none rounded border border-white/[0.06] bg-white/[0.03] px-2 py-1.5 font-mono text-[11px] focus:outline-none"
         />
         <Button
           size="sm"
           disabled={!canCommit}
           onClick={handleCommit}
-          className="h-6 w-full bg-[#4DA3C7]/20 text-[11px] font-medium text-[#4DA3C7] hover:bg-[#4DA3C7]/30 disabled:opacity-30"
+          className="bg-k-accent/20 text-k-accent hover:bg-k-accent/30 h-6 w-full text-[11px] font-medium disabled:opacity-30"
         >
           {isCommitting ? t("gitCommitting") : t("gitCommitAction")}
         </Button>

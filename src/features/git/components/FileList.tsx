@@ -22,10 +22,10 @@ const KIND_ICON: Record<string, { icon: typeof Pencil; color: string }> = {
   modified: { icon: Pencil, color: "#eab308" },
   added: { icon: FilePlus, color: "#22c55e" },
   deleted: { icon: FileMinus, color: "#ef4444" },
-  untracked: { icon: FileQuestion, color: "#A1A1A8" },
-  renamed: { icon: CircleDot, color: "#4DA3C7" },
-  copied: { icon: CircleDot, color: "#4DA3C7" },
-  other: { icon: CircleDot, color: "#6E6E76" },
+  untracked: { icon: FileQuestion, color: "#a1a1a8" },
+  renamed: { icon: CircleDot, color: "#4da3c7" },
+  copied: { icon: CircleDot, color: "#4da3c7" },
+  other: { icon: CircleDot, color: "#6e6e76" },
 };
 
 interface FileListProps {
@@ -60,7 +60,7 @@ export function FileList({
       <button
         type="button"
         onClick={() => setCollapsed(!collapsed)}
-        className="flex h-6 items-center gap-1 px-2 text-[11px] font-medium text-[#A1A1A8] hover:text-[#E6E6E9]"
+        className="text-k-text-secondary hover:text-k-text flex h-6 items-center gap-1 px-2 text-[11px] font-medium"
       >
         {collapsed ? (
           <ChevronRight className="size-3 shrink-0" />
@@ -75,6 +75,7 @@ export function FileList({
             <span
               role="button"
               tabIndex={0}
+              aria-label={allActionLabel}
               onClick={(e) => {
                 e.stopPropagation();
                 onAllAction();
@@ -98,7 +99,7 @@ export function FileList({
       {!collapsed && (
         <div className="flex flex-col">
           {files.map((f) => {
-            const cfg = KIND_ICON[f.kind] ?? { icon: CircleDot, color: "#6E6E76" };
+            const cfg = KIND_ICON[f.kind] ?? { icon: CircleDot, color: "#52525b" };
             const Icon = cfg.icon;
             const fileName = f.file.split("/").pop() ?? f.file;
             const dir = f.file.includes("/") ? f.file.slice(0, f.file.lastIndexOf("/")) : "";
@@ -113,16 +114,15 @@ export function FileList({
                 onClick={() => onFileClick?.(f.file)}
               >
                 <Icon className="size-2.5 shrink-0" style={{ color: cfg.color }} />
-                <span className="truncate font-mono text-[10px] text-[#E6E6E9]">{fileName}</span>
+                <span className="text-k-text truncate font-mono text-[10px]">{fileName}</span>
                 {dir && (
-                  <span className="flex-1 truncate font-mono text-[10px] text-[#6E6E76]">
-                    {dir}
-                  </span>
+                  <span className="text-k-border flex-1 truncate font-mono text-[10px]">{dir}</span>
                 )}
                 <Button
                   variant="ghost"
                   size="icon-xs"
                   className="size-4 opacity-0 group-hover:opacity-100"
+                  aria-label={action === "stage" ? "stage file" : "unstage file"}
                   onClick={(e) => {
                     e.stopPropagation();
                     onFileAction(f.file);

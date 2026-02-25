@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TabIconSvg } from "@/components/icons";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { Star, TerminalSquare, Plus, Pencil, Trash2, Play } from "lucide-react";
+import { Star, TerminalSquare, Plus, Pencil, Trash2, Play, ExternalLink } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -12,7 +12,9 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { open } from "@tauri-apps/plugin-shell";
 import { db } from "@shared/lib/tauri";
+import { CLI_COLORS, CLI_INSTALL_URLS } from "@shared/lib/constants";
 import type { HistoryEntry, LaunchConfig, LaunchConfigPayload } from "@shared/lib/types";
 import { LaunchConfigDialog } from "@features/project/components/LaunchConfigDialog";
 import { toast } from "sonner";
@@ -34,6 +36,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
   const removeLaunchConfig = useAppStore((s) => s.removeLaunchConfig);
   const setLastLaunchConfigId = useAppStore((s) => s.setLastLaunchConfigId);
   const installedCli = cliTools.filter((tool) => tool.installed);
+  const notInstalledCli = cliTools.filter((tool) => !tool.installed);
 
   const [recentCommands, setRecentCommands] = useState<HistoryEntry[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -90,7 +93,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
     setDialogOpen(true);
   };
 
-  if (installedCli.length === 0 && recentCommands.length === 0 && launchConfigs.length === 0) {
+  if (cliTools.length === 0 && recentCommands.length === 0 && launchConfigs.length === 0) {
     return null;
   }
 
@@ -109,9 +112,9 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
     <>
       <div className="shrink-0 border-t border-white/[0.06] px-1 py-1.5">
         {/* AI CLI tools */}
-        {sorted.length > 0 && (
+        {(sorted.length > 0 || notInstalledCli.length > 0) && (
           <>
-            <span className="mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
+            <span className="text-k-text-tertiary mb-1 block px-1.5 text-[10px] font-medium tracking-wider uppercase">
               AI
             </span>
             <div className="flex flex-col gap-0.5">
@@ -126,8 +129,8 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                         className={cn(
                           "h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]",
                           isDefault
-                            ? "text-[#4DA3C7] hover:text-[#4DA3C7]"
-                            : "text-[#6E6E76] hover:text-[#A1A1A8]",
+                            ? "text-k-accent hover:text-k-accent"
+                            : "text-k-text-tertiary hover:text-k-text-secondary",
                         )}
                       >
                         <TabIconSvg icon={tool.bin} size={12} />
@@ -149,6 +152,29 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                   </ContextMenu>
                 );
               })}
+
+              {/* Not-installed CLI tools */}
+              {notInstalledCli.map((tool) => (
+                <Button
+                  key={tool.bin}
+                  variant="ghost"
+                  onClick={() => {
+                    const url = CLI_INSTALL_URLS[tool.bin];
+                    if (url) open(url);
+                  }}
+                  className="group text-k-border hover:text-k-text-tertiary h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]"
+                >
+                  <div
+                    className="size-3 shrink-0 rounded-full opacity-25"
+                    style={{ background: CLI_COLORS[tool.provider] }}
+                  />
+                  <span className="flex-1 truncate text-left">{tool.name}</span>
+                  <span className="text-k-accent flex items-center gap-0.5 text-[9px] opacity-0 transition-opacity group-hover:opacity-100">
+                    {t("onboardingCliInstall")}
+                    <ExternalLink className="size-2" />
+                  </span>
+                </Button>
+              ))}
             </div>
           </>
         )}
@@ -157,12 +183,12 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
         {launchConfigs.length > 0 && (
           <>
             <div className="mt-2 mb-1 flex items-center justify-between px-1.5">
-              <span className="text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
+              <span className="text-k-text-tertiary text-[10px] font-medium tracking-wider uppercase">
                 {t("launchConfigs")}
               </span>
               <button
                 onClick={openCreateDialog}
-                className="flex size-4 items-center justify-center rounded text-[#6E6E76] transition-colors hover:bg-white/[0.04] hover:text-[#A1A1A8]"
+                className="text-k-text-tertiary hover:text-k-text-secondary flex size-4 items-center justify-center rounded transition-colors hover:bg-white/[0.04]"
               >
                 <Plus className="size-2.5" />
               </button>
@@ -174,13 +200,13 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                     <Button
                       variant="ghost"
                       onClick={() => handleLaunchConfig(config)}
-                      className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#6E6E76] hover:bg-white/[0.02] hover:text-[#A1A1A8]"
+                      className="text-k-text-tertiary hover:text-k-text-secondary h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]"
                     >
-                      <Play className="size-2.5 shrink-0 text-[#4DA3C7]" />
+                      <Play className="text-k-accent size-2.5 shrink-0" />
                       <span className="flex-1 truncate text-left">{config.profile_name}</span>
-                      <span className="truncate text-[9px] text-[#6E6E76]">{config.cli_name}</span>
+                      <span className="text-k-border truncate text-[9px]">{config.cli_name}</span>
                       {config.is_default && (
-                        <Star className="size-2 shrink-0 fill-current text-[#4DA3C7] opacity-60" />
+                        <Star className="text-k-accent size-2 shrink-0 fill-current opacity-60" />
                       )}
                     </Button>
                   </ContextMenuTrigger>
@@ -214,7 +240,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
             <Button
               variant="ghost"
               onClick={openCreateDialog}
-              className="h-7 w-full justify-start gap-1.5 px-2 text-[11px] text-[#6E6E76] hover:bg-white/[0.02] hover:text-[#71717a]"
+              className="text-k-border hover:text-k-text-dim h-7 w-full justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]"
             >
               <Plus className="size-2.5" />
               {t("newLaunchConfig")}
@@ -225,7 +251,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
         {/* Recent commands */}
         {filteredRecent.length > 0 && (
           <>
-            <span className="mt-2 mb-1 block px-1.5 text-[10px] font-medium tracking-wider text-[#6E6E76] uppercase">
+            <span className="text-k-text-tertiary mt-2 mb-1 block px-1.5 text-[10px] font-medium tracking-wider uppercase">
               {t("recentCommands")}
             </span>
             <div className="flex flex-col gap-0.5">
@@ -234,7 +260,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                   key={entry.id}
                   variant="ghost"
                   onClick={() => onSpawnTab(entry.command, entry.command)}
-                  className="h-7 justify-start gap-1.5 px-2 text-[11px] text-[#6E6E76] hover:bg-white/[0.02] hover:text-[#A1A1A8]"
+                  className="text-k-text-tertiary hover:text-k-text-secondary h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]"
                 >
                   <TerminalSquare className="size-3 shrink-0" />
                   <span className="flex-1 truncate text-left font-mono">{entry.command}</span>

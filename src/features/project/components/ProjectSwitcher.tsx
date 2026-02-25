@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ChevronRight, ChevronDown, FolderOpen, Folder, X } from "lucide-react";
+import { ChevronDown, FolderOpen, Folder, X } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { KodiqDot } from "@/components/icons";
 import { t } from "@/lib/i18n";
 import type { RecentProject } from "@/lib/store";
 
@@ -27,24 +26,21 @@ export function ProjectSwitcher({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.04]">
-          <KodiqDot size={16} />
-          <span className="text-[12px] font-medium text-[#6E6E76]">Kodiq</span>
-          <ChevronRight className="size-2.5 text-[#202024]" />
-          <span className="text-[12px] font-medium text-[#A1A1A8]">
+        <button className="flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.04]">
+          <span className="text-k-text-secondary text-[12px] font-medium">
             {projectName || t("selectProject")}
           </span>
-          <ChevronDown className="ml-0.5 size-2.5 text-[#6E6E76]" />
+          <ChevronDown className="text-k-border size-2.5" />
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[280px] border-white/[0.06] bg-[#1A1A1D] p-0 shadow-xl"
+        className="bg-k-bg-surface w-[280px] border-white/[0.06] p-0 shadow-xl"
         sideOffset={8}
         align="center"
       >
         {recentProjects.length > 0 && (
           <div className="px-1 pt-1">
-            <div className="px-2 py-1.5 text-[10px] font-medium tracking-[0.08em] text-[#6E6E76] uppercase">
+            <div className="text-k-border px-2 py-1.5 text-[10px] font-medium tracking-[0.08em] uppercase">
               {t("recent")}
             </div>
             {recentProjects.map((p) => (
@@ -56,12 +52,12 @@ export function ProjectSwitcher({
                 }}
                 className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
               >
-                <Folder className="size-3 shrink-0 fill-[#6E6E76] text-[#6E6E76]" />
-                <span className="flex-1 truncate text-[12px] text-[#A1A1A8] transition-colors group-hover:text-[#A1A1A8]">
+                <Folder className="fill-k-border text-k-border size-3 shrink-0" />
+                <span className="text-k-text-secondary group-hover:text-k-text-secondary flex-1 truncate text-[12px] transition-colors">
                   {p.name}
                 </span>
                 {p.path === projectPath && (
-                  <div className="size-1.5 shrink-0 rounded-full bg-[#4DA3C7]" />
+                  <div className="bg-k-accent size-1.5 shrink-0 rounded-full" />
                 )}
               </button>
             ))}
@@ -78,8 +74,8 @@ export function ProjectSwitcher({
             }}
             className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
           >
-            <FolderOpen className="size-3 text-[#6E6E76]" />
-            <span className="text-[12px] text-[#A1A1A8]">{t("openProject")}...</span>
+            <FolderOpen className="text-k-text-tertiary size-3" />
+            <span className="text-k-text-secondary text-[12px]">{t("openProject")}...</span>
           </button>
           {projectPath && (
             <button
@@ -89,8 +85,8 @@ export function ProjectSwitcher({
               }}
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
             >
-              <X className="size-3 text-[#6E6E76]" />
-              <span className="text-[12px] text-[#A1A1A8]">{t("closeProject")}</span>
+              <X className="text-k-text-tertiary size-3" />
+              <span className="text-k-text-secondary text-[12px]">{t("closeProject")}</span>
             </button>
           )}
         </div>

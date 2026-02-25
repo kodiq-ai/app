@@ -4,13 +4,13 @@ import { open } from "@tauri-apps/plugin-dialog";
 
 import { toast } from "sonner";
 import { useAppStore, type FileEntry } from "@/lib/store";
-import type { GitInfo } from "@shared/lib/types";
+import type { GitInfo, ConsoleLevel, NetworkEvent } from "@shared/lib/types";
 import { terminal, fs, git, cli, db } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { X, Settings, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { KodiqLogo } from "@/components/icons";
 
 import { useSplitDrag } from "@/hooks/useSplitDrag";
 import { useVerticalSplit } from "@/hooks/useVerticalSplit";
@@ -329,6 +329,71 @@ export default function App() {
     };
   }, [setPreviewUrl]);
 
+  // ── Server events (from preview::server) ───────────────────────────
+  useEffect(() => {
+    const unlistenReady = listen<{ id: string; port: number; url: string }>(
+      "preview://server-ready",
+      (event) => {
+        const { id, port, url } = event.payload;
+        const store = useAppStore.getState();
+        store.setServerReady(id, port);
+        if (store.settings.autoOpenPreview !== false && !store.previewOpen) {
+          store.setPreviewOpen(true);
+        }
+        toast.success(t("devServerDetected"), { description: url });
+      },
+    );
+    const unlistenExit = listen<{ id: string }>("preview://server-exit", (event) => {
+      useAppStore.getState().setServerStopped(event.payload.id);
+    });
+
+    // DevTools console events (from preview::devtools WebSocket bridge)
+    let consoleSeq = 0;
+    const unlistenConsole = listen<{
+      level: string;
+      args: unknown[];
+      timestamp: number;
+      stack?: string;
+    }>("preview://console", (event) => {
+      const { level, args, timestamp, stack } = event.payload;
+      useAppStore.getState().pushConsoleEntry({
+        id: `console-${Date.now()}-${consoleSeq++}`,
+        level: (["log", "info", "warn", "error", "debug"].includes(level)
+          ? level
+          : "log") as ConsoleLevel,
+        args,
+        timestamp,
+        stack,
+      });
+    });
+
+    // -- Network events from preview webview ──────────────────
+    let networkSeq = 0;
+    const unlistenNetwork = listen<NetworkEvent>("preview://network", (event) => {
+      const { method, url, status, statusText, reqType, startTime, duration, responseSize, error } =
+        event.payload;
+      useAppStore.getState().pushNetworkEntry({
+        id: `net-${Date.now()}-${networkSeq++}`,
+        method,
+        url,
+        status,
+        statusText,
+        type: reqType as "fetch" | "xhr",
+        startTime,
+        duration,
+        responseSize,
+        error,
+      });
+    });
+
+    return () => {
+      unlistenReady.then((fn) => fn());
+      unlistenExit.then((fn) => fn());
+      unlistenConsole.then((fn) => fn());
+      unlistenNetwork.then((fn) => fn());
+    };
+  }, []);
+
   // ── Update dialog listener (from toast action) ──────────────────────
   useEffect(() => {
     const handler = () => setUpdateDialogOpen(true);
@@ -355,7 +420,9 @@ export default function App() {
         className="flex h-[52px] shrink-0 items-center border-b border-white/[0.06] px-4 select-none"
         data-tauri-drag-region
       >
-        <div className="w-[80px] shrink-0" />
+        <div className="flex shrink-0 items-center pl-[80px]">
+          <KodiqLogo height={18} className="text-k-text-tertiary" />
+        </div>
         <div className="flex flex-1 items-center justify-center" data-tauri-drag-region>
           <ProjectSwitcher
             projectName={projectName}
@@ -372,56 +439,22 @@ export default function App() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="icon-xs"
+                  variant="outline"
+                  size="sm"
                   onClick={togglePreview}
+                  aria-label={previewOpen ? "hide preview" : "show preview"}
                   className={cn(
-                    "text-[#6E6E76] hover:text-[#A1A1A8]",
-                    previewOpen && "text-[#A1A1A8]",
+                    "border-k-border text-k-text-tertiary hover:text-k-text-secondary h-6 rounded-md px-2.5 text-xs font-medium",
+                    previewOpen && "border-k-accent/40 text-k-accent",
                   )}
                 >
-                  {previewOpen ? (
-                    <PanelRightClose className="size-3.5" />
-                  ) : (
-                    <PanelRightOpen className="size-3.5" />
-                  )}
+                  {t("preview")}
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
                 {previewOpen ? t("hidePreviewShort") : t("showPreviewShort")}
               </TooltipContent>
             </Tooltip>
-          )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => setSettingsOpen(true)}
-                className="text-[#6E6E76] hover:text-[#A1A1A8]"
-              >
-                <Settings className="size-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{t("settings")}</TooltipContent>
-          </Tooltip>
-          {projectPath && (
-            <>
-              <span className="text-[10px] text-[#6E6E76] tabular-nums">{tabs.length}</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={closeProject}
-                    className="text-[#6E6E76] hover:text-[#A1A1A8]"
-                  >
-                    <X className="size-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{t("closeProject")}</TooltipContent>
-              </Tooltip>
-            </>
           )}
         </div>
       </header>
@@ -466,14 +499,14 @@ export default function App() {
                       className={cn(
                         "absolute inset-x-0 -top-[2px] h-[5px] transition-all",
                         isVDragging
-                          ? "bg-[#4DA3C7]/30"
+                          ? "bg-k-accent/30"
                           : "bg-transparent group-hover:bg-white/[0.04]",
                       )}
                     />
                     <div
                       className={cn(
                         "absolute inset-0 transition-colors",
-                        isVDragging ? "bg-[#4DA3C7]" : "bg-white/[0.06]",
+                        isVDragging ? "bg-k-accent" : "bg-white/[0.06]",
                       )}
                     />
                   </div>
@@ -498,14 +531,14 @@ export default function App() {
                       className={cn(
                         "absolute inset-y-0 -left-[2px] w-[5px] transition-all",
                         isDragging
-                          ? "bg-[#4DA3C7]/30"
+                          ? "bg-k-accent/30"
                           : "bg-transparent group-hover:bg-white/[0.04]",
                       )}
                     />
                     <div
                       className={cn(
                         "absolute inset-0 transition-colors",
-                        isDragging ? "bg-[#4DA3C7]" : "bg-white/[0.06]",
+                        isDragging ? "bg-k-accent" : "bg-white/[0.06]",
                       )}
                     />
                   </div>
