@@ -14,7 +14,7 @@ import { EditorState, Compartment } from "@codemirror/state";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { bracketMatching, indentOnInput, foldGutter, foldKeymap } from "@codemirror/language";
 import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
-import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
+import { search, highlightSelectionMatches } from "@codemirror/search";
 import { useAppStore } from "@/lib/store";
 import { kodiqTheme } from "../lib/kodiqTheme";
 import { loadLanguage } from "../lib/languageLoader";
@@ -30,6 +30,7 @@ export function CodeMirrorEditor({ tab }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const updateTabContent = useAppStore((s) => s.updateTabContent);
   const updateTabScroll = useAppStore((s) => s.updateTabScroll);
+  const setCursorInfo = useAppStore((s) => s.setCursorInfo);
 
   // Stable refs for callbacks (avoid stale closures)
   const tabRef = useRef(tab);
@@ -40,6 +41,9 @@ export function CodeMirrorEditor({ tab }: Props) {
 
   const updateScrollRef = useRef(updateTabScroll);
   updateScrollRef.current = updateTabScroll;
+
+  const setCursorInfoRef = useRef(setCursorInfo);
+  setCursorInfoRef.current = setCursorInfo;
 
   // -- Create or reuse EditorView -------
   const getOrCreateView = useCallback(() => {
@@ -60,6 +64,7 @@ export function CodeMirrorEditor({ tab }: Props) {
         closeBrackets(),
         highlightActiveLine(),
         highlightSelectionMatches(),
+        search({ top: false, createPanel: () => ({ dom: document.createElement("div") }) }),
         foldGutter(),
 
         // Language (empty placeholder — loaded async)
@@ -70,7 +75,6 @@ export function CodeMirrorEditor({ tab }: Props) {
           ...defaultKeymap,
           ...historyKeymap,
           ...closeBracketsKeymap,
-          ...searchKeymap,
           ...foldKeymap,
           indentWithTab,
         ]),
@@ -83,6 +87,17 @@ export function CodeMirrorEditor({ tab }: Props) {
           if (update.docChanged) {
             const content = update.state.doc.toString();
             updateContentRef.current(tabRef.current.path, content);
+          }
+          if (update.selectionSet || update.docChanged) {
+            const { head } = update.state.selection.main;
+            const line = update.state.doc.lineAt(head);
+            const selRange = update.state.selection.main;
+            const selected = Math.abs(selRange.to - selRange.from);
+            setCursorInfoRef.current({
+              line: line.number,
+              col: head - line.from + 1,
+              selected,
+            });
           }
         }),
 

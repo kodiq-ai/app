@@ -5,6 +5,12 @@
 import type { StateCreator } from "zustand";
 
 // -- Types -------
+export interface CursorInfo {
+  line: number;
+  col: number;
+  selected: number;
+}
+
 export interface EditorTab {
   path: string; // absolute file path (unique key)
   name: string; // filename extracted from path
@@ -18,6 +24,7 @@ export interface EditorSlice {
   // State
   editorTabs: EditorTab[];
   activeEditorTab: string | null;
+  cursorInfo: CursorInfo | null;
 
   // Actions
   openFile: (path: string, content: string) => void;
@@ -28,6 +35,7 @@ export interface EditorSlice {
   markTabSaved: (path: string, content: string) => void;
   updateTabScroll: (path: string, pos: { top: number; left: number }) => void;
   closeAllEditorTabs: () => void;
+  setCursorInfo: (info: CursorInfo | null) => void;
 
   // Backward compat (delegates to openFile)
   setOpenFile: (path: string | null, content?: string | null) => void;
@@ -51,6 +59,7 @@ export const createEditorSlice: StateCreator<EditorSlice, [], [], EditorSlice> =
   // State
   editorTabs: [],
   activeEditorTab: null,
+  cursorInfo: null,
 
   // Backward compat getters (computed from tabs)
   openFilePath: null,
@@ -154,6 +163,8 @@ export const createEditorSlice: StateCreator<EditorSlice, [], [], EditorSlice> =
       editorTabs: get().editorTabs.map((t) => (t.path === path ? { ...t, scrollPos: pos } : t)),
     });
   },
+
+  setCursorInfo: (info) => set({ cursorInfo: info }),
 
   closeAllEditorTabs: () => {
     set({
