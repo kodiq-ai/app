@@ -3,6 +3,7 @@
 // Backward-compatible: setOpenFile, openFilePath, openFileContent still work.
 
 import type { StateCreator } from "zustand";
+import { trackEvent } from "@shared/lib/analytics";
 
 // -- Types -------
 export interface CursorInfo {
@@ -91,6 +92,10 @@ export const createEditorSlice: StateCreator<EditorSlice, [], [], EditorSlice> =
         openFilePath: path,
         openFileContent: content,
       });
+      trackEvent("file_opened", { language: tab.language });
+      if (editorTabs.length === 0) {
+        trackEvent("feature_used", { feature: "editor" });
+      }
     }
   },
 
