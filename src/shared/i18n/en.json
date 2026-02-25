@@ -255,5 +255,24 @@
   "darkMode": "Dark mode",
   "screenshot": "Screenshot",
   "screenshotSaved": "Screenshot copied",
-  "screenshotFailed": "Screenshot failed"
+  "screenshotFailed": "Screenshot failed",
+
+  "statusBarLine": "Ln",
+  "statusBarCol": "Col",
+  "statusBarSelected": "selected",
+  "statusBarSpaces": "Spaces",
+
+  "goToLineTitle": "Go to Line",
+  "goToLinePlaceholder": "Go to Line (1 – {max})",
+
+  "findReplaceFind": "Find",
+  "findReplaceReplace": "Replace",
+  "findReplaceMatchCase": "Match Case",
+  "findReplaceRegex": "Regex",
+  "findReplaceNoResults": "No results",
+  "findReplaceReplaceAll": "Replace All",
+  "findReplaceOf": "of",
+  "findReplacePrevious": "Previous",
+  "findReplaceNext": "Next",
+  "findReplaceClose": "Close"
 }

@@ -255,5 +255,24 @@
   "darkMode": "Тёмная тема",
   "screenshot": "Скриншот",
   "screenshotSaved": "Скриншот скопирован",
-  "screenshotFailed": "Ошибка скриншота"
+  "screenshotFailed": "Ошибка скриншота",
+
+  "statusBarLine": "Стр",
+  "statusBarCol": "Кол",
+  "statusBarSelected": "выделено",
+  "statusBarSpaces": "Пробелы",
+
+  "goToLineTitle": "Перейти к строке",
+  "goToLinePlaceholder": "Перейти к строке (1 – {max})",
+
+  "findReplaceFind": "Найти",
+  "findReplaceReplace": "Заменить",
+  "findReplaceMatchCase": "Учитывать регистр",
+  "findReplaceRegex": "Регулярное выражение",
+  "findReplaceNoResults": "Ничего не найдено",
+  "findReplaceReplaceAll": "Заменить все",
+  "findReplaceOf": "из",
+  "findReplacePrevious": "Назад",
+  "findReplaceNext": "Далее",
+  "findReplaceClose": "Закрыть"
 }
