@@ -84,6 +84,7 @@
     "cmdk": "^1.1.1",
     "codemirror": "^6.0.2",
     "lucide-react": "^0.564.0",
+    "posthog-js": "^1.354.1",
     "radix-ui": "^1.4.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
