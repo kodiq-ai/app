@@ -2,6 +2,7 @@
 import type { StateCreator } from "zustand";
 import type { RecentProject, CliTool, LaunchConfig, UpdateLaunchConfig } from "@shared/lib/types";
 import { db } from "@shared/lib/tauri";
+import { trackEvent } from "@shared/lib/analytics";
 
 export interface ProjectSlice {
   // State
@@ -45,6 +46,7 @@ export const createProjectSlice: StateCreator<ProjectSlice, [], [], ProjectSlice
     if (path) {
       const n = name || path.split("/").pop() || "project";
       set({ projectPath: path, projectName: n });
+      trackEvent("project_opened");
       // Resolve projectId + default_cli from DB
       db.projects
         .getOrCreate(n, path)
