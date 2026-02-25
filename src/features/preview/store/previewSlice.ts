@@ -13,6 +13,7 @@ import type {
   InspectResult,
 } from "@shared/lib/types";
 import { db, preview } from "@shared/lib/tauri";
+import { trackEvent } from "@shared/lib/analytics";
 
 export interface PreviewSlice {
   // -- Webview State ──────────────────────────────────────
@@ -113,6 +114,9 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
     set((s) => {
       const next = !s.previewOpen;
       db.settings.set("previewOpen", String(next)).catch((e) => console.error("[DB] setting:", e));
+      if (next) {
+        trackEvent("feature_used", { feature: "preview" });
+      }
       return { previewOpen: next };
     }),
 
