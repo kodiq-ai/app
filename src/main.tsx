@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { t } from "@/lib/i18n";
-import { initSentry } from "@/shared/lib/sentry";
+import { initAnalytics, trackEvent } from "@/shared/lib/analytics";
 import App from "./App";
 import "./app.css";
 
@@ -17,7 +17,15 @@ import "@fontsource/monaspace-neon/600.css";
 import "@fontsource/monaspace-argon/400.css";
 import "@fontsource/monaspace-argon/500.css";
 
-initSentry();
+initAnalytics();
+trackEvent("app_launched", { version: __APP_VERSION__ });
+
+const appStartTime = Date.now();
+window.addEventListener("beforeunload", () => {
+  trackEvent("app_closed", {
+    session_duration_s: Math.round((Date.now() - appStartTime) / 1000),
+  });
+});
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");

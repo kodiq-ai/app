@@ -1,6 +1,7 @@
 // ── Terminal Slice ────────────────────────────────────────────────────────────
 import type { StateCreator } from "zustand";
 import type { TerminalTab } from "@shared/lib/types";
+import { trackEvent } from "@shared/lib/analytics";
 
 /** Info needed to reopen a closed tab */
 export interface ClosedTab {
@@ -40,11 +41,13 @@ export const createTerminalSlice: StateCreator<TerminalSlice, [], [], TerminalSl
   notifiedTabs: new Set<string>(),
   closedTabs: [],
 
-  addTab: (tab) =>
+  addTab: (tab) => {
     set((s) => ({
       tabs: [...s.tabs, tab],
       activeTab: tab.id,
-    })),
+    }));
+    trackEvent("feature_used", { feature: "terminal" });
+  },
 
   removeTab: (id) =>
     set((s) => {
