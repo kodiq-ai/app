@@ -4,6 +4,7 @@ import { FolderOpen, BarChart3, ClipboardList, GitBranch, Settings } from "lucid
 import { fs } from "@shared/lib/tauri";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@shared/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -79,6 +80,9 @@ export function ActivityBar() {
       // Open panel on this tab
       setSidebarTab(tab);
       setSidebarOpen(true);
+      if (tab === "git") {
+        trackEvent("feature_used", { feature: "git_panel" });
+      }
     }
   };
 
