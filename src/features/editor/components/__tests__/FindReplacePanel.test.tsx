@@ -77,8 +77,8 @@ describe("FindReplacePanel", () => {
   });
 
   it("shows 'No results' when matchCount is 0 and query exists", () => {
-    render(<FindReplacePanel {...defaultProps} matchCount={0} />);
-    // "No results" only shows when there's a typed query — tested via internal state
+    render(<FindReplacePanel {...defaultProps} matchCount={0} initialQuery="xyz" />);
+    expect(screen.getByText("No results")).toBeInTheDocument();
   });
 
   it("calls onClose on Escape", () => {
