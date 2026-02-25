@@ -6,7 +6,7 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" fill="none">
       {/* Background */}
-      <rect width="512" height="512" rx="114" fill="#0f1217" />
+      <rect width="512" height="512" rx="114" fill="#141416" />
       <rect
         x="1"
         y="1"
@@ -20,10 +20,10 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
       {/* K mark */}
       <path
         d="M29 79H150.658V222.556L304.758 79H414.25L262.583 221.745L484 432.619H332.333L150.658 260.676V336.914H29V79Z"
-        fill="#f4f4f5"
+        fill="#e6e6e9"
       />
-      <path d="M29 432.621V353.949H221.219L304.758 432.621H29Z" fill="#f4f4f5" />
-      <path d="M170.124 177.948L170.124 79L276.295 79L170.124 177.948Z" fill="#f4f4f5" />
+      <path d="M29 432.621V353.949H221.219L304.758 432.621H29Z" fill="#e6e6e9" />
+      <path d="M170.124 177.948L170.124 79L276.295 79L170.124 177.948Z" fill="#e6e6e9" />
     </svg>
   );
 }
@@ -33,13 +33,13 @@ export function KodiqIcon({ size = 56 }: { size?: number }) {
 export function KodiqDot({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" fill="none">
-      <rect width="512" height="512" rx="114" fill="#161a21" />
+      <rect width="512" height="512" rx="114" fill="#1a1a1d" />
       <path
         d="M29 79H150.658V222.556L304.758 79H414.25L262.583 221.745L484 432.619H332.333L150.658 260.676V336.914H29V79Z"
-        fill="#f4f4f5"
+        fill="#e6e6e9"
       />
-      <path d="M29 432.621V353.949H221.219L304.758 432.621H29Z" fill="#f4f4f5" />
-      <path d="M170.124 177.948L170.124 79L276.295 79L170.124 177.948Z" fill="#f4f4f5" />
+      <path d="M29 432.621V353.949H221.219L304.758 432.621H29Z" fill="#e6e6e9" />
+      <path d="M170.124 177.948L170.124 79L276.295 79L170.124 177.948Z" fill="#e6e6e9" />
     </svg>
   );
 }
@@ -131,15 +131,15 @@ export function FileIcon({ name, isDir }: { name: string; isDir: boolean }) {
     tsx: "#3b82f6",
     js: "#eab308",
     jsx: "#eab308",
-    json: "#a3a3a3",
+    json: "#a1a1a8",
     css: "#a855f7",
     html: "#f97316",
-    md: "#52525b",
+    md: "#6e6e76",
     rs: "#f97316",
-    toml: "#52525b",
-    lock: "#3f3f46",
-    gitignore: "#3f3f46",
+    toml: "#6e6e76",
+    lock: "#303036",
+    gitignore: "#303036",
     svg: "#60a5fa",
   };
-  return <FileText className="size-3" style={{ color: colors[ext] || "#3f3f46" }} />;
+  return <FileText className="size-3" style={{ color: colors[ext] || "#303036" }} />;
 }

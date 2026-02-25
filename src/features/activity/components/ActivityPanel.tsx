@@ -15,7 +15,7 @@ const KIND_ICONS: Record<string, { icon: typeof FileEdit; color: string }> = {
   modified: { icon: FileEdit, color: "#eab308" },
   added: { icon: Plus, color: "#22c55e" },
   deleted: { icon: Minus, color: "#ef4444" },
-  untracked: { icon: FileQuestion, color: "#a1a1aa" },
+  untracked: { icon: FileQuestion, color: "#a1a1a8" },
 };
 
 function timeAgo(ts: number): string {

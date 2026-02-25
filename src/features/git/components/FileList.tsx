@@ -22,10 +22,10 @@ const KIND_ICON: Record<string, { icon: typeof Pencil; color: string }> = {
   modified: { icon: Pencil, color: "#eab308" },
   added: { icon: FilePlus, color: "#22c55e" },
   deleted: { icon: FileMinus, color: "#ef4444" },
-  untracked: { icon: FileQuestion, color: "#a1a1aa" },
-  renamed: { icon: CircleDot, color: "#06b6d4" },
-  copied: { icon: CircleDot, color: "#06b6d4" },
-  other: { icon: CircleDot, color: "#52525b" },
+  untracked: { icon: FileQuestion, color: "#a1a1a8" },
+  renamed: { icon: CircleDot, color: "#4da3c7" },
+  copied: { icon: CircleDot, color: "#4da3c7" },
+  other: { icon: CircleDot, color: "#6e6e76" },
 };
 
 interface FileListProps {

@@ -151,21 +151,12 @@ export function ActivityBar() {
           active={sidebarOpen && sidebarTab === "activity"}
           onClick={() => handleIconClick("activity")}
         />
-        <div className="flex-1" />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={() => setSettingsOpen(true)}
-              aria-label={t("settings")}
-              className="text-k-text-tertiary hover:text-k-text-secondary size-7"
-            >
-              <Settings className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">{t("settings")}</TooltipContent>
-        </Tooltip>
+        <ActivityIcon
+          icon={Settings}
+          label={t("settings")}
+          active={false}
+          onClick={() => setSettingsOpen(true)}
+        />
       </div>
     </div>
   );

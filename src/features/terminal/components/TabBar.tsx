@@ -132,9 +132,9 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
   };
 
   return (
-    <div className="relative flex flex-1 overflow-hidden" style={{ background: "#0a0a0c" }}>
+    <div className="relative flex flex-1 overflow-hidden" style={{ background: "var(--bg-base)" }}>
       {/* Vertical tab sidebar — left */}
-      <div className="flex w-44 shrink-0 flex-col overflow-hidden border-r border-white/[0.06]">
+      <div className="flex w-44 shrink-0 flex-col overflow-hidden border-r border-white/[0.06] bg-[var(--bg-base)]">
         {/* New terminal button with tool picker */}
         <div className="shrink-0 px-2 pt-2 pb-1">
           <Popover open={newTermOpen} onOpenChange={setNewTermOpen}>

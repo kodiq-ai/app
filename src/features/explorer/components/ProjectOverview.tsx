@@ -40,26 +40,26 @@ const EXT_COLORS: Record<string, string> = {
   css: "#a855f7",
   scss: "#cd6799",
   html: "#e34f26",
-  json: "#a1a1aa",
+  json: "#a1a1a8",
   rs: "#dea584",
   py: "#3776ab",
   go: "#00add8",
-  md: "#52525b",
+  md: "#6e6e76",
   toml: "#9c4221",
   yaml: "#cb171e",
   yml: "#cb171e",
   svg: "#ffb13b",
   png: "#a3e635",
   jpg: "#a3e635",
-  lock: "#3f3f46",
+  lock: "#303036",
 };
 
 const KIND_CONFIG: Record<string, { icon: typeof Pencil; color: string; label: string }> = {
   modified: { icon: Pencil, color: "#eab308", label: "gitModified" },
   added: { icon: Plus, color: "#22c55e", label: "gitAdded" },
   deleted: { icon: Minus, color: "#ef4444", label: "gitDeleted" },
-  untracked: { icon: FileQuestion, color: "#a1a1aa", label: "gitUntracked" },
-  other: { icon: CircleDot, color: "#a1a1aa", label: "gitModified" },
+  untracked: { icon: FileQuestion, color: "#a1a1a8", label: "gitUntracked" },
+  other: { icon: CircleDot, color: "#a1a1a8", label: "gitModified" },
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -153,7 +153,7 @@ export function ProjectOverview() {
                     {t("gitChanges")} ({git.changedCount})
                   </span>
                   {git.changedFiles.slice(0, 8).map((f) => {
-                    const fallback = { icon: CircleDot, color: "#a1a1aa", label: "gitModified" };
+                    const fallback = { icon: CircleDot, color: "#a1a1a8", label: "gitModified" };
                     const cfg = KIND_CONFIG[f.kind] ?? fallback;
                     const Icon = cfg.icon;
                     return (
@@ -227,7 +227,7 @@ export function ProjectOverview() {
                   {stats.extensions.slice(0, 6).map((e) => {
                     const maxCount = stats.extensions[0]?.count ?? 1;
                     const pct = Math.max(8, (e.count / maxCount) * 100);
-                    const color = EXT_COLORS[e.ext] || "#52525b";
+                    const color = EXT_COLORS[e.ext] || "#6e6e76";
                     return (
                       <div key={e.ext} className="flex h-4 items-center gap-1.5">
                         <span className="text-k-text-tertiary w-8 shrink-0 text-right font-mono text-[10px]">
