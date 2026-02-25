@@ -61,17 +61,11 @@ impl DevToolsBridge {
     /// Spawns a background thread that accepts connections from agent.js
     /// and emits `preview://console` events to the React frontend.
     pub fn start(app: AppHandle) -> Result<Self, String> {
-        let listener =
-            TcpListener::bind("127.0.0.1:0").map_err(|e| format!("bind failed: {e}"))?;
+        let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| format!("bind failed: {e}"))?;
 
-        let port = listener
-            .local_addr()
-            .map_err(|e| format!("local_addr: {e}"))?
-            .port();
+        let port = listener.local_addr().map_err(|e| format!("local_addr: {e}"))?.port();
 
-        listener
-            .set_nonblocking(true)
-            .map_err(|e| format!("set_nonblocking: {e}"))?;
+        listener.set_nonblocking(true).map_err(|e| format!("set_nonblocking: {e}"))?;
 
         let stop = Arc::new(AtomicBool::new(false));
         let stop_flag = Arc::clone(&stop);
@@ -82,11 +76,7 @@ impl DevToolsBridge {
 
         log::info!("[DevTools] bridge started on port {port}");
 
-        Ok(Self {
-            port,
-            stop,
-            handle: Some(handle),
-        })
+        Ok(Self { port, stop, handle: Some(handle) })
     }
 
     /// Stops the bridge and joins the background thread.
@@ -125,11 +115,7 @@ impl DevToolsBridge {
 
     // -- Handle Single Connection ─────────────────────────────────
 
-    fn handle_connection(
-        stream: std::net::TcpStream,
-        stop: Arc<AtomicBool>,
-        app: AppHandle,
-    ) {
+    fn handle_connection(stream: std::net::TcpStream, stop: Arc<AtomicBool>, app: AppHandle) {
         let mut ws = match accept(stream) {
             Ok(ws) => ws,
             Err(e) => {
@@ -161,14 +147,8 @@ impl DevToolsBridge {
                                 .and_then(|v| v.as_array())
                                 .cloned()
                                 .unwrap_or_default(),
-                            timestamp: raw
-                                .get("timestamp")
-                                .and_then(|v| v.as_f64())
-                                .unwrap_or(0.0),
-                            stack: raw
-                                .get("stack")
-                                .and_then(|v| v.as_str())
-                                .map(|s| s.to_string()),
+                            timestamp: raw.get("timestamp").and_then(|v| v.as_f64()).unwrap_or(0.0),
+                            stack: raw.get("stack").and_then(|v| v.as_str()).map(|s| s.to_string()),
                         };
 
                         let _ = app.emit("preview://console", &event);
@@ -179,11 +159,7 @@ impl DevToolsBridge {
                                 .and_then(|v| v.as_str())
                                 .unwrap_or("GET")
                                 .to_string(),
-                            url: raw
-                                .get("url")
-                                .and_then(|v| v.as_str())
-                                .unwrap_or("")
-                                .to_string(),
+                            url: raw.get("url").and_then(|v| v.as_str()).unwrap_or("").to_string(),
                             status: raw.get("status").and_then(|v| v.as_i64()),
                             status_text: raw
                                 .get("statusText")
@@ -200,13 +176,8 @@ impl DevToolsBridge {
                                 .and_then(|v| v.as_f64())
                                 .unwrap_or(0.0),
                             duration: raw.get("duration").and_then(|v| v.as_f64()),
-                            response_size: raw
-                                .get("responseSize")
-                                .and_then(|v| v.as_i64()),
-                            error: raw
-                                .get("error")
-                                .and_then(|v| v.as_str())
-                                .map(|s| s.to_string()),
+                            response_size: raw.get("responseSize").and_then(|v| v.as_i64()),
+                            error: raw.get("error").and_then(|v| v.as_str()).map(|s| s.to_string()),
                         };
 
                         let _ = app.emit("preview://network", &event);

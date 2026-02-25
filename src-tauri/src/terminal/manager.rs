@@ -9,9 +9,7 @@ use tauri::Emitter;
 // -- Compiled regex patterns (allocated once, reused across all terminals) -------
 fn url_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| {
-        Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap()
-    })
+    RE.get_or_init(|| Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap())
 }
 
 fn ansi_regex() -> &'static Regex {
@@ -111,8 +109,7 @@ pub fn spawn_terminal(
         pair.master.try_clone_reader().map_err(|e| format!("Failed to get reader: {}", e))?;
 
     let terminal_id = {
-        let mut app_state =
-            state.lock().map_err(|_| "App state lock poisoned".to_string())?;
+        let mut app_state = state.lock().map_err(|_| "App state lock poisoned".to_string())?;
         let id = format!("term-{}", app_state.next_id);
         app_state.next_id += 1;
         app_state

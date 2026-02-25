@@ -11,9 +11,7 @@ use tauri::{AppHandle, Emitter};
 
 fn url_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| {
-        Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap()
-    })
+    RE.get_or_init(|| Regex::new(r"(?:https?://)?(?:localhost|127\.0\.0\.1):(\d{2,5})").unwrap())
 }
 
 fn ansi_regex() -> &'static Regex {
@@ -63,10 +61,7 @@ pub struct ServerManager {
 
 impl ServerManager {
     pub fn new() -> Self {
-        Self {
-            servers: HashMap::new(),
-            next_id: 0,
-        }
+        Self { servers: HashMap::new(), next_id: 0 }
     }
 }
 
@@ -79,10 +74,7 @@ pub fn new_server_state() -> ServerState {
 // -- Helpers ──────────────────────────────────────────────────────────
 
 fn now() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64
 }
 
 fn detect_level(line: &str) -> &'static str {
@@ -117,11 +109,7 @@ fn spawn_reader_thread(
             let clean = ansi_re.replace_all(&raw, "").to_string();
             let level = detect_level(&clean);
 
-            let entry = LogEntry {
-                timestamp: now(),
-                level: level.into(),
-                message: clean.clone(),
-            };
+            let entry = LogEntry { timestamp: now(), level: level.into(), message: clean.clone() };
 
             // Store log + port detection (brief lock)
             if let Ok(mut mgr) = state.lock() {
@@ -174,10 +162,8 @@ fn spawn_reader_thread(
             if let Some(server) = mgr.servers.get_mut(&server_id) {
                 if server.info.status != "stopped" {
                     server.info.status = "stopped".into();
-                    let _ = app.emit(
-                        "preview://server-exit",
-                        serde_json::json!({ "id": server_id }),
-                    );
+                    let _ =
+                        app.emit("preview://server-exit", serde_json::json!({ "id": server_id }));
                 }
             }
         }
@@ -218,9 +204,7 @@ pub fn preview_start_server(
 
     // Build process
     let mut cmd = Command::new(&config.command);
-    cmd.args(&config.args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
+    cmd.args(&config.args).stdout(Stdio::piped()).stderr(Stdio::piped());
 
     if let Some(ref cwd) = config.cwd {
         cmd.current_dir(cwd);
@@ -274,12 +258,7 @@ pub fn preview_start_server(
 
     // Spawn reader threads
     if let Some(out) = stdout {
-        spawn_reader_thread(
-            out,
-            server_id.clone(),
-            state.inner().clone(),
-            app.clone(),
-        );
+        spawn_reader_thread(out, server_id.clone(), state.inner().clone(), app.clone());
     }
     if let Some(err) = stderr {
         spawn_reader_thread(err, server_id.clone(), state.inner().clone(), app);
@@ -290,10 +269,7 @@ pub fn preview_start_server(
 }
 
 #[tauri::command]
-pub fn preview_stop_server(
-    state: tauri::State<'_, ServerState>,
-    id: String,
-) -> Result<(), String> {
+pub fn preview_stop_server(state: tauri::State<'_, ServerState>, id: String) -> Result<(), String> {
     let mut mgr = state.lock().map_err(|e| e.to_string())?;
     if let Some(server) = mgr.servers.get_mut(&id) {
         if let Some(ref mut child) = server.child {

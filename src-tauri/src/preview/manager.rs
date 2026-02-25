@@ -12,10 +12,7 @@ pub struct PreviewState {
 
 impl PreviewState {
     pub fn new() -> Self {
-        Self {
-            webview: None,
-            bridge: None,
-        }
+        Self { webview: None, bridge: None }
     }
 }
 
@@ -164,17 +161,13 @@ pub fn preview_navigate(
     let agent_js = super::devtools::agent_script(bridge.port);
 
     // Create new webview as a child of the main window
-    let window = app
-        .get_window("main")
-        .ok_or("Main window not found")?;
+    let window = app.get_window("main").ok_or("Main window not found")?;
 
     let webview = window
         .add_child(
             WebviewBuilder::new(
                 "preview",
-                WebviewUrl::External(
-                    url.parse().map_err(|e: url::ParseError| e.to_string())?,
-                ),
+                WebviewUrl::External(url.parse().map_err(|e: url::ParseError| e.to_string())?),
             )
             .initialization_script(&agent_js)
             .auto_resize(),
@@ -288,9 +281,7 @@ pub fn preview_inspect(
 }
 
 #[tauri::command]
-pub fn preview_snapshot(
-    state: tauri::State<'_, PreviewManager>,
-) -> Result<(), String> {
+pub fn preview_snapshot(state: tauri::State<'_, PreviewManager>) -> Result<(), String> {
     let preview = state.lock().map_err(|e| e.to_string())?;
     if let Some(ref wv) = preview.webview {
         Webview::eval(wv, JS_SNAPSHOT).map_err(|e: tauri::Error| e.to_string())?;
@@ -325,9 +316,7 @@ pub fn preview_set_color_scheme(
 }
 
 #[tauri::command]
-pub fn preview_screenshot(
-    state: tauri::State<'_, PreviewManager>,
-) -> Result<(), String> {
+pub fn preview_screenshot(state: tauri::State<'_, PreviewManager>) -> Result<(), String> {
     let preview = state.lock().map_err(|e| e.to_string())?;
     if let Some(ref wv) = preview.webview {
         Webview::eval(wv, JS_SCREENSHOT).map_err(|e: tauri::Error| e.to_string())?;
