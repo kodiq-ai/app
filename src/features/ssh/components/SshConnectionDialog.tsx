@@ -148,11 +148,11 @@ export function SshConnectionDialog({ open, onClose: onCloseRaw, editConfig }: P
                       : "text-k-text-tertiary hover:text-k-text-secondary bg-white/5"
                   }`}
                 >
-                  {m === "key"
-                    ? t("sshAuthKey")
-                    : m === "password"
-                      ? t("sshAuthPassword")
-                      : t("sshAuthAgent")}
+                  {
+                    { key: t("sshAuthKey"), password: t("sshAuthPassword"), agent: t("sshAuthAgent") }[
+                      m
+                    ]
+                  }
                 </button>
               ))}
             </div>
