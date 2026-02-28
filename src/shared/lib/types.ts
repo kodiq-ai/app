@@ -318,10 +318,40 @@ export interface SnapshotNode {
   children: SnapshotNode[];
 }
 
+// ── Chat ────────────────────────────────────────────────
+export type ChatRole = "user" | "assistant";
+export type ChatProvider = "claude" | "gemini" | "codex";
+
+export interface ChatMessage {
+  id: string;
+  project_id: string;
+  role: ChatRole;
+  content: string;
+  provider: ChatProvider;
+  created_at: number;
+}
+
+export interface NewChatMessage {
+  id: string;
+  project_id: string;
+  role: ChatRole;
+  content: string;
+  provider: ChatProvider;
+}
+
+export interface ChatChunkEvent {
+  provider: string;
+  content: string;
+}
+
+export interface ChatDoneEvent {
+  provider: string;
+}
+
 // ── UI Types ─────────────────────────────────────────────
 export type ColorScheme = "light" | "dark";
 export type Viewport = "desktop" | "tablet" | "mobile";
-export type SidebarTab = "files" | "project" | "activity" | "git" | "ssh";
+export type SidebarTab = "files" | "project" | "activity" | "git" | "ssh" | "chat";
 
 // ── Update ───────────────────────────────────────────────
 export interface UpdateInfo {

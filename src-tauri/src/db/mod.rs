@@ -1,3 +1,4 @@
+pub mod chat;
 pub mod history;
 pub mod launch_configs;
 pub mod migrations;

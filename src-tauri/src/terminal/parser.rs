@@ -2,7 +2,10 @@
 ///
 /// Maps known CLI names to their executables and provides
 /// fallback to custom command splitting.
-pub fn resolve_command(cmd: &str, custom_shell: Option<&str>) -> (String, Vec<String>, String) {
+pub(crate) fn resolve_command(
+    cmd: &str,
+    custom_shell: Option<&str>,
+) -> (String, Vec<String>, String) {
     match cmd.trim() {
         "" | "shell" | "zsh" | "bash" => {
             let shell =

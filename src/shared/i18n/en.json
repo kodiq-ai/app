@@ -318,5 +318,21 @@
   "sshLastConnected": "Last connected",
   "sshNeverConnected": "Never",
   "failedToConnect": "Failed to connect",
-  "sshDetectedKeys": "Detected keys:"
+  "sshDetectedKeys": "Detected keys:",
+
+  "chat": "AI Chat",
+  "chatSend": "Send",
+  "chatStop": "Stop",
+  "chatPlaceholder": "Ask AI… (⌘Enter to send)",
+  "chatNoMessages": "Start a conversation with AI",
+  "chatClearHistory": "Clear history",
+  "chatClearConfirm": "Clear chat history?",
+  "chatCleared": "Chat history cleared",
+  "chatProvider": "Provider",
+  "chatStreaming": "Thinking…",
+  "chatError": "Chat error",
+  "chatCopyCode": "Copy",
+  "chatCodeCopied": "Code copied",
+  "chatNoProviders": "No AI CLI tools installed",
+  "chatSelectProvider": "Select AI provider"
 }

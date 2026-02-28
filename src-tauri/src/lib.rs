@@ -1,3 +1,4 @@
+mod chat;
 mod cli;
 mod db;
 pub mod error;
@@ -51,6 +52,7 @@ pub fn run() {
         .manage(ssh::new_ssh_state())
         .manage(ssh::terminal::new_ssh_terminal_state())
         .manage(ssh::port_forward::new_port_forward_state())
+        .manage(chat::new_chat_state())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
@@ -152,6 +154,13 @@ pub fn run() {
             ssh::db::ssh_save_port_forward,
             ssh::db::ssh_delete_port_forward,
             ssh::db::ssh_list_port_forwards,
+            // Chat
+            chat::chat_send,
+            chat::chat_stop,
+            // Database — Chat
+            db::chat::db_list_chat_messages,
+            db::chat::db_save_chat_message,
+            db::chat::db_clear_chat,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
