@@ -36,6 +36,7 @@ export interface EditorSlice {
   markTabSaved: (path: string, content: string) => void;
   updateTabScroll: (path: string, pos: { top: number; left: number }) => void;
   closeAllEditorTabs: () => void;
+  reorderEditorTabs: (fromIndex: number, toIndex: number) => void;
   setCursorInfo: (info: CursorInfo | null) => void;
 
   // Backward compat (delegates to openFile)
@@ -179,6 +180,16 @@ export const createEditorSlice: StateCreator<EditorSlice, [], [], EditorSlice> =
       openFileContent: null,
     });
   },
+
+  reorderEditorTabs: (fromIndex, toIndex) =>
+    set((s) => {
+      const next = [...s.editorTabs];
+      const [moved] = next.splice(fromIndex, 1);
+      if (moved) {
+        next.splice(toIndex, 0, moved);
+      }
+      return { editorTabs: next };
+    }),
 
   // Backward compat shim — delegates to openFile or does nothing on null
   setOpenFile: (path, content = null) => {

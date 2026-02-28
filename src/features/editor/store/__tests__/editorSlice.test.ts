@@ -13,6 +13,31 @@ function createTestStore() {
   return { get: () => state, set };
 }
 
+describe("editorSlice — reorderEditorTabs", () => {
+  it("moves tab from one position to another", () => {
+    const { get } = createTestStore();
+    get().openFile("/a.ts", "a");
+    get().openFile("/b.ts", "b");
+    get().openFile("/c.ts", "c");
+
+    get().reorderEditorTabs(0, 2);
+
+    const paths = get().editorTabs.map((t) => t.path);
+    expect(paths).toEqual(["/b.ts", "/c.ts", "/a.ts"]);
+  });
+
+  it("no-ops when from === to", () => {
+    const { get } = createTestStore();
+    get().openFile("/a.ts", "a");
+    get().openFile("/b.ts", "b");
+
+    get().reorderEditorTabs(1, 1);
+
+    const paths = get().editorTabs.map((t) => t.path);
+    expect(paths).toEqual(["/a.ts", "/b.ts"]);
+  });
+});
+
 describe("editorSlice — cursorInfo", () => {
   it("starts with cursorInfo null", () => {
     const { get } = createTestStore();
