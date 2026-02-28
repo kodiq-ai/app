@@ -318,5 +318,21 @@
   "sshLastConnected": "Последнее подключение",
   "sshNeverConnected": "Никогда",
   "failedToConnect": "Не удалось подключиться",
-  "sshDetectedKeys": "Найденные ключи:"
+  "sshDetectedKeys": "Найденные ключи:",
+
+  "chat": "AI Чат",
+  "chatSend": "Отправить",
+  "chatStop": "Остановить",
+  "chatPlaceholder": "Спросите AI… (⌘Enter для отправки)",
+  "chatNoMessages": "Начните разговор с AI",
+  "chatClearHistory": "Очистить историю",
+  "chatClearConfirm": "Очистить историю чата?",
+  "chatCleared": "История чата очищена",
+  "chatProvider": "Провайдер",
+  "chatStreaming": "Думает…",
+  "chatError": "Ошибка чата",
+  "chatCopyCode": "Копировать",
+  "chatCodeCopied": "Код скопирован",
+  "chatNoProviders": "AI CLI инструменты не установлены",
+  "chatSelectProvider": "Выберите AI провайдера"
 }

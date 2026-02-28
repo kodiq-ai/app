@@ -22,6 +22,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "ssh_connections",
         sql: include_str!("../../migrations/003_ssh_connections.sql"),
     },
+    Migration {
+        version: 4,
+        name: "chat_messages",
+        sql: include_str!("../../migrations/004_chat.sql"),
+    },
 ];
 
 pub fn run_migrations(conn: &Connection) -> Result<(), String> {
@@ -69,7 +74,7 @@ mod tests {
 
         let version: u32 =
             conn.query_row("SELECT MAX(version) FROM _migrations", [], |r| r.get(0)).unwrap();
-        assert_eq!(version, 3);
+        assert_eq!(version, 4);
     }
 
     #[test]
@@ -80,6 +85,6 @@ mod tests {
 
         let count: u32 =
             conn.query_row("SELECT COUNT(*) FROM _migrations", [], |r| r.get(0)).unwrap();
-        assert_eq!(count, 3);
+        assert_eq!(count, 4);
     }
 }

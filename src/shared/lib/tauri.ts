@@ -31,6 +31,8 @@ import type {
   SshPortForward,
   NewPortForward,
   ActiveForward,
+  ChatMessage,
+  NewChatMessage,
 } from "./types";
 
 // -- Helpers ─────────────────────────────────────────────
@@ -237,6 +239,18 @@ export const db = {
       invoke<void>("db_update_launch_config", { id, patch }),
     delete: (id: string) => invoke<void>("db_delete_launch_config", { id }),
   },
+};
+
+// ── Chat ────────────────────────────────────────────────
+export const chat = {
+  send: (provider: string, prompt: string, cwd?: string | null) =>
+    invoke<void>("chat_send", { provider, prompt, cwd: cwd ?? null }),
+  stop: () => invoke<void>("chat_stop"),
+  loadHistory: (projectId: string, limit?: number) =>
+    invoke<ChatMessage[]>("db_list_chat_messages", { projectId, limit: limit ?? 200 }),
+  saveMessage: (message: NewChatMessage) =>
+    invoke<ChatMessage>("db_save_chat_message", { message }),
+  clearHistory: (projectId: string) => invoke<number>("db_clear_chat", { projectId }),
 };
 
 // ── SSH ─────────────────────────────────────────────────
