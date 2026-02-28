@@ -78,7 +78,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
     // Finalize any accumulated streaming content
     const { chatStreamingContent, chatMessages, chatActiveProvider } = get();
     if (chatStreamingContent) {
-      const projectId = chatMessages.at(-1)?.project_id ?? "";
+      const projectId = chatMessages[chatMessages.length - 1]?.project_id ?? "";
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),
         project_id: projectId,
@@ -147,7 +147,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
       const { chatStreamingContent, chatMessages, chatActiveProvider } = get();
 
       if (chatStreamingContent) {
-        const projectId = chatMessages.at(-1)?.project_id ?? "";
+        const projectId = chatMessages[chatMessages.length - 1]?.project_id ?? "";
         const assistantMsg: ChatMessage = {
           id: crypto.randomUUID(),
           project_id: projectId,
