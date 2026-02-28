@@ -69,7 +69,7 @@ mod tests {
 
         let version: u32 =
             conn.query_row("SELECT MAX(version) FROM _migrations", [], |r| r.get(0)).unwrap();
-        assert_eq!(version, 2);
+        assert_eq!(version, 3);
     }
 
     #[test]
@@ -80,6 +80,6 @@ mod tests {
 
         let count: u32 =
             conn.query_row("SELECT COUNT(*) FROM _migrations", [], |r| r.get(0)).unwrap();
-        assert_eq!(count, 2);
+        assert_eq!(count, 3);
     }
 }
