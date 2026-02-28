@@ -8,6 +8,7 @@ import type { Compartment } from "@codemirror/state";
 export interface ViewEntry {
   view: EditorView;
   langCompartment: Compartment;
+  settingsCompartment: Compartment;
 }
 
 const viewCache = new Map<string, ViewEntry>();
