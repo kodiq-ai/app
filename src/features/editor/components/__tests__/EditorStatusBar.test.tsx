@@ -17,6 +17,7 @@ const mockStore = {
     },
   ],
   gitInfo: null as { isGit: boolean; branch?: string; changedCount?: number } | null,
+  settings: { tabSize: 2 },
 };
 
 vi.mock("@/lib/store", () => ({
@@ -41,6 +42,7 @@ describe("EditorStatusBar", () => {
     mockStore.cursorInfo = null;
     mockStore.activeEditorTab = "test.ts";
     mockStore.gitInfo = null;
+    mockStore.settings = { tabSize: 2 };
     mockStore.editorTabs = [
       {
         path: "test.ts",

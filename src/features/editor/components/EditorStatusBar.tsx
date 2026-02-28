@@ -37,6 +37,7 @@ export function EditorStatusBar() {
   const activeEditorTab = useAppStore((s) => s.activeEditorTab);
   const editorTabs = useAppStore((s) => s.editorTabs);
   const gitInfo = useAppStore((s) => s.gitInfo);
+  const tabSize = useAppStore((s) => s.settings.tabSize);
 
   const activeTab = editorTabs.find((tab) => tab.path === activeEditorTab);
   const hasEditor = !!cursorInfo;
@@ -79,7 +80,9 @@ export function EditorStatusBar() {
         <div className="flex items-center gap-1.5 text-[var(--text-tertiary)]">
           <span>UTF-8</span>
           <span>·</span>
-          <span>{t("statusBarSpaces")}: 2</span>
+          <span>
+            {t("statusBarSpaces")}: {tabSize}
+          </span>
           <span>·</span>
           <span>{langLabel}</span>
           {activeTab && (
