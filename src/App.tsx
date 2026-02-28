@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 
 import { toast } from "sonner";
 import { useAppStore, type FileEntry } from "@/lib/store";
 import type { GitInfo, ConsoleLevel, NetworkEvent } from "@shared/lib/types";
-import { terminal, fs, git, cli, db, ssh } from "@shared/lib/tauri";
+import { terminal, fs, git, cli, db, ssh, listen } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

@@ -1,7 +1,6 @@
 import type { StateCreator } from "zustand";
 import type { ChatMessage, ChatProvider } from "@shared/lib/types";
-import { chat } from "@shared/lib/tauri";
-import { listen } from "@tauri-apps/api/event";
+import { chat, listen } from "@shared/lib/tauri";
 
 export interface ChatSlice {
   // State

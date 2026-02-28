@@ -3,6 +3,7 @@ import { useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { useAppStore } from "@/store";
 import { t } from "@shared/i18n";
+import { isTauri } from "@shared/lib/tauri";
 
 // Dynamic imports to avoid errors if plugins aren't available at dev time
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- dynamic import() type needed for lazy plugin loading
@@ -35,6 +36,7 @@ export function useUpdateChecker() {
   const toastShownRef = useRef(false);
 
   const checkForUpdate = useCallback(async () => {
+    if (!isTauri) return;
     try {
       if (!checkModule) await loadModules();
       if (!checkModule) return;

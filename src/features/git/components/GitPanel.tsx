@@ -3,9 +3,8 @@
 // Lives in the 4th tab of the right Activity Bar.
 
 import { useCallback, useEffect } from "react";
-import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
-import { git } from "@shared/lib/tauri";
+import { git, listen } from "@shared/lib/tauri";
 import { useAppStore } from "@/lib/store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";

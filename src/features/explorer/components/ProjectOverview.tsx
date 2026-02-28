@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { listen } from "@tauri-apps/api/event";
-import { git as gitApi } from "@shared/lib/tauri";
+import { git as gitApi, listen } from "@shared/lib/tauri";
 import type { ProjectStats, GitInfo } from "@shared/lib/types";
 import {
   GitBranch,
