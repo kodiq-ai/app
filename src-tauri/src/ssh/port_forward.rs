@@ -35,7 +35,7 @@ pub async fn ssh_start_forward(
     pf_state: tauri::State<'_, PfState>,
 ) -> Result<String, KodiqError> {
     let remote_host = remote_host.unwrap_or_else(|| "localhost".to_string());
-    let forward_id = format!("pf-{}-{}", local_port, remote_port);
+    let forward_id = format!("pf-{}-{}-{}", connection_id, local_port, remote_port);
 
     // Bind local TCP listener
     let listener = TcpListener::bind(format!("127.0.0.1:{}", local_port))
@@ -71,17 +71,20 @@ pub async fn ssh_start_forward(
                 accept = listener.accept() => {
                     match accept {
                         Ok((mut local_stream, _)) => {
-                            let manager = ssh_state_inner.lock().await;
-                            let conn = match manager.get(&conn_id) {
-                                Some(c) if c.status == ConnectionStatus::Connected => c,
-                                _ => {
-                                    tracing::warn!("SSH connection {} not available for port forward", conn_id);
-                                    continue;
+                            // Clone handle inside tight lock scope — never hold lock across await
+                            let handle = {
+                                let manager = ssh_state_inner.lock().await;
+                                match manager.get(&conn_id) {
+                                    Some(c) if c.status == ConnectionStatus::Connected => c.handle.clone(),
+                                    _ => {
+                                        tracing::warn!("SSH connection {} not available for port forward", conn_id);
+                                        continue;
+                                    }
                                 }
-                            };
+                            }; // lock released
 
-                            // Open direct-tcpip channel
-                            match conn.handle.channel_open_direct_tcpip(
+                            // Open direct-tcpip channel (lock-free)
+                            match handle.channel_open_direct_tcpip(
                                 &rhost, remote_port as u32,
                                 "127.0.0.1", local_port as u32,
                             ).await {

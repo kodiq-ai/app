@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::Mutex;
+use tokio_util::sync::CancellationToken;
 
 /// Active SSH terminal sessions (separate from local PTY state)
 pub struct SshTerminalState {
@@ -15,6 +16,7 @@ pub struct SshTerminalSession {
     pub connection_id: String,
     pub writer: tokio::sync::mpsc::Sender<Vec<u8>>,
     pub resize_tx: tokio::sync::mpsc::Sender<(u32, u32)>,
+    pub cancel: CancellationToken,
 }
 
 pub type SshTermState = Arc<Mutex<SshTerminalState>>;
@@ -25,6 +27,7 @@ pub fn new_ssh_terminal_state() -> SshTermState {
 
 /// Spawn a remote terminal via SSH. Returns terminal ID.
 /// Emits same `pty-output` and `pty-exit` events as local terminals.
+/// Lock is released before network I/O to avoid deadlocking concurrent operations.
 #[tauri::command(async)]
 pub async fn ssh_spawn_terminal(
     connection_id: String,
@@ -37,35 +40,35 @@ pub async fn ssh_spawn_terminal(
     let cols = cols.unwrap_or(80);
     let rows = rows.unwrap_or(24);
 
-    // Get SSH handle from connection
-    let channel = {
-        let mut manager = ssh_state.lock().await;
+    // Clone handle inside tight lock scope — never hold lock across await
+    let handle = {
+        let manager = ssh_state.lock().await;
         let conn = manager
-            .get_mut(&connection_id)
+            .get(&connection_id)
             .ok_or_else(|| KodiqError::ConnectionNotFound(connection_id.clone()))?;
 
         if conn.status != ConnectionStatus::Connected {
             return Err(KodiqError::Ssh("Connection is not active".into()));
         }
 
-        let ch = conn
-            .handle
-            .channel_open_session()
-            .await
-            .map_err(|e| KodiqError::Ssh(format!("Open session channel: {}", e)))?;
+        conn.handle.clone()
+    }; // lock released here
 
-        // Request PTY
-        ch.request_pty(true, "xterm-256color", cols, rows, 0, 0, &[])
-            .await
-            .map_err(|e| KodiqError::Ssh(format!("Request PTY: {}", e)))?;
+    // All network I/O happens without holding any lock
+    let channel = handle
+        .channel_open_session()
+        .await
+        .map_err(|e| KodiqError::Ssh(format!("Open session channel: {}", e)))?;
 
-        // Request shell
-        ch.request_shell(true)
-            .await
-            .map_err(|e| KodiqError::Ssh(format!("Request shell: {}", e)))?;
+    channel
+        .request_pty(true, "xterm-256color", cols, rows, 0, 0, &[])
+        .await
+        .map_err(|e| KodiqError::Ssh(format!("Request PTY: {}", e)))?;
 
-        ch
-    };
+    channel
+        .request_shell(true)
+        .await
+        .map_err(|e| KodiqError::Ssh(format!("Request shell: {}", e)))?;
 
     // Generate terminal ID
     let terminal_id = {
@@ -81,6 +84,8 @@ pub async fn ssh_spawn_terminal(
     // Writer channel (frontend → SSH)
     let (write_tx, mut write_rx) = tokio::sync::mpsc::channel::<Vec<u8>>(256);
     let (resize_tx, mut resize_rx) = tokio::sync::mpsc::channel::<(u32, u32)>(16);
+    let cancel = CancellationToken::new();
+    let cancel_clone = cancel.clone();
 
     // Store session
     {
@@ -91,6 +96,7 @@ pub async fn ssh_spawn_terminal(
                 connection_id: connection_id.clone(),
                 writer: write_tx,
                 resize_tx,
+                cancel,
             },
         );
     }
@@ -105,6 +111,8 @@ pub async fn ssh_spawn_terminal(
 
         loop {
             tokio::select! {
+                // Cancellation from ssh_close_terminal
+                _ = cancel_clone.cancelled() => break,
                 // Read from SSH channel
                 result = stream.read(&mut buf) => {
                     match result {
@@ -177,14 +185,16 @@ pub async fn ssh_resize(
     Ok(())
 }
 
-/// Close an SSH terminal session.
+/// Close an SSH terminal session. Cancels the background I/O task.
 #[tauri::command(async)]
 pub async fn ssh_close_terminal(
     id: String,
     term_state: tauri::State<'_, SshTermState>,
 ) -> Result<(), KodiqError> {
     let mut state = term_state.lock().await;
-    state.sessions.remove(&id);
+    if let Some(session) = state.sessions.remove(&id) {
+        session.cancel.cancel(); // signal background task to stop
+    }
     tracing::info!("SSH terminal closed: {}", id);
     Ok(())
 }

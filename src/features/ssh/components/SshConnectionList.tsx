@@ -17,6 +17,7 @@ export function SshConnectionList() {
   const sshConnect = useAppStore((s) => s.sshConnect);
   const sshDisconnect = useAppStore((s) => s.sshDisconnect);
   const sshSetActive = useAppStore((s) => s.sshSetActive);
+  const sshPromptPassword = useAppStore((s) => s.sshPromptPassword);
   const deleteSaved = useAppStore((s) => s.sshDeleteSaved);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -39,7 +40,13 @@ export function SshConnectionList() {
     };
 
     try {
-      await sshConnect(config);
+      // For password auth, prompt user for password before connecting
+      let password: string | null | undefined;
+      if (config.authMethod === "password") {
+        password = await sshPromptPassword(config);
+        if (password === null) return; // User cancelled
+      }
+      await sshConnect(config, password);
       sshSetActive(conn.id);
       toast.success(t("sshConnected"));
     } catch (e) {
@@ -55,7 +62,7 @@ export function SshConnectionList() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2">
-        <span className="text-k-text-secondary text-xs font-semibold uppercase tracking-wider">
+        <span className="text-k-text-secondary text-xs font-semibold tracking-wider uppercase">
           {t("sshRemote")}
         </span>
         <Button
@@ -83,12 +90,10 @@ export function SshConnectionList() {
                 <div
                   key={conn.id}
                   className={`group flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors ${
-                    isCurrent
-                      ? "bg-k-accent/10"
-                      : "hover:bg-white/[0.04]"
+                    isCurrent ? "bg-k-accent/10" : "hover:bg-white/[0.04]"
                   }`}
                 >
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="text-k-text-primary truncate font-medium">{conn.name}</div>
                     <div className="text-k-text-tertiary truncate font-mono text-[10px]">
                       {conn.username}@{conn.host}:{conn.port}
@@ -100,7 +105,7 @@ export function SshConnectionList() {
                       <button
                         type="button"
                         onClick={() => handleDisconnect(conn.id)}
-                        className="text-emerald-400 hover:text-red-400 transition-colors p-1"
+                        className="p-1 text-emerald-400 transition-colors hover:text-red-400"
                         title={t("sshDisconnect")}
                       >
                         <Wifi className="h-3.5 w-3.5" />
@@ -109,7 +114,7 @@ export function SshConnectionList() {
                       <button
                         type="button"
                         onClick={() => handleConnect(conn)}
-                        className="text-k-text-tertiary hover:text-k-accent transition-colors p-1"
+                        className="text-k-text-tertiary hover:text-k-accent p-1 transition-colors"
                         title={t("sshConnect")}
                       >
                         <WifiOff className="h-3.5 w-3.5" />
@@ -119,7 +124,7 @@ export function SshConnectionList() {
                     <button
                       type="button"
                       onClick={() => deleteSaved(conn.id)}
-                      className="text-k-text-tertiary hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-1"
+                      className="text-k-text-tertiary p-1 opacity-0 transition-all group-hover:opacity-100 hover:text-red-400"
                       title={t("sshDelete")}
                     >
                       <Trash2 className="h-3 w-3" />

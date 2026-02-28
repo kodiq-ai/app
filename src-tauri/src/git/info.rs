@@ -46,8 +46,9 @@ pub async fn git_stage(
     }
 
     if let Some(ref conn_id) = connection_id {
-        let file_args = files.join(" ");
-        ssh::git::ssh_git_run(&ssh_state, conn_id, &path, &format!("add -- {}", file_args)).await?;
+        let quoted: Vec<String> = files.iter().map(|f| ssh::git::shell_quote(f)).collect();
+        ssh::git::ssh_git_run(&ssh_state, conn_id, &path, &format!("add -- {}", quoted.join(" ")))
+            .await?;
         return Ok(());
     }
 
@@ -70,9 +71,14 @@ pub async fn git_unstage(
     }
 
     if let Some(ref conn_id) = connection_id {
-        let file_args = files.join(" ");
-        ssh::git::ssh_git_run(&ssh_state, conn_id, &path, &format!("reset HEAD -- {}", file_args))
-            .await?;
+        let quoted: Vec<String> = files.iter().map(|f| ssh::git::shell_quote(f)).collect();
+        ssh::git::ssh_git_run(
+            &ssh_state,
+            conn_id,
+            &path,
+            &format!("reset HEAD -- {}", quoted.join(" ")),
+        )
+        .await?;
         return Ok(());
     }
 
@@ -151,8 +157,12 @@ pub async fn git_diff(
     ssh_state: tauri::State<'_, SshState>,
 ) -> Result<String, KodiqError> {
     if let Some(ref conn_id) = connection_id {
-        let args =
-            if staged { format!("diff --cached -- {}", file) } else { format!("diff -- {}", file) };
+        let quoted_file = ssh::git::shell_quote(&file);
+        let args = if staged {
+            format!("diff --cached -- {}", quoted_file)
+        } else {
+            format!("diff -- {}", quoted_file)
+        };
         return ssh::git::ssh_git_run(&ssh_state, conn_id, &path, &args).await;
     }
 

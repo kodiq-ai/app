@@ -76,10 +76,10 @@ pub struct SshActiveConnection {
     pub connected_at: Option<i64>,
 }
 
-/// Live SSH connection with russh handle
+/// Live SSH connection with russh handle (Arc-wrapped for lock-free sharing)
 pub struct SshConnection {
     pub config: SshConnectionConfig,
-    pub handle: Handle<client::KodiqSshHandler>,
+    pub handle: Arc<Handle<client::KodiqSshHandler>>,
     pub status: ConnectionStatus,
     pub remote_home: Option<String>,
     pub connected_at: Option<i64>,

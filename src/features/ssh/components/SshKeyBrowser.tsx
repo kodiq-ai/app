@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { homeDir } from "@tauri-apps/api/path";
 import { fs } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { Key } from "lucide-react";
@@ -13,11 +14,12 @@ export function SshKeyBrowser({ onSelect }: SshKeyBrowserProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const home = process.env.HOME || process.env.USERPROFILE || "~";
-    const sshDir = `${home}/.ssh`;
+    (async () => {
+      try {
+        const home = await homeDir();
+        const sshDir = `${home}.ssh`;
 
-    fs.readDir(sshDir)
-      .then((entries) => {
+        const entries = await fs.readDir(sshDir);
         const keyFiles = entries
           .filter(
             (e) =>
@@ -30,9 +32,12 @@ export function SshKeyBrowser({ onSelect }: SshKeyBrowserProps) {
           )
           .map((e) => e.path);
         setKeys(keyFiles);
-      })
-      .catch(() => setKeys([]))
-      .finally(() => setLoading(false));
+      } catch {
+        setKeys([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   if (loading) return null;
@@ -46,9 +51,9 @@ export function SshKeyBrowser({ onSelect }: SshKeyBrowserProps) {
           key={k}
           type="button"
           onClick={() => onSelect(k)}
-          className="flex w-full items-center gap-1.5 rounded px-1.5 py-0.5 text-left text-[11px] font-mono text-k-text-secondary hover:bg-white/[0.04] transition-colors"
+          className="text-k-text-secondary flex w-full items-center gap-1.5 rounded px-1.5 py-0.5 text-left font-mono text-[11px] transition-colors hover:bg-white/[0.04]"
         >
-          <Key className="h-3 w-3 shrink-0 text-k-text-tertiary" />
+          <Key className="text-k-text-tertiary h-3 w-3 shrink-0" />
           <span className="truncate">{k.replace(/^.*\/\.ssh\//, "~/.ssh/")}</span>
         </button>
       ))}

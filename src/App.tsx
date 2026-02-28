@@ -83,8 +83,13 @@ export default function App() {
   const spawnTab = useCallback(
     async (command?: string, label?: string, env?: Record<string, string>) => {
       try {
-        const { projectPath, projectId, settings, tabs: currentTabs, activeConnectionId } =
-          useAppStore.getState();
+        const {
+          projectPath,
+          projectId,
+          settings,
+          tabs: currentTabs,
+          activeConnectionId,
+        } = useAppStore.getState();
 
         let id: string;
         let connectionId: string | undefined;
@@ -239,8 +244,19 @@ export default function App() {
   };
 
   const closeProject = () => {
-    const { projectId } = useAppStore.getState();
-    tabs.forEach((tab) => terminal.close(tab.id).catch(() => {}));
+    const { projectId, activeConnections, sshDisconnect: disconnect } = useAppStore.getState();
+    // Close all terminal tabs (local + SSH)
+    tabs.forEach((tab) => {
+      if (tab.id.startsWith("ssh-term-")) {
+        ssh.closeTerminal(tab.id).catch(() => {});
+      } else {
+        terminal.close(tab.id).catch(() => {});
+      }
+    });
+    // Disconnect all active SSH connections
+    for (const conn of activeConnections) {
+      disconnect(conn.id).catch(() => {});
+    }
     if (projectId) {
       db.sessions.closeAll(projectId).catch((e) => console.error("[DB] closeAll:", e));
     }

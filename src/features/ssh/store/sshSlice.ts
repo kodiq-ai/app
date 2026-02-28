@@ -3,9 +3,19 @@ import type {
   SshConnectionConfig,
   SshActiveConnection,
   SavedSshConnection,
+  SshAuthMethod,
   ActiveForward,
 } from "@shared/lib/types";
 import { ssh } from "@shared/lib/tauri";
+
+/** Minimal data for the password prompt — never stores the password itself. */
+interface PasswordPromptInfo {
+  username: string;
+  host: string;
+  port: number;
+  authMethod: SshAuthMethod;
+  resolve: (pw: string | null) => void;
+}
 
 export interface SshSlice {
   // State
@@ -15,7 +25,7 @@ export interface SshSlice {
   activeForwards: ActiveForward[];
   sshConnecting: boolean;
   sshError: string | null;
-  passwordPrompt: { config: SshConnectionConfig; resolve: (pw: string | null) => void } | null;
+  passwordPrompt: PasswordPromptInfo | null;
 
   // Actions
   sshConnect: (config: SshConnectionConfig, password?: string | null) => Promise<void>;
@@ -106,8 +116,33 @@ export const createSshSlice: StateCreator<SshSlice, [], [], SshSlice> = (set, ge
   },
 
   sshPromptPassword: (config) => {
+    // Cancel any existing pending prompt first
+    get().sshResolvePassword(null);
+
     return new Promise<string | null>((resolve) => {
-      set({ passwordPrompt: { config, resolve } });
+      // Safety timeout — resolve null after 5 minutes
+      const timeoutId = setTimeout(
+        () => {
+          if (get().passwordPrompt) {
+            set({ passwordPrompt: null });
+            resolve(null);
+          }
+        },
+        5 * 60 * 1000,
+      );
+
+      set({
+        passwordPrompt: {
+          username: config.username,
+          host: config.host,
+          port: config.port,
+          authMethod: config.authMethod,
+          resolve: (pw) => {
+            clearTimeout(timeoutId);
+            resolve(pw);
+          },
+        },
+      });
     });
   },
 

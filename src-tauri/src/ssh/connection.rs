@@ -89,6 +89,9 @@ pub async fn ssh_connect(
         return Err(KodiqError::Ssh("Authentication failed".into()));
     }
 
+    // Wrap handle in Arc for lock-free sharing across terminal/sftp/git
+    let handle = Arc::new(handle);
+
     // Detect remote home directory
     let remote_home = detect_remote_home(&handle).await.ok();
 

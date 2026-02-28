@@ -3,26 +3,28 @@ use crate::error::KodiqError;
 use tokio::io::AsyncReadExt;
 
 /// Run a command on remote host via SSH exec channel and return stdout.
-/// Note: SSH exec channels run through the remote shell by design — this is
-/// fundamentally different from local child_process.exec(). The `command` is
-/// constructed by Kodiq from trusted internal values (project path + git args),
-/// not from untrusted user input. Path is shell-quoted for safety.
+/// Acquires the SSH manager lock only to clone the handle, then releases it
+/// before any network I/O to avoid deadlocking concurrent SSH operations.
 pub async fn ssh_run_command(
     ssh_state: &tauri::State<'_, SshState>,
     connection_id: &str,
     command: &str,
 ) -> Result<String, KodiqError> {
-    let mut manager = ssh_state.lock().await;
-    let conn = manager
-        .get_mut(connection_id)
-        .ok_or_else(|| KodiqError::ConnectionNotFound(connection_id.to_string()))?;
+    // Clone the handle inside a tight lock scope — never hold lock across await
+    let handle = {
+        let manager = ssh_state.lock().await;
+        let conn = manager
+            .get(connection_id)
+            .ok_or_else(|| KodiqError::ConnectionNotFound(connection_id.to_string()))?;
 
-    if conn.status != ConnectionStatus::Connected {
-        return Err(KodiqError::Ssh("Connection is not active".into()));
-    }
+        if conn.status != ConnectionStatus::Connected {
+            return Err(KodiqError::Ssh("Connection is not active".into()));
+        }
 
-    let channel = conn
-        .handle
+        conn.handle.clone()
+    }; // lock released here
+
+    let channel = handle
         .channel_open_session()
         .await
         .map_err(|e| KodiqError::Ssh(format!("Open channel: {}", e)))?;
@@ -72,6 +74,7 @@ pub async fn ssh_git_try(
 }
 
 /// Shell-quote a string with single quotes (POSIX-safe).
-fn shell_quote(s: &str) -> String {
+/// Public so git/info.rs can use it for file path quoting.
+pub fn shell_quote(s: &str) -> String {
     format!("'{}'", s.replace('\'', "'\\''"))
 }

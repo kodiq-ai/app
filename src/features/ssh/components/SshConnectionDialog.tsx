@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ interface Props {
 }
 
 /** Dialog for creating/editing SSH connections. */
-export function SshConnectionDialog({ open, onClose, editConfig }: Props) {
+export function SshConnectionDialog({ open, onClose: onCloseRaw, editConfig }: Props) {
   const sshConnect = useAppStore((s) => s.sshConnect);
   const sshSaveConnection = useAppStore((s) => s.sshSaveConnection);
   const connecting = useAppStore((s) => s.sshConnecting);
@@ -28,6 +28,23 @@ export function SshConnectionDialog({ open, onClose, editConfig }: Props) {
   const [keyPath, setKeyPath] = useState(editConfig?.privateKeyPath ?? "~/.ssh/id_ed25519");
   const [password, setPassword] = useState("");
   const [testing, setTesting] = useState(false);
+
+  // Reset form when editConfig changes
+  useEffect(() => {
+    setName(editConfig?.name ?? "");
+    setHost(editConfig?.host ?? "");
+    setPort(editConfig?.port ?? 22);
+    setUsername(editConfig?.username ?? "root");
+    setAuthMethod(editConfig?.authMethod ?? "key");
+    setKeyPath(editConfig?.privateKeyPath ?? "~/.ssh/id_ed25519");
+    setPassword("");
+  }, [editConfig]);
+
+  // Wrap onClose to always clear password
+  const onClose = () => {
+    setPassword("");
+    onCloseRaw();
+  };
 
   if (!open) return null;
 
@@ -44,9 +61,11 @@ export function SshConnectionDialog({ open, onClose, editConfig }: Props) {
   const handleConnect = async () => {
     try {
       const config = buildConfig();
-      await sshSaveConnection(config);
+      // Connect first — only save on success
       await sshConnect(config, authMethod === "password" ? password : undefined);
+      await sshSaveConnection(config);
       toast.success(t("sshConnected"));
+      setPassword(""); // clear password from component state
       onClose();
     } catch (e) {
       toast.error(t("failedToConnect"), { description: String(e) });
@@ -89,12 +108,10 @@ export function SshConnectionDialog({ open, onClose, editConfig }: Props) {
 
         <div className="space-y-3">
           <div>
-            <label className="text-k-text-secondary mb-1 block text-xs">{t("sshConnectionName")}</label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="my-server"
-            />
+            <label className="text-k-text-secondary mb-1 block text-xs">
+              {t("sshConnectionName")}
+            </label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="my-server" />
           </div>
 
           <div className="flex gap-2">
@@ -108,11 +125,7 @@ export function SshConnectionDialog({ open, onClose, editConfig }: Props) {
             </div>
             <div className="w-20">
               <label className="text-k-text-secondary mb-1 block text-xs">{t("sshPort")}</label>
-              <Input
-                type="number"
-                value={port}
-                onChange={(e) => setPort(Number(e.target.value))}
-              />
+              <Input type="number" value={port} onChange={(e) => setPort(Number(e.target.value))} />
             </div>
           </div>
 
@@ -135,7 +148,11 @@ export function SshConnectionDialog({ open, onClose, editConfig }: Props) {
                       : "text-k-text-tertiary hover:text-k-text-secondary bg-white/5"
                   }`}
                 >
-                  {m === "key" ? t("sshAuthKey") : m === "password" ? t("sshAuthPassword") : t("sshAuthAgent")}
+                  {m === "key"
+                    ? t("sshAuthKey")
+                    : m === "password"
+                      ? t("sshAuthPassword")
+                      : t("sshAuthAgent")}
                 </button>
               ))}
             </div>

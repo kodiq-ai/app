@@ -5,27 +5,29 @@ use serde_json::json;
 
 /// Create a new SFTP session for a connection.
 /// Each call opens a new SFTP subsystem channel (lightweight).
+/// Lock is released before any network I/O to avoid deadlocking concurrent operations.
 async fn create_sftp(
     ssh_state: &tauri::State<'_, SshState>,
     connection_id: &str,
 ) -> Result<SftpSession, KodiqError> {
-    let manager = ssh_state.lock().await;
-    let conn = manager
-        .get(connection_id)
-        .ok_or_else(|| KodiqError::ConnectionNotFound(connection_id.to_string()))?;
+    // Clone handle inside a tight lock scope — never hold lock across await
+    let handle = {
+        let manager = ssh_state.lock().await;
+        let conn = manager
+            .get(connection_id)
+            .ok_or_else(|| KodiqError::ConnectionNotFound(connection_id.to_string()))?;
 
-    if conn.status != ConnectionStatus::Connected {
-        return Err(KodiqError::Ssh("Connection is not active".into()));
-    }
+        if conn.status != ConnectionStatus::Connected {
+            return Err(KodiqError::Ssh("Connection is not active".into()));
+        }
 
-    let channel = conn
-        .handle
+        conn.handle.clone()
+    }; // lock released here
+
+    let channel = handle
         .channel_open_session()
         .await
         .map_err(|e| KodiqError::Sftp(format!("Open SFTP channel: {}", e)))?;
-
-    // Must drop manager lock before awaiting SFTP init (avoids holding lock across await)
-    drop(manager);
 
     channel
         .request_subsystem(true, "sftp")
