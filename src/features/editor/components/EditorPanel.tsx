@@ -21,6 +21,7 @@ import { handleError } from "@shared/lib/errors";
 import { t } from "@/lib/i18n";
 import { toast } from "sonner";
 import { EditorTabBar } from "./EditorTabBar";
+import { EditorBreadcrumb } from "./EditorBreadcrumb";
 import { CodeMirrorEditor } from "./CodeMirrorEditor";
 import { GoToLineDialog } from "./GoToLineDialog";
 import { FindReplacePanel, type SearchParams } from "./FindReplacePanel";
@@ -243,6 +244,7 @@ export function EditorPanel() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <EditorTabBar tabs={editorTabs} activeTab={activeEditorTab} onClose={handleClose} />
+      <EditorBreadcrumb />
 
       {/* Editor Area */}
       <div className="relative flex-1 overflow-hidden">
