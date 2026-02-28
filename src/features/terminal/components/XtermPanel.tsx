@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { terminal } from "@shared/lib/tauri";
+import { terminal, ssh } from "@shared/lib/tauri";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
@@ -70,8 +70,14 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     // Output section markers — visual dots for navigating long output
     const markerManager = new OutputMarkerManager(term);
 
+    // Dispatch input: SSH terminals use ssh.write, local terminals use terminal.write
+    const isSsh = termId.startsWith("ssh-term-");
     term.onData((data) => {
-      terminal.write(termId, data).catch(() => {});
+      if (isSsh) {
+        ssh.write(termId, data).catch(() => {});
+      } else {
+        terminal.write(termId, data).catch(() => {});
+      }
     });
 
     const unlisten = listen<{ id: string; data: string }>("pty-output", (event) => {
@@ -129,12 +135,17 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
   useEffect(() => {
     if (!isActive || !fitRef.current || !termRef.current) return;
 
+    const isSshResize = termId.startsWith("ssh-term-");
     const doFit = () => {
       try {
         fitRef.current?.fit();
         const term = termRef.current;
         if (term) {
-          terminal.resize(termId, term.cols, term.rows).catch(() => {});
+          if (isSshResize) {
+            ssh.resize(termId, term.cols, term.rows).catch(() => {});
+          } else {
+            terminal.resize(termId, term.cols, term.rows).catch(() => {});
+          }
         }
       } catch {
         /* ok */

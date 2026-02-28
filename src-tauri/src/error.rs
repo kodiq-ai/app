@@ -22,6 +22,15 @@ pub enum KodiqError {
     #[error("Watcher error: {0}")]
     Watcher(#[from] notify::Error),
 
+    #[error("SSH error: {0}")]
+    Ssh(String),
+
+    #[error("SFTP error: {0}")]
+    Sftp(String),
+
+    #[error("Connection not found: {0}")]
+    ConnectionNotFound(String),
+
     #[error("{0}")]
     Other(String),
 }

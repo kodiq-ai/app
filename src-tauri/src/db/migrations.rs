@@ -17,6 +17,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "launch_configs_project_id",
         sql: include_str!("../../migrations/002_launch_configs.sql"),
     },
+    Migration {
+        version: 3,
+        name: "ssh_connections",
+        sql: include_str!("../../migrations/003_ssh_connections.sql"),
+    },
 ];
 
 pub fn run_migrations(conn: &Connection) -> Result<(), String> {

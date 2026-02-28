@@ -4,6 +4,7 @@ pub mod error;
 mod filesystem;
 mod git;
 mod preview;
+mod ssh;
 mod state;
 mod terminal;
 
@@ -47,6 +48,9 @@ pub fn run() {
         .manage(filesystem::watcher::WatcherState::new())
         .manage(preview::manager::new_preview_state())
         .manage(preview::server::new_server_state())
+        .manage(ssh::new_ssh_state())
+        .manage(ssh::terminal::new_ssh_terminal_state())
+        .manage(ssh::port_forward::new_port_forward_state())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
@@ -126,6 +130,28 @@ pub fn run() {
             preview::server::preview_stop_server,
             preview::server::preview_list_servers,
             preview::server::preview_server_logs,
+            // SSH — Connection
+            ssh::connection::ssh_connect,
+            ssh::connection::ssh_disconnect,
+            ssh::connection::ssh_list_connections,
+            ssh::connection::ssh_test_connection,
+            ssh::connection::ssh_connection_status,
+            // SSH — Terminal
+            ssh::terminal::ssh_spawn_terminal,
+            ssh::terminal::ssh_write,
+            ssh::terminal::ssh_resize,
+            ssh::terminal::ssh_close_terminal,
+            // SSH — Port Forward
+            ssh::port_forward::ssh_start_forward,
+            ssh::port_forward::ssh_stop_forward,
+            ssh::port_forward::ssh_list_forwards,
+            // SSH — Database
+            ssh::db::ssh_save_connection,
+            ssh::db::ssh_delete_connection,
+            ssh::db::ssh_list_saved_connections,
+            ssh::db::ssh_save_port_forward,
+            ssh::db::ssh_delete_port_forward,
+            ssh::db::ssh_list_port_forwards,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

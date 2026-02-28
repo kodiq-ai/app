@@ -19,6 +19,7 @@ export interface TerminalTab {
   id: string;
   label: string;
   command?: string;
+  connectionId?: string;
 }
 
 export interface TerminalSession {
@@ -320,7 +321,7 @@ export interface SnapshotNode {
 // ── UI Types ─────────────────────────────────────────────
 export type ColorScheme = "light" | "dark";
 export type Viewport = "desktop" | "tablet" | "mobile";
-export type SidebarTab = "files" | "project" | "activity" | "git";
+export type SidebarTab = "files" | "project" | "activity" | "git" | "ssh";
 
 // ── Update ───────────────────────────────────────────────
 export interface UpdateInfo {
@@ -328,6 +329,67 @@ export interface UpdateInfo {
   currentVersion: string;
   body: string | null;
   date: string | null;
+}
+
+// ── SSH ─────────────────────────────────────────────────
+export type SshAuthMethod = "key" | "password" | "agent";
+export type SshConnectionStatus = "connected" | "connecting" | "disconnected" | "error";
+
+export interface SshConnectionConfig {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  username: string;
+  authMethod: SshAuthMethod;
+  privateKeyPath?: string;
+}
+
+export interface SshActiveConnection {
+  id: string;
+  config: SshConnectionConfig;
+  status: SshConnectionStatus;
+  remoteHome?: string;
+  connectedAt?: number;
+}
+
+export interface SavedSshConnection {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  username: string;
+  authMethod: string;
+  privateKeyPath?: string;
+  createdAt: number;
+  updatedAt: number;
+  lastConnected?: number;
+  connectCount: number;
+}
+
+export interface SshPortForward {
+  id: string;
+  connectionId: string;
+  localPort: number;
+  remoteHost: string;
+  remotePort: number;
+  autoStart: boolean;
+  createdAt: number;
+}
+
+export interface NewPortForward {
+  connectionId: string;
+  localPort: number;
+  remoteHost?: string;
+  remotePort: number;
+  autoStart?: boolean;
+}
+
+export interface ActiveForward {
+  id: string;
+  localPort: number;
+  remoteHost: string;
+  remotePort: number;
 }
 
 // ── Events (from Rust) ──────────────────────────────────

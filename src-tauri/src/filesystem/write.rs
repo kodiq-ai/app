@@ -1,10 +1,23 @@
 use crate::error::KodiqError;
+use crate::ssh::{self, SshState};
 
 /// Write content to a file (create or overwrite).
 /// Used by the editor save action (Cmd+S).
-#[tracing::instrument(skip(content))]
-#[tauri::command]
-pub fn write_file(path: String, content: String) -> Result<(), KodiqError> {
+/// If `connection_id` is provided, writes to remote via SFTP.
+#[tracing::instrument(skip(content, ssh_state))]
+#[tauri::command(async)]
+pub async fn write_file(
+    path: String,
+    content: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<(), KodiqError> {
+    // Remote: delegate to SFTP
+    if let Some(ref conn_id) = connection_id {
+        return ssh::filesystem::sftp_write_file(&path, &content, &ssh_state, conn_id).await;
+    }
+
+    // Local: original logic
     let file_path = std::path::Path::new(&path);
 
     // Ensure parent directory exists

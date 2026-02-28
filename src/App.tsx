@@ -5,7 +5,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { useAppStore, type FileEntry } from "@/lib/store";
 import type { GitInfo, ConsoleLevel, NetworkEvent } from "@shared/lib/types";
-import { terminal, fs, git, cli, db } from "@shared/lib/tauri";
+import { terminal, fs, git, cli, db, ssh } from "@shared/lib/tauri";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import { EditorPanel, destroyAllEditorViews } from "@features/editor";
 import { OnboardingWizard } from "@features/settings/components/OnboardingWizard";
 import { UpdateBadge } from "@features/settings/components/UpdateBadge";
 import { UpdateDialog } from "@features/settings/components/UpdateDialog";
+import { SshStatusBadge, SshPasswordPrompt } from "@features/ssh";
 
 // ─── Main App ───────────────────────────────────────────────────────────────
 
@@ -70,9 +71,9 @@ export default function App() {
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
-  const loadFileTree = async (path: string) => {
+  const loadFileTree = async (path: string, connectionId?: string | null) => {
     try {
-      const entries = await fs.readDir(path);
+      const entries = await fs.readDir(path, connectionId);
       setFileTree(entries as FileEntry[]);
     } catch (e) {
       toast.error(t("failedToLoadFiles"), { description: String(e) });
@@ -82,15 +83,28 @@ export default function App() {
   const spawnTab = useCallback(
     async (command?: string, label?: string, env?: Record<string, string>) => {
       try {
-        const { projectPath, projectId, settings, tabs: currentTabs } = useAppStore.getState();
-        const id = await terminal.spawn({
-          command: command || null,
-          cwd: projectPath,
-          shell: settings.shell || null,
-          env: env && Object.keys(env).length > 0 ? env : null,
-        });
+        const { projectPath, projectId, settings, tabs: currentTabs, activeConnectionId } =
+          useAppStore.getState();
+
+        let id: string;
+        let connectionId: string | undefined;
+
+        if (activeConnectionId) {
+          // Spawn remote SSH terminal
+          id = await ssh.spawnTerminal(activeConnectionId);
+          connectionId = activeConnectionId;
+        } else {
+          // Spawn local terminal
+          id = await terminal.spawn({
+            command: command || null,
+            cwd: projectPath,
+            shell: settings.shell || null,
+            env: env && Object.keys(env).length > 0 ? env : null,
+          });
+        }
+
         const tabLabel = label || (command ? command : t("terminal"));
-        addTab({ id, label: tabLabel, command: command || "shell" });
+        addTab({ id, label: tabLabel, command: command || "shell", connectionId });
         // Log to activity
         if (command) {
           useAppStore.getState().addActivity({ type: "command", label: command });
@@ -119,7 +133,12 @@ export default function App() {
 
   const closeTab = useCallback(
     (id: string) => {
-      terminal.close(id).catch(() => {});
+      // SSH terminals have id starting with "ssh-term-"
+      if (id.startsWith("ssh-term-")) {
+        ssh.closeTerminal(id).catch(() => {});
+      } else {
+        terminal.close(id).catch(() => {});
+      }
       removeTab(id);
       db.sessions.close(id).catch((e) => console.error("[DB] close session:", e));
     },
@@ -414,6 +433,7 @@ export default function App() {
       <SettingsDialog />
       <UpdateDialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen} />
       <FileSearch />
+      <SshPasswordPrompt />
 
       {/* Title bar */}
       <header
@@ -433,7 +453,8 @@ export default function App() {
             onCloseProject={closeProject}
           />
         </div>
-        <div className="flex w-[140px] items-center justify-end gap-1">
+        <div className="flex w-[180px] items-center justify-end gap-1">
+          <SshStatusBadge />
           <UpdateBadge onClick={() => setUpdateDialogOpen(true)} />
           {projectPath && (
             <Tooltip>
