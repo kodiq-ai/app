@@ -261,6 +261,7 @@
   "statusBarCol": "Кол",
   "statusBarSelected": "выделено",
   "statusBarSpaces": "Пробелы",
+  "statusBarChanges": "изменений",
 
   "goToLineTitle": "Перейти к строке",
   "goToLinePlaceholder": "Перейти к строке (1 – {max})",

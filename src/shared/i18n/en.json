@@ -261,6 +261,7 @@
   "statusBarCol": "Col",
   "statusBarSelected": "selected",
   "statusBarSpaces": "Spaces",
+  "statusBarChanges": "changes",
 
   "goToLineTitle": "Go to Line",
   "goToLinePlaceholder": "Go to Line (1 – {max})",
