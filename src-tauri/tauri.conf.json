@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Kodiq",
   "version": "0.5.0",
-  "identifier": "com.kodiq.app",
+  "identifier": "com.kodiq.ide",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -47,7 +47,7 @@
   },
   "plugins": {
     "updater": {
-      "endpoints": ["https://github.com/kodiq-ai/app/releases/latest/download/latest.json"],
+      "endpoints": ["https://github.com/kodiq-ai/ide/releases/latest/download/latest.json"],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEE2ODBCNzhBRjA1RTZBNzYKUldSMmFsN3dpcmVBcGxvTWtXNFhVVWQrbXJmbWlaUEkxQXRXNU5BYkpXYXNaWVB2OG56a1diTjkK"
     }
   }
