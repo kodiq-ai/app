@@ -55,7 +55,7 @@ notify-debouncer-mini = "0.6"
 thiserror = "2"
 
 # SSH remote development
-russh = "0.46"
+russh = "0.57"
 russh-keys = "0.46"
 russh-sftp = "2.0"
 tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "io-util"] }
