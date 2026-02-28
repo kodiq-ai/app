@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
-import { listen } from "@tauri-apps/api/event";
-import { terminal, ssh } from "@shared/lib/tauri";
+import { terminal, ssh, listen } from "@shared/lib/tauri";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";

@@ -3,7 +3,20 @@
 // No raw invoke() calls elsewhere in the codebase.
 
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { listen as tauriListen } from "@tauri-apps/api/event";
+import type { EventCallback, UnlistenFn } from "@tauri-apps/api/event";
+
+/** True when running inside the Tauri webview (not a regular browser). */
+export const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
+/**
+ * Safe wrapper around Tauri `listen()` — returns a no-op unlisten in browser.
+ * Prevents "Cannot read properties of undefined (reading 'transformCallback')" crashes.
+ */
+export function listen<T>(event: string, handler: EventCallback<T>): Promise<UnlistenFn> {
+  if (!isTauri) return Promise.resolve(() => {});
+  return tauriListen(event, handler);
+}
 import type {
   FileEntry,
   GitInfo,
@@ -59,7 +72,7 @@ function listenOnce<T>(
 
     const timer = setTimeout(() => finish(null), timeoutMs);
 
-    void listen<T | null>(eventName, (event) => {
+    void tauriListen<T | null>(eventName, (event) => {
       clearTimeout(timer);
       finish(event.payload);
     }).then(
