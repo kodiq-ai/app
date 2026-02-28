@@ -13,7 +13,6 @@ pub struct SshTerminalState {
 }
 
 pub struct SshTerminalSession {
-    pub connection_id: String,
     pub writer: tokio::sync::mpsc::Sender<Vec<u8>>,
     pub resize_tx: tokio::sync::mpsc::Sender<(u32, u32)>,
     pub cancel: CancellationToken,
@@ -93,7 +92,6 @@ pub async fn ssh_spawn_terminal(
         state.sessions.insert(
             terminal_id.clone(),
             SshTerminalSession {
-                connection_id: connection_id.clone(),
                 writer: write_tx,
                 resize_tx,
                 cancel,

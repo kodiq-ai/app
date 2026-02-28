@@ -112,10 +112,6 @@ impl SshManager {
         self.connections.get(id)
     }
 
-    pub fn get_mut(&mut self, id: &str) -> Option<&mut SshConnection> {
-        self.connections.get_mut(id)
-    }
-
     pub fn insert(&mut self, conn: SshConnection) {
         self.connections.insert(conn.config.id.clone(), conn);
     }
