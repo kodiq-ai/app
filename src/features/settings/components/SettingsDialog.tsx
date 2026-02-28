@@ -84,6 +84,59 @@ export function SettingsDialog() {
 
           <Separator className="bg-white/[0.06]" />
 
+          {/* Editor */}
+          <div className="flex flex-col gap-2">
+            <label className="text-k-text-secondary text-[11px] font-medium tracking-[0.06em] uppercase">
+              {t("editor")}
+            </label>
+
+            {/* Word wrap */}
+            <div className="flex items-center justify-between">
+              <span className="text-k-text-secondary text-[12px]">{t("wordWrap")}</span>
+              <Button
+                variant={settings.wordWrap ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => updateSettings({ wordWrap: !settings.wordWrap })}
+                className="h-7 text-[11px]"
+              >
+                {settings.wordWrap ? t("on") : t("off")}
+              </Button>
+            </div>
+
+            {/* Line numbers */}
+            <div className="flex items-center justify-between">
+              <span className="text-k-text-secondary text-[12px]">{t("lineNumbers")}</span>
+              <Button
+                variant={settings.showLineNumbers ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => updateSettings({ showLineNumbers: !settings.showLineNumbers })}
+                className="h-7 text-[11px]"
+              >
+                {settings.showLineNumbers ? t("on") : t("off")}
+              </Button>
+            </div>
+
+            {/* Tab size */}
+            <div className="flex items-center justify-between">
+              <span className="text-k-text-secondary text-[12px]">{t("tabSize")}</span>
+              <div className="flex gap-1.5">
+                {[2, 4].map((size) => (
+                  <Button
+                    key={size}
+                    variant={settings.tabSize === size ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => updateSettings({ tabSize: size })}
+                    className="h-7 w-9 font-mono text-[11px]"
+                  >
+                    {size}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <Separator className="bg-white/[0.06]" />
+
           {/* AI Tools */}
           {cliTools.length > 0 && (
             <div className="flex flex-col gap-2">

@@ -71,6 +71,11 @@
   "defaultShell": "По умолчанию ($SHELL)",
   "fontSize": "Размер шрифта",
   "fontSizeNote": "Применится к новым терминалам",
+  "wordWrap": "Перенос строк",
+  "lineNumbers": "Номера строк",
+  "tabSize": "Размер табуляции",
+  "on": "Вкл",
+  "off": "Выкл",
   "openSettings": "⌘, — открыть настройки",
 
   "serverNotRunning": "Сервер не запущен",

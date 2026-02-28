@@ -106,6 +106,9 @@ export interface AppSettings {
   sidebarOpen: boolean;
   previewOpen: boolean;
   autoOpenPreview: boolean;
+  wordWrap: boolean;
+  showLineNumbers: boolean;
+  tabSize: number;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -117,6 +120,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   sidebarOpen: true,
   previewOpen: true,
   autoOpenPreview: true,
+  wordWrap: false,
+  showLineNumbers: true,
+  tabSize: 2,
 };
 
 // ── Launch Configs ──────────────────────────────────────

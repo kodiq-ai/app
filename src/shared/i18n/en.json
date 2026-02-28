@@ -71,6 +71,11 @@
   "defaultShell": "Default ($SHELL)",
   "fontSize": "Font size",
   "fontSizeNote": "Applies to new terminals",
+  "wordWrap": "Word wrap",
+  "lineNumbers": "Line numbers",
+  "tabSize": "Tab size",
+  "on": "On",
+  "off": "Off",
   "openSettings": "⌘, — open settings",
 
   "serverNotRunning": "Server not running",

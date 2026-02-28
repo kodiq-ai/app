@@ -1,6 +1,7 @@
 // ── CodeMirror 6 Editor ─────────────────────────────────────────────────────
 // Core CM6 React wrapper. One EditorView per tab — stored in viewCache.
 // Preserves undo history, cursor position, and scroll per tab.
+// Editor settings (line numbers, word wrap, tab size) live in a settingsCompartment.
 
 import { useEffect, useRef, useCallback } from "react";
 import {
@@ -10,7 +11,7 @@ import {
   drawSelection,
   highlightActiveLine,
 } from "@codemirror/view";
-import { EditorState, Compartment } from "@codemirror/state";
+import { EditorState, Compartment, type Extension } from "@codemirror/state";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { bracketMatching, indentOnInput, foldGutter, foldKeymap } from "@codemirror/language";
 import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
@@ -20,6 +21,16 @@ import { kodiqTheme } from "../lib/kodiqTheme";
 import { loadLanguage } from "../lib/languageLoader";
 import { getViewEntry, setViewEntry, hasViewEntry } from "../lib/viewCache";
 import type { EditorTab } from "../store/editorSlice";
+import type { AppSettings } from "@shared/lib/types";
+
+// -- Helpers -------
+function buildEditorSettings(settings: AppSettings): Extension[] {
+  const exts: Extension[] = [];
+  if (settings.showLineNumbers) exts.push(lineNumbers());
+  if (settings.wordWrap) exts.push(EditorView.lineWrapping);
+  exts.push(EditorState.tabSize.of(settings.tabSize));
+  return exts;
+}
 
 // -- Component -------
 interface Props {
@@ -31,6 +42,7 @@ export function CodeMirrorEditor({ tab }: Props) {
   const updateTabContent = useAppStore((s) => s.updateTabContent);
   const updateTabScroll = useAppStore((s) => s.updateTabScroll);
   const setCursorInfo = useAppStore((s) => s.setCursorInfo);
+  const settings = useAppStore((s) => s.settings);
 
   // Stable refs for callbacks (avoid stale closures)
   const tabRef = useRef(tab);
@@ -51,12 +63,13 @@ export function CodeMirrorEditor({ tab }: Props) {
     if (existing) return existing;
 
     const langCompartment = new Compartment();
+    const settingsCompartment = new Compartment();
+    const currentSettings = useAppStore.getState().settings;
 
     const startState = EditorState.create({
       doc: tab.content,
       extensions: [
         // Core
-        lineNumbers(),
         history(),
         drawSelection(),
         indentOnInput(),
@@ -66,6 +79,9 @@ export function CodeMirrorEditor({ tab }: Props) {
         highlightSelectionMatches(),
         search({ top: false, createPanel: () => ({ dom: document.createElement("div") }) }),
         foldGutter(),
+
+        // Settings compartment (line numbers, word wrap, tab size)
+        settingsCompartment.of(buildEditorSettings(currentSettings)),
 
         // Language (empty placeholder — loaded async)
         langCompartment.of([]),
@@ -100,15 +116,12 @@ export function CodeMirrorEditor({ tab }: Props) {
             });
           }
         }),
-
-        // Tab size
-        EditorState.tabSize.of(2),
       ],
     });
 
     const view = new EditorView({ state: startState });
 
-    const entry = { view, langCompartment };
+    const entry = { view, langCompartment, settingsCompartment };
     setViewEntry(tab.path, entry);
 
     // Load language async
@@ -123,6 +136,16 @@ export function CodeMirrorEditor({ tab }: Props) {
     return entry;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- tab.content excluded intentionally: including it causes re-render on every keystroke
   }, [tab.path, tab.language]);
+
+  // -- Reconfigure settings when they change -------
+  useEffect(() => {
+    const entry = getViewEntry(tab.path);
+    if (!entry) return;
+    entry.view.dispatch({
+      effects: entry.settingsCompartment.reconfigure(buildEditorSettings(settings)),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we track individual settings fields, not the whole object
+  }, [tab.path, settings.showLineNumbers, settings.wordWrap, settings.tabSize]);
 
   // -- Mount / Unmount -------
   useEffect(() => {
