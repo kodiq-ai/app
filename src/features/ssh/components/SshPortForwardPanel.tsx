@@ -36,8 +36,8 @@ export function SshPortForwardPanel() {
 
   return (
     <div className="border-t border-white/[0.06] p-3">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-k-text-secondary text-xs font-semibold uppercase tracking-wider">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-k-text-secondary text-xs font-semibold tracking-wider uppercase">
           {t("sshPortForward")}
         </span>
         <Button
@@ -56,7 +56,7 @@ export function SshPortForwardPanel() {
             type="number"
             value={localPort}
             onChange={(e) => setLocalPort(Number(e.target.value))}
-            className="w-16 text-xs h-7"
+            className="h-7 w-16 text-xs"
             placeholder={t("sshLocalPort")}
           />
           <span className="text-k-text-tertiary text-xs">→</span>
@@ -64,7 +64,7 @@ export function SshPortForwardPanel() {
             type="number"
             value={remotePort}
             onChange={(e) => setRemotePort(Number(e.target.value))}
-            className="w-16 text-xs h-7"
+            className="h-7 w-16 text-xs"
             placeholder={t("sshRemotePort")}
           />
           <Button size="sm" className="h-7 px-2 text-xs" onClick={handleAdd}>
@@ -80,7 +80,7 @@ export function SshPortForwardPanel() {
           {forwards.map((fwd) => (
             <div
               key={fwd.id}
-              className="flex items-center justify-between rounded px-2 py-1 text-xs bg-white/[0.02]"
+              className="flex items-center justify-between rounded bg-white/[0.02] px-2 py-1 text-xs"
             >
               <span className="text-k-text-secondary font-mono">
                 :{fwd.localPort} → {fwd.remoteHost}:{fwd.remotePort}

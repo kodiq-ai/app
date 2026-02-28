@@ -149,9 +149,11 @@ export function SshConnectionDialog({ open, onClose: onCloseRaw, editConfig }: P
                   }`}
                 >
                   {
-                    { key: t("sshAuthKey"), password: t("sshAuthPassword"), agent: t("sshAuthAgent") }[
-                      m
-                    ]
+                    {
+                      key: t("sshAuthKey"),
+                      password: t("sshAuthPassword"),
+                      agent: t("sshAuthAgent"),
+                    }[m]
                   }
                 </button>
               ))}

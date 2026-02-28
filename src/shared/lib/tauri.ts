@@ -260,7 +260,12 @@ export const ssh = {
   closeTerminal: (id: string) => invoke<void>("ssh_close_terminal", { id }),
 
   // Port forwarding
-  startForward: (connectionId: string, localPort: number, remotePort: number, remoteHost?: string) =>
+  startForward: (
+    connectionId: string,
+    localPort: number,
+    remotePort: number,
+    remoteHost?: string,
+  ) =>
     invoke<string>("ssh_start_forward", {
       connectionId,
       localPort,

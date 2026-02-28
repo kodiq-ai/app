@@ -16,9 +16,7 @@ export function SshStatusBadge() {
     <div
       className={cn(
         "flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium",
-        isConnected
-          ? "bg-emerald-500/10 text-emerald-400"
-          : "bg-red-500/10 text-red-400",
+        isConnected ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400",
       )}
       title={`${active.config.username}@${active.config.host}`}
     >

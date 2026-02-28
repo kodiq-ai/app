@@ -1,6 +1,13 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { FolderOpen, BarChart3, ClipboardList, GitBranch, Settings, MonitorSmartphone } from "lucide-react";
+import {
+  FolderOpen,
+  BarChart3,
+  ClipboardList,
+  GitBranch,
+  Settings,
+  MonitorSmartphone,
+} from "lucide-react";
 import { fs } from "@shared/lib/tauri";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
