@@ -54,6 +54,14 @@ notify-debouncer-mini = "0.6"
 # Typed errors
 thiserror = "2"
 
+# SSH remote development
+russh = "0.46"
+russh-keys = "0.46"
+russh-sftp = "2.0"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "io-util"] }
+tokio-util = "0.7"
+async-trait = "0.1"
+
 # URL parsing (preview webview)
 url = "2"
 

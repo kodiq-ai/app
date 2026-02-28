@@ -1,11 +1,9 @@
 use crate::error::KodiqError;
+use crate::ssh::{self, SshState};
 
-/// Write content to a file (create or overwrite).
-/// Used by the editor save action (Cmd+S).
-#[tracing::instrument(skip(content))]
-#[tauri::command]
-pub fn write_file(path: String, content: String) -> Result<(), KodiqError> {
-    let file_path = std::path::Path::new(&path);
+/// Local file write logic — extracted for testability without Tauri state.
+fn write_file_local(path: &str, content: &str) -> Result<(), KodiqError> {
+    let file_path = std::path::Path::new(path);
 
     // Ensure parent directory exists
     if let Some(parent) = file_path.parent() {
@@ -17,8 +15,28 @@ pub fn write_file(path: String, content: String) -> Result<(), KodiqError> {
         }
     }
 
-    std::fs::write(&path, &content)?;
+    std::fs::write(path, content)?;
     Ok(())
+}
+
+/// Write content to a file (create or overwrite).
+/// Used by the editor save action (Cmd+S).
+/// If `connection_id` is provided, writes to remote via SFTP.
+#[tracing::instrument(skip(content, ssh_state))]
+#[tauri::command(async)]
+pub async fn write_file(
+    path: String,
+    content: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<(), KodiqError> {
+    // Remote: delegate to SFTP
+    if let Some(ref conn_id) = connection_id {
+        return ssh::filesystem::sftp_write_file(&path, &content, &ssh_state, conn_id).await;
+    }
+
+    // Local
+    write_file_local(&path, &content)
 }
 
 #[cfg(test)]
@@ -31,7 +49,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("test.txt").to_string_lossy().to_string();
 
-        write_file(path.clone(), "hello world".to_string()).unwrap();
+        write_file_local(&path, "hello world").unwrap();
 
         let content = fs::read_to_string(&path).unwrap();
         assert_eq!(content, "hello world");
@@ -42,8 +60,8 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("test.txt").to_string_lossy().to_string();
 
-        write_file(path.clone(), "first".to_string()).unwrap();
-        write_file(path.clone(), "second".to_string()).unwrap();
+        write_file_local(&path, "first").unwrap();
+        write_file_local(&path, "second").unwrap();
 
         let content = fs::read_to_string(&path).unwrap();
         assert_eq!(content, "second");
@@ -51,7 +69,7 @@ mod tests {
 
     #[test]
     fn test_write_nonexistent_parent() {
-        let result = write_file("/nonexistent/dir/file.txt".to_string(), "data".to_string());
+        let result = write_file_local("/nonexistent/dir/file.txt", "data");
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
         assert!(err.contains("Parent directory does not exist"));

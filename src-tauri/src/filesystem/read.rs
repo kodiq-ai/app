@@ -1,11 +1,23 @@
 use crate::error::KodiqError;
+use crate::ssh::{self, SshState};
 
 /// Read directory contents for file tree.
+/// If `connection_id` is provided, reads from remote via SFTP.
 /// Sorts directories first, then alphabetically by name.
 /// Skips hidden files and common noise directories.
-#[tracing::instrument]
-#[tauri::command]
-pub fn read_dir(path: String) -> Result<Vec<serde_json::Value>, KodiqError> {
+#[tracing::instrument(skip(ssh_state))]
+#[tauri::command(async)]
+pub async fn read_dir(
+    path: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<Vec<serde_json::Value>, KodiqError> {
+    // Remote: delegate to SFTP
+    if let Some(ref conn_id) = connection_id {
+        return ssh::filesystem::sftp_read_dir(&path, &ssh_state, conn_id).await;
+    }
+
+    // Local: original logic
     let dir = std::path::Path::new(&path);
     if !dir.is_dir() {
         return Err(KodiqError::NotFound(format!("Not a directory: {}", path)));
@@ -54,10 +66,21 @@ pub fn read_dir(path: String) -> Result<Vec<serde_json::Value>, KodiqError> {
     Ok(entries)
 }
 
-/// Read a file's content as string (up to 1MB, for file viewer)
-#[tracing::instrument]
-#[tauri::command]
-pub fn read_file(path: String) -> Result<String, KodiqError> {
+/// Read a file's content as string (up to 1MB, for file viewer).
+/// If `connection_id` is provided, reads from remote via SFTP.
+#[tracing::instrument(skip(ssh_state))]
+#[tauri::command(async)]
+pub async fn read_file(
+    path: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<String, KodiqError> {
+    // Remote: delegate to SFTP
+    if let Some(ref conn_id) = connection_id {
+        return ssh::filesystem::sftp_read_file(&path, &ssh_state, conn_id).await;
+    }
+
+    // Local: original logic
     let file_path = std::path::Path::new(&path);
     if !file_path.is_file() {
         return Err(KodiqError::NotFound(format!("Not a file: {}", path)));

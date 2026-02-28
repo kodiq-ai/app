@@ -1,6 +1,13 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { FolderOpen, BarChart3, ClipboardList, GitBranch, Settings } from "lucide-react";
+import {
+  FolderOpen,
+  BarChart3,
+  ClipboardList,
+  GitBranch,
+  Settings,
+  MonitorSmartphone,
+} from "lucide-react";
 import { fs } from "@shared/lib/tauri";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -12,6 +19,7 @@ import { TreeItem } from "@/components/TreeItem";
 import { ProjectOverview } from "@/components/ProjectOverview";
 import { ActivityPanel } from "@features/activity/components/ActivityPanel";
 import { GitPanel } from "@features/git/components/GitPanel";
+import { SshConnectionList } from "@features/ssh/components/SshConnectionList";
 import { Loader } from "@/components/Loader";
 import { t } from "@/lib/i18n";
 
@@ -103,6 +111,7 @@ export function ActivityBar() {
             {sidebarTab === "activity" && t("activityLog")}
             {sidebarTab === "project" && t("projectInfo")}
             {sidebarTab === "git" && t("gitSourceControl")}
+            {sidebarTab === "ssh" && t("sshRemote")}
           </span>
         </div>
 
@@ -126,6 +135,7 @@ export function ActivityBar() {
           {sidebarTab === "activity" && <ActivityPanel />}
           {sidebarTab === "project" && <ProjectOverview />}
           {sidebarTab === "git" && <GitPanel />}
+          {sidebarTab === "ssh" && <SshConnectionList />}
         </div>
       </div>
 
@@ -154,6 +164,12 @@ export function ActivityBar() {
           label={t("activityLog")}
           active={sidebarOpen && sidebarTab === "activity"}
           onClick={() => handleIconClick("activity")}
+        />
+        <ActivityIcon
+          icon={MonitorSmartphone}
+          label={t("sshRemote")}
+          active={sidebarOpen && sidebarTab === "ssh"}
+          onClick={() => handleIconClick("ssh")}
         />
         <ActivityIcon
           icon={Settings}

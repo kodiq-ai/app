@@ -10,6 +10,7 @@ import { createExplorerSlice, type ExplorerSlice } from "@features/explorer/stor
 import { createSettingsSlice, type SettingsSlice } from "@features/settings/store/settingsSlice";
 import { createGitSlice, type GitSlice } from "@features/git/store/gitSlice";
 import { createActivitySlice, type ActivitySlice } from "@features/activity/store/activitySlice";
+import { createSshSlice, type SshSlice } from "@features/ssh/store/sshSlice";
 
 export type AppStore = TerminalSlice &
   ProjectSlice &
@@ -18,7 +19,8 @@ export type AppStore = TerminalSlice &
   ExplorerSlice &
   SettingsSlice &
   GitSlice &
-  ActivitySlice;
+  ActivitySlice &
+  SshSlice;
 
 export const useAppStore = create<AppStore>()((...args) => ({
   ...createTerminalSlice(...args),
@@ -29,6 +31,7 @@ export const useAppStore = create<AppStore>()((...args) => ({
   ...createSettingsSlice(...args),
   ...createGitSlice(...args),
   ...createActivitySlice(...args),
+  ...createSshSlice(...args),
 }));
 
 // Re-export types for convenience
@@ -40,3 +43,4 @@ export type { ExplorerSlice } from "@features/explorer/store/explorerSlice";
 export type { SettingsSlice } from "@features/settings/store/settingsSlice";
 export type { GitSlice } from "@features/git/store/gitSlice";
 export type { ActivitySlice } from "@features/activity/store/activitySlice";
+export type { SshSlice } from "@features/ssh/store/sshSlice";

@@ -25,6 +25,12 @@ import type {
   ServerConfig,
   InspectResult,
   SnapshotNode,
+  SshConnectionConfig,
+  SshActiveConnection,
+  SavedSshConnection,
+  SshPortForward,
+  NewPortForward,
+  ActiveForward,
 } from "./types";
 
 // -- Helpers ─────────────────────────────────────────────
@@ -88,25 +94,38 @@ export const terminal = {
 
 // ── Filesystem ───────────────────────────────────────────
 export const fs = {
-  readDir: (path: string) => invoke<FileEntry[]>("read_dir", { path }),
-  readFile: (path: string) => invoke<string>("read_file", { path }),
-  writeFile: (path: string, content: string) => invoke<void>("write_file", { path, content }),
+  readDir: (path: string, connectionId?: string | null) =>
+    invoke<FileEntry[]>("read_dir", { path, connectionId: connectionId ?? null }),
+  readFile: (path: string, connectionId?: string | null) =>
+    invoke<string>("read_file", { path, connectionId: connectionId ?? null }),
+  writeFile: (path: string, content: string, connectionId?: string | null) =>
+    invoke<void>("write_file", { path, content, connectionId: connectionId ?? null }),
   startWatching: (path: string) => invoke<void>("start_watching", { path }),
   stopWatching: () => invoke<void>("stop_watching"),
 };
 
 // ── Git ──────────────────────────────────────────────────
 export const git = {
-  getInfo: (path: string) => invoke<GitInfo>("get_git_info", { path }),
-  getStats: (path: string) => invoke<ProjectStats>("get_project_stats", { path }),
-  stage: (path: string, files: string[]) => invoke<void>("git_stage", { path, files }),
-  unstage: (path: string, files: string[]) => invoke<void>("git_unstage", { path, files }),
-  stageAll: (path: string) => invoke<void>("git_stage_all", { path }),
-  unstageAll: (path: string) => invoke<void>("git_unstage_all", { path }),
-  commit: (path: string, message: string) =>
-    invoke<{ hash: string; message: string }>("git_commit", { path, message }),
-  diff: (path: string, file: string, staged: boolean) =>
-    invoke<string>("git_diff", { path, file, staged }),
+  getInfo: (path: string, connectionId?: string | null) =>
+    invoke<GitInfo>("get_git_info", { path, connectionId: connectionId ?? null }),
+  getStats: (path: string, connectionId?: string | null) =>
+    invoke<ProjectStats>("get_project_stats", { path, connectionId: connectionId ?? null }),
+  stage: (path: string, files: string[], connectionId?: string | null) =>
+    invoke<void>("git_stage", { path, files, connectionId: connectionId ?? null }),
+  unstage: (path: string, files: string[], connectionId?: string | null) =>
+    invoke<void>("git_unstage", { path, files, connectionId: connectionId ?? null }),
+  stageAll: (path: string, connectionId?: string | null) =>
+    invoke<void>("git_stage_all", { path, connectionId: connectionId ?? null }),
+  unstageAll: (path: string, connectionId?: string | null) =>
+    invoke<void>("git_unstage_all", { path, connectionId: connectionId ?? null }),
+  commit: (path: string, message: string, connectionId?: string | null) =>
+    invoke<{ hash: string; message: string }>("git_commit", {
+      path,
+      message,
+      connectionId: connectionId ?? null,
+    }),
+  diff: (path: string, file: string, staged: boolean, connectionId?: string | null) =>
+    invoke<string>("git_diff", { path, file, staged, connectionId: connectionId ?? null }),
 };
 
 // ── Preview — Webview ────────────────────────────────────
@@ -217,5 +236,58 @@ export const db = {
     update: (id: string, patch: UpdateLaunchConfig) =>
       invoke<void>("db_update_launch_config", { id, patch }),
     delete: (id: string) => invoke<void>("db_delete_launch_config", { id }),
+  },
+};
+
+// ── SSH ─────────────────────────────────────────────────
+export const ssh = {
+  // Connection management
+  connect: (config: SshConnectionConfig, password?: string | null) =>
+    invoke<SshActiveConnection>("ssh_connect", { config, password: password ?? null }),
+  disconnect: (connectionId: string) => invoke<void>("ssh_disconnect", { connectionId }),
+  listConnections: () => invoke<SshActiveConnection[]>("ssh_list_connections"),
+  testConnection: (config: SshConnectionConfig, password?: string | null) =>
+    invoke<boolean>("ssh_test_connection", { config, password: password ?? null }),
+  connectionStatus: (connectionId: string) =>
+    invoke<SshActiveConnection>("ssh_connection_status", { connectionId }),
+
+  // Terminal (remote PTY)
+  spawnTerminal: (connectionId: string, cols?: number, rows?: number) =>
+    invoke<string>("ssh_spawn_terminal", { connectionId, cols: cols ?? null, rows: rows ?? null }),
+  write: (id: string, data: string) => invoke<void>("ssh_write", { id, data }),
+  resize: (id: string, cols: number, rows: number) =>
+    invoke<void>("ssh_resize", { id, cols, rows }),
+  closeTerminal: (id: string) => invoke<void>("ssh_close_terminal", { id }),
+
+  // Port forwarding
+  startForward: (
+    connectionId: string,
+    localPort: number,
+    remotePort: number,
+    remoteHost?: string,
+  ) =>
+    invoke<string>("ssh_start_forward", {
+      connectionId,
+      localPort,
+      remoteHost: remoteHost ?? null,
+      remotePort,
+    }),
+  stopForward: (forwardId: string) => invoke<void>("ssh_stop_forward", { forwardId }),
+  listForwards: () => invoke<ActiveForward[]>("ssh_list_forwards"),
+
+  // Saved connections (DB)
+  savedConnections: {
+    list: () => invoke<SavedSshConnection[]>("ssh_list_saved_connections"),
+    save: (config: SshConnectionConfig) =>
+      invoke<SavedSshConnection>("ssh_save_connection", { config }),
+    delete: (id: string) => invoke<void>("ssh_delete_connection", { id }),
+  },
+
+  // Port forward rules (DB)
+  portForwards: {
+    list: (connectionId: string) =>
+      invoke<SshPortForward[]>("ssh_list_port_forwards", { connectionId }),
+    save: (forward: NewPortForward) => invoke<SshPortForward>("ssh_save_port_forward", { forward }),
+    delete: (id: string) => invoke<void>("ssh_delete_port_forward", { id }),
   },
 };

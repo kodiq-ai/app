@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::process::Command;
 
 use crate::error::KodiqError;
+use crate::ssh::{self, SshState};
 
 // ── Git helpers ──────────────────────────────────────────────────────────────
 
@@ -33,11 +34,24 @@ fn git_try(path: &str, args: &[&str]) -> Option<String> {
 
 // ── Stage / Unstage ──────────────────────────────────────────────────────────
 
-#[tauri::command]
-pub fn git_stage(path: String, files: Vec<String>) -> Result<(), KodiqError> {
+#[tauri::command(async)]
+pub async fn git_stage(
+    path: String,
+    files: Vec<String>,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<(), KodiqError> {
     if files.is_empty() {
         return Ok(());
     }
+
+    if let Some(ref conn_id) = connection_id {
+        let quoted: Vec<String> = files.iter().map(|f| ssh::git::shell_quote(f)).collect();
+        ssh::git::ssh_git_run(&ssh_state, conn_id, &path, &format!("add -- {}", quoted.join(" ")))
+            .await?;
+        return Ok(());
+    }
+
     let mut args = vec!["add", "--"];
     let refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
     args.extend(refs);
@@ -45,11 +59,29 @@ pub fn git_stage(path: String, files: Vec<String>) -> Result<(), KodiqError> {
     Ok(())
 }
 
-#[tauri::command]
-pub fn git_unstage(path: String, files: Vec<String>) -> Result<(), KodiqError> {
+#[tauri::command(async)]
+pub async fn git_unstage(
+    path: String,
+    files: Vec<String>,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<(), KodiqError> {
     if files.is_empty() {
         return Ok(());
     }
+
+    if let Some(ref conn_id) = connection_id {
+        let quoted: Vec<String> = files.iter().map(|f| ssh::git::shell_quote(f)).collect();
+        ssh::git::ssh_git_run(
+            &ssh_state,
+            conn_id,
+            &path,
+            &format!("reset HEAD -- {}", quoted.join(" ")),
+        )
+        .await?;
+        return Ok(());
+    }
+
     let mut args = vec!["reset", "HEAD", "--"];
     let refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
     args.extend(refs);
@@ -57,25 +89,58 @@ pub fn git_unstage(path: String, files: Vec<String>) -> Result<(), KodiqError> {
     Ok(())
 }
 
-#[tauri::command]
-pub fn git_stage_all(path: String) -> Result<(), KodiqError> {
+#[tauri::command(async)]
+pub async fn git_stage_all(
+    path: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<(), KodiqError> {
+    if let Some(ref conn_id) = connection_id {
+        ssh::git::ssh_git_run(&ssh_state, conn_id, &path, "add -A").await?;
+        return Ok(());
+    }
     git_run(&path, &["add", "-A"])?;
     Ok(())
 }
 
-#[tauri::command]
-pub fn git_unstage_all(path: String) -> Result<(), KodiqError> {
+#[tauri::command(async)]
+pub async fn git_unstage_all(
+    path: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<(), KodiqError> {
+    if let Some(ref conn_id) = connection_id {
+        ssh::git::ssh_git_run(&ssh_state, conn_id, &path, "reset HEAD").await?;
+        return Ok(());
+    }
     git_run(&path, &["reset", "HEAD"])?;
     Ok(())
 }
 
 // ── Commit ───────────────────────────────────────────────────────────────────
 
-#[tauri::command]
-pub fn git_commit(path: String, message: String) -> Result<serde_json::Value, KodiqError> {
+#[tauri::command(async)]
+pub async fn git_commit(
+    path: String,
+    message: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<serde_json::Value, KodiqError> {
     if message.trim().is_empty() {
         return Err(KodiqError::Other("Commit message cannot be empty".into()));
     }
+
+    if let Some(ref conn_id) = connection_id {
+        // Shell-escape the message for remote exec
+        let escaped = message.replace('\'', "'\\''");
+        ssh::git::ssh_git_run(&ssh_state, conn_id, &path, &format!("commit -m '{}'", escaped))
+            .await?;
+        let hash = ssh::git::ssh_git_try(&ssh_state, conn_id, &path, "rev-parse --short HEAD")
+            .await
+            .unwrap_or_default();
+        return Ok(serde_json::json!({ "hash": hash, "message": message }));
+    }
+
     git_run(&path, &["commit", "-m", &message])?;
     let hash = git_try(&path, &["rev-parse", "--short", "HEAD"]).unwrap_or_default();
     Ok(serde_json::json!({ "hash": hash, "message": message }))
@@ -83,16 +148,49 @@ pub fn git_commit(path: String, message: String) -> Result<serde_json::Value, Ko
 
 // ── Diff ─────────────────────────────────────────────────────────────────────
 
-#[tauri::command]
-pub fn git_diff(path: String, file: String, staged: bool) -> Result<String, KodiqError> {
+#[tauri::command(async)]
+pub async fn git_diff(
+    path: String,
+    file: String,
+    staged: bool,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<String, KodiqError> {
+    if let Some(ref conn_id) = connection_id {
+        let quoted_file = ssh::git::shell_quote(&file);
+        let args = if staged {
+            format!("diff --cached -- {}", quoted_file)
+        } else {
+            format!("diff -- {}", quoted_file)
+        };
+        return ssh::git::ssh_git_run(&ssh_state, conn_id, &path, &args).await;
+    }
+
     let args =
         if staged { vec!["diff", "--cached", "--", &file] } else { vec!["diff", "--", &file] };
     git_run(&path, &args)
 }
 
 /// Get project statistics: file counts by extension, total size, detected stack
-#[tauri::command]
-pub fn get_project_stats(path: String) -> Result<serde_json::Value, KodiqError> {
+/// Note: remote project stats are not yet supported (returns error).
+#[tauri::command(async)]
+pub async fn get_project_stats(
+    path: String,
+    connection_id: Option<String>,
+    _ssh_state: tauri::State<'_, SshState>,
+) -> Result<serde_json::Value, KodiqError> {
+    if connection_id.is_some() {
+        // Remote stats via SFTP walk would be very slow.
+        // Return a minimal placeholder; Phase 6 will add full remote stats.
+        return Ok(serde_json::json!({
+            "totalFiles": 0,
+            "totalDirs": 0,
+            "totalSizeBytes": 0,
+            "extensions": [],
+            "stack": [],
+        }));
+    }
+
     let root = std::path::Path::new(&path);
     if !root.is_dir() {
         return Err(KodiqError::NotFound(format!("Not a directory: {}", path)));
@@ -230,10 +328,120 @@ fn status_kind(ch: char) -> &'static str {
     }
 }
 
-/// Get git info for a project: branch, status, staged/unstaged files
-#[tracing::instrument]
-#[tauri::command]
-pub fn get_git_info(path: String) -> Result<serde_json::Value, KodiqError> {
+/// Parse git status --porcelain output into (staged, unstaged, changed) file lists.
+/// Shared between local and remote paths.
+fn parse_status_porcelain(
+    status_raw: &str,
+) -> (Vec<serde_json::Value>, Vec<serde_json::Value>, Vec<serde_json::Value>) {
+    let mut staged_files: Vec<serde_json::Value> = Vec::new();
+    let mut unstaged_files: Vec<serde_json::Value> = Vec::new();
+    let mut changed_files: Vec<serde_json::Value> = Vec::new();
+
+    for line in status_raw.lines().filter(|l| l.len() >= 3) {
+        let bytes = line.as_bytes();
+        let x = bytes[0] as char;
+        let y = bytes[1] as char;
+        let file = line[3..].to_string();
+
+        if x == '?' && y == '?' {
+            unstaged_files.push(serde_json::json!({ "file": file, "kind": "untracked" }));
+            changed_files
+                .push(serde_json::json!({ "file": file, "status": "??", "kind": "untracked" }));
+            continue;
+        }
+
+        if x != ' ' && x != '?' {
+            staged_files.push(serde_json::json!({ "file": file, "kind": status_kind(x) }));
+        }
+
+        if y != ' ' && y != '?' {
+            unstaged_files.push(serde_json::json!({ "file": file, "kind": status_kind(y) }));
+        }
+
+        let kind = if x != ' ' && x != '?' { status_kind(x) } else { status_kind(y) };
+        changed_files.push(
+            serde_json::json!({ "file": file, "status": format!("{}{}", x, y), "kind": kind }),
+        );
+    }
+
+    (staged_files, unstaged_files, changed_files)
+}
+
+/// Get git info for a project: branch, status, staged/unstaged files.
+/// If `connection_id` is provided, runs git on remote host via SSH exec.
+#[tracing::instrument(skip(ssh_state))]
+#[tauri::command(async)]
+pub async fn get_git_info(
+    path: String,
+    connection_id: Option<String>,
+    ssh_state: tauri::State<'_, SshState>,
+) -> Result<serde_json::Value, KodiqError> {
+    // ── Remote: git via SSH exec ────────────────────────────────────────
+    if let Some(ref conn_id) = connection_id {
+        let is_git =
+            ssh::git::ssh_git_try(&ssh_state, conn_id, &path, "rev-parse --is-inside-work-tree")
+                .await
+                .map(|s| s == "true")
+                .unwrap_or(false);
+
+        if !is_git {
+            return Ok(serde_json::json!({ "isGit": false }));
+        }
+
+        let branch = ssh::git::ssh_git_try(&ssh_state, conn_id, &path, "branch --show-current")
+            .await
+            .unwrap_or_default();
+        let commit_hash =
+            ssh::git::ssh_git_try(&ssh_state, conn_id, &path, "rev-parse --short HEAD")
+                .await
+                .unwrap_or_default();
+        let commit_message =
+            ssh::git::ssh_git_try(&ssh_state, conn_id, &path, "log -1 --pretty=%s")
+                .await
+                .unwrap_or_default();
+        let commit_time = ssh::git::ssh_git_try(&ssh_state, conn_id, &path, "log -1 --pretty=%cr")
+            .await
+            .unwrap_or_default();
+
+        let status_raw = ssh::git::ssh_git_try(&ssh_state, conn_id, &path, "status --porcelain")
+            .await
+            .unwrap_or_default();
+        let (staged_files, unstaged_files, changed_files) = parse_status_porcelain(&status_raw);
+
+        let ahead_behind = ssh::git::ssh_git_try(
+            &ssh_state,
+            conn_id,
+            &path,
+            "rev-list --left-right --count HEAD...@{upstream}",
+        )
+        .await
+        .unwrap_or_default();
+        let (ahead, behind) = {
+            let parts: Vec<&str> = ahead_behind.split('\t').collect();
+            (
+                parts.first().and_then(|s| s.parse::<u32>().ok()).unwrap_or(0),
+                parts.get(1).and_then(|s| s.parse::<u32>().ok()).unwrap_or(0),
+            )
+        };
+
+        return Ok(serde_json::json!({
+            "isGit": true,
+            "branch": branch,
+            "commitHash": commit_hash,
+            "commitMessage": commit_message,
+            "commitTime": commit_time,
+            "changedFiles": changed_files,
+            "changedCount": changed_files.len(),
+            "stagedFiles": staged_files,
+            "stagedCount": staged_files.len(),
+            "unstagedFiles": unstaged_files,
+            "unstagedCount": unstaged_files.len(),
+            "ahead": ahead,
+            "behind": behind,
+        }));
+    }
+
+    // ── Local: original logic ───────────────────────────────────────────
     let is_git = git_try(&path, &["rev-parse", "--is-inside-work-tree"])
         .map(|s| s == "true")
         .unwrap_or(false);
@@ -246,51 +454,8 @@ pub fn get_git_info(path: String) -> Result<serde_json::Value, KodiqError> {
     let commit_message = git_try(&path, &["log", "-1", "--pretty=%s"]).unwrap_or_default();
     let commit_time = git_try(&path, &["log", "-1", "--pretty=%cr"]).unwrap_or_default();
 
-    // Parse porcelain XY: X = index (staged), Y = worktree (unstaged)
     let status_raw = git_try(&path, &["status", "--porcelain"]).unwrap_or_default();
-    let mut staged_files: Vec<serde_json::Value> = Vec::new();
-    let mut unstaged_files: Vec<serde_json::Value> = Vec::new();
-
-    // Keep legacy changedFiles for ProjectOverview compatibility
-    let mut changed_files: Vec<serde_json::Value> = Vec::new();
-
-    for line in status_raw.lines().filter(|l| l.len() >= 3) {
-        let bytes = line.as_bytes();
-        let x = bytes[0] as char; // index status
-        let y = bytes[1] as char; // worktree status
-        let file = line[3..].to_string();
-
-        // Untracked files: shown only in unstaged
-        if x == '?' && y == '?' {
-            unstaged_files.push(serde_json::json!({
-                "file": file, "kind": "untracked"
-            }));
-            changed_files.push(serde_json::json!({
-                "file": file, "status": "??", "kind": "untracked"
-            }));
-            continue;
-        }
-
-        // Staged: X is not ' ' and not '?'
-        if x != ' ' && x != '?' {
-            staged_files.push(serde_json::json!({
-                "file": file, "kind": status_kind(x)
-            }));
-        }
-
-        // Unstaged: Y is not ' ' and not '?'
-        if y != ' ' && y != '?' {
-            unstaged_files.push(serde_json::json!({
-                "file": file, "kind": status_kind(y)
-            }));
-        }
-
-        // Legacy: use first non-space status for ProjectOverview
-        let kind = if x != ' ' && x != '?' { status_kind(x) } else { status_kind(y) };
-        changed_files.push(serde_json::json!({
-            "file": file, "status": format!("{}{}", x, y), "kind": kind
-        }));
-    }
+    let (staged_files, unstaged_files, changed_files) = parse_status_porcelain(&status_raw);
 
     let ahead_behind =
         git_try(&path, &["rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
