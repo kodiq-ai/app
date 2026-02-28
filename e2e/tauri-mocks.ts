@@ -91,6 +91,11 @@ const DEFAULT_MOCKS: Record<string, unknown> = {
   },
   db_clear_chat: 0,
 
+  // Tauri plugin IPC (event listeners + updater)
+  "plugin:event|listen": null,
+  "plugin:event|unlisten": null,
+  "plugin:updater|check": null,
+
   // SSH
   ssh_connect: { id: "conn-1", host: "localhost", status: "connected" },
   ssh_disconnect: undefined,
