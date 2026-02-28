@@ -55,7 +55,7 @@ src-tauri/src/         Rust modules: terminal/, filesystem/, git/, cli/, db/
 
 ## Git & GitHub Workflow
 
-> **Repo**: `kodiq-ai/app` (PUBLIC, Apache 2.0)
+> **Repo**: `kodiq-ai/ide` (PUBLIC, Apache 2.0)
 
 ```bash
 # Новая ветка от main
