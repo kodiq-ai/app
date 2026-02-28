@@ -76,6 +76,40 @@ const DEFAULT_MOCKS: Record<string, unknown> = {
   db_create_launch_config: { id: "lc-1", name: "dev", command: "pnpm dev" },
   db_update_launch_config: undefined,
   db_delete_launch_config: undefined,
+
+  // Chat
+  chat_send: undefined,
+  chat_stop: undefined,
+  db_list_chat_messages: [],
+  db_save_chat_message: {
+    id: "chat-1",
+    project_id: "p1",
+    role: "user",
+    content: "test",
+    provider: "claude",
+    created_at: Date.now(),
+  },
+  db_clear_chat: 0,
+
+  // SSH
+  ssh_connect: { id: "conn-1", host: "localhost", status: "connected" },
+  ssh_disconnect: undefined,
+  ssh_list_connections: [],
+  ssh_test_connection: true,
+  ssh_connection_status: { id: "conn-1", status: "connected" },
+  ssh_spawn_terminal: "ssh-term-1",
+  ssh_write: undefined,
+  ssh_resize: undefined,
+  ssh_close_terminal: undefined,
+  ssh_start_forward: "fwd-1",
+  ssh_stop_forward: undefined,
+  ssh_list_forwards: [],
+  ssh_list_saved_connections: [],
+  ssh_save_connection: { id: "saved-1", host: "example.com" },
+  ssh_delete_connection: undefined,
+  ssh_list_port_forwards: [],
+  ssh_save_port_forward: { id: "pf-1" },
+  ssh_delete_port_forward: undefined,
 };
 
 /**
