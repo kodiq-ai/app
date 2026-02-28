@@ -91,11 +91,7 @@ pub async fn ssh_spawn_terminal(
         let mut state = term_state.lock().await;
         state.sessions.insert(
             terminal_id.clone(),
-            SshTerminalSession {
-                writer: write_tx,
-                resize_tx,
-                cancel,
-            },
+            SshTerminalSession { writer: write_tx, resize_tx, cancel },
         );
     }
 
