@@ -24,7 +24,7 @@ import { SettingsDialog } from "@/components/SettingsDialog";
 import { FileSearch } from "@/components/FileSearch";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { EmptyState } from "@/components/EmptyState";
-import { EditorPanel, destroyAllEditorViews } from "@features/editor";
+import { EditorPanel, EditorStatusBar, destroyAllEditorViews } from "@features/editor";
 import { OnboardingWizard } from "@features/settings/components/OnboardingWizard";
 import { UpdateBadge } from "@features/settings/components/UpdateBadge";
 import { UpdateDialog } from "@features/settings/components/UpdateDialog";
@@ -608,6 +608,9 @@ export default function App() {
           <EmptyState onOpenFolder={handleOpenFolder} onOpenProject={openProject} />
         )}
       </div>
+
+      {/* Global Status Bar */}
+      {projectPath && <EditorStatusBar />}
     </div>
   );
 }

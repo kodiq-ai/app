@@ -22,7 +22,6 @@ import { t } from "@/lib/i18n";
 import { toast } from "sonner";
 import { EditorTabBar } from "./EditorTabBar";
 import { CodeMirrorEditor } from "./CodeMirrorEditor";
-import { EditorStatusBar } from "./EditorStatusBar";
 import { GoToLineDialog } from "./GoToLineDialog";
 import { FindReplacePanel, type SearchParams } from "./FindReplacePanel";
 import { destroyEditorView, getViewEntry } from "../lib/viewCache";
@@ -278,9 +277,6 @@ export function EditorPanel() {
           onClose={handleGoToLineClose}
         />
       </div>
-
-      {/* Status Bar */}
-      <EditorStatusBar />
 
       {/* Unsaved Changes Dialog */}
       <UnsavedDialog
