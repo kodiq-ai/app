@@ -340,5 +340,25 @@
   "chatCopyCode": "Copy",
   "chatCodeCopied": "Code copied",
   "chatNoProviders": "No AI CLI tools installed",
-  "chatSelectProvider": "Select AI provider"
+  "chatSelectProvider": "Select AI provider",
+
+  "reportBug": "Report a bug",
+  "bugReportTitle": "Feedback",
+  "bugReportDesc": "Report a bug, suggest an improvement, or share an idea",
+  "bugTypeBug": "Bug",
+  "bugTypeImprovement": "Improvement",
+  "bugTypeIdea": "Idea",
+  "bugTitleLabel": "Title",
+  "bugTitlePlaceholderBug": "What went wrong?",
+  "bugTitlePlaceholderImprovement": "What can be improved?",
+  "bugTitlePlaceholderIdea": "What is your idea?",
+  "bugDescLabel": "Description",
+  "bugDescPlaceholderBug": "Describe step by step — what you did, what happened, what you expected.",
+  "bugDescPlaceholderImprovement": "Tell us what you want to improve and why it matters.",
+  "bugDescPlaceholderIdea": "Tell us about your idea — what problem does it solve?",
+  "bugSubmit": "Submit",
+  "bugSubmitting": "Submitting…",
+  "bugSuccess": "Thank you! We received your feedback.",
+  "bugError": "Something went wrong. Please try again.",
+  "bugSuccessDone": "Done"
 }

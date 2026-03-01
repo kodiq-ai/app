@@ -12,6 +12,7 @@ import { createGitSlice, type GitSlice } from "@features/git/store/gitSlice";
 import { createActivitySlice, type ActivitySlice } from "@features/activity/store/activitySlice";
 import { createSshSlice, type SshSlice } from "@features/ssh/store/sshSlice";
 import { createChatSlice, type ChatSlice } from "@features/chat/store/chatSlice";
+import { createFeedbackSlice, type FeedbackSlice } from "@features/feedback/store/feedbackSlice";
 
 export type AppStore = TerminalSlice &
   ProjectSlice &
@@ -22,7 +23,8 @@ export type AppStore = TerminalSlice &
   GitSlice &
   ActivitySlice &
   SshSlice &
-  ChatSlice;
+  ChatSlice &
+  FeedbackSlice;
 
 export const useAppStore = create<AppStore>()((...args) => ({
   ...createTerminalSlice(...args),
@@ -35,6 +37,7 @@ export const useAppStore = create<AppStore>()((...args) => ({
   ...createActivitySlice(...args),
   ...createSshSlice(...args),
   ...createChatSlice(...args),
+  ...createFeedbackSlice(...args),
 }));
 
 // Re-export types for convenience
@@ -48,3 +51,4 @@ export type { GitSlice } from "@features/git/store/gitSlice";
 export type { ActivitySlice } from "@features/activity/store/activitySlice";
 export type { SshSlice } from "@features/ssh/store/sshSlice";
 export type { ChatSlice } from "@features/chat/store/chatSlice";
+export type { FeedbackSlice } from "@features/feedback/store/feedbackSlice";
