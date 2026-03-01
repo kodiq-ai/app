@@ -340,5 +340,26 @@
   "chatCopyCode": "Копировать",
   "chatCodeCopied": "Код скопирован",
   "chatNoProviders": "AI CLI инструменты не установлены",
-  "chatSelectProvider": "Выберите AI провайдера"
+  "chatSelectProvider": "Выберите AI провайдера",
+
+  "reportBug": "Сообщить об ошибке",
+  "bugReportTitle": "Обратная связь",
+  "bugReportDesc": "Сообщите об ошибке, предложите улучшение или поделитесь идеей",
+  "bugTypeLabel": "Тип",
+  "bugTypeBug": "Баг",
+  "bugTypeImprovement": "Улучшение",
+  "bugTypeIdea": "Идея",
+  "bugTitleLabel": "Заголовок",
+  "bugTitlePlaceholderBug": "Что пошло не так?",
+  "bugTitlePlaceholderImprovement": "Что можно улучшить?",
+  "bugTitlePlaceholderIdea": "В чём ваша идея?",
+  "bugDescLabel": "Описание",
+  "bugDescPlaceholderBug": "Опишите пошагово — что вы делали, что произошло, чего ожидали.",
+  "bugDescPlaceholderImprovement": "Расскажите, что хотите улучшить и почему это важно.",
+  "bugDescPlaceholderIdea": "Расскажите об идее — какую проблему она решает?",
+  "bugSubmit": "Отправить",
+  "bugSubmitting": "Отправляю…",
+  "bugSuccess": "Спасибо! Мы получили ваш отзыв.",
+  "bugError": "Что-то пошло не так. Попробуйте ещё раз.",
+  "bugSuccessDone": "Готово"
 }

@@ -29,6 +29,8 @@ import { OnboardingWizard } from "@features/settings/components/OnboardingWizard
 import { UpdateBadge } from "@features/settings/components/UpdateBadge";
 import { UpdateDialog } from "@features/settings/components/UpdateDialog";
 import { SshStatusBadge, SshPasswordPrompt } from "@features/ssh";
+import { BugReportDialog } from "@features/feedback/components/BugReportDialog";
+import { Bug } from "lucide-react";
 
 // ─── Main App ───────────────────────────────────────────────────────────────
 
@@ -55,6 +57,7 @@ export default function App() {
   const cliTools = useAppStore((s) => s.cliTools);
   const editorTabs = useAppStore((s) => s.editorTabs);
   const editorSplitRatio = useAppStore((s) => s.editorSplitRatio);
+  const setBugReportOpen = useAppStore((s) => s.setBugReportOpen);
 
   const [defaultShell, setDefaultShell] = useState("");
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -449,6 +452,7 @@ export default function App() {
       <UpdateDialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen} />
       <FileSearch />
       <SshPasswordPrompt />
+      <BugReportDialog />
 
       {/* Title bar */}
       <header
@@ -471,6 +475,20 @@ export default function App() {
         <div className="flex w-[180px] items-center justify-end gap-1">
           <SshStatusBadge />
           <UpdateBadge onClick={() => setUpdateDialogOpen(true)} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setBugReportOpen(true)}
+                aria-label={t("reportBug")}
+                className="text-k-text-tertiary hover:text-k-text-secondary h-6 w-6 p-0"
+              >
+                <Bug className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{t("reportBug")}</TooltipContent>
+          </Tooltip>
           {projectPath && (
             <Tooltip>
               <TooltipTrigger asChild>
