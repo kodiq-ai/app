@@ -32,7 +32,7 @@
   --code-keyword: #d4a876;
   --code-string: #7db86a;
   --code-function: #dac4a0;
-  --code-number: #c678dd;
+  --code-number: #b87a6a;
   --code-comment: #4a4a48;
 
   /* Status */
@@ -69,7 +69,7 @@
   --chart-1: #c4a882;
   --chart-2: #6a9a5a;
   --chart-3: #d4944a;
-  --chart-4: #8da1f2;
+  --chart-4: #b87a6a;
   --chart-5: #c4705a;
   --sidebar: #0a0a0c;
   --sidebar-foreground: #ece8e1;
@@ -93,6 +93,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.011em;
+  position: relative;
+  isolation: isolate;
 }
 
 /* Warm gold ambient glow */
@@ -115,6 +117,8 @@ body::after {
   width: 100vw;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 /* ─── Xterm.js ─────────────────────────────────────────────────────────────── */
@@ -270,8 +274,8 @@ body::after {
 }
 
 *:focus-visible {
-  outline: 1px solid rgba(196, 168, 130, 0.4);
-  outline-offset: -1px;
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
   border-radius: 4px;
 }
 
@@ -342,15 +346,8 @@ body::after {
   --color-k-status-error: var(--status-error);
 }
 
+/* .dark is a no-op — Kodiq is always dark, all tokens live in :root */
 .dark {
-  --sidebar: #0a0a0c;
-  --sidebar-foreground: #ece8e1;
-  --sidebar-primary: #c4a882;
-  --sidebar-primary-foreground: #ece8e1;
-  --sidebar-accent: #18181d;
-  --sidebar-accent-foreground: #ece8e1;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #c4a882;
 }
 
 @layer base {
