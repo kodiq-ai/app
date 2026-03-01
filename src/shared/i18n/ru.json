@@ -345,6 +345,7 @@
   "reportBug": "Сообщить об ошибке",
   "bugReportTitle": "Обратная связь",
   "bugReportDesc": "Сообщите об ошибке, предложите улучшение или поделитесь идеей",
+  "bugTypeLabel": "Тип",
   "bugTypeBug": "Баг",
   "bugTypeImprovement": "Улучшение",
   "bugTypeIdea": "Идея",

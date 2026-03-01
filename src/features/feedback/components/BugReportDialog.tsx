@@ -62,7 +62,8 @@ export function BugReportDialog() {
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (!next && submitState === "success") {
+    if (!next) {
+      // Always reset form on close so stale error/success state doesn't persist
       setTimeout(reset, 200);
     }
   }
@@ -77,7 +78,10 @@ export function BugReportDialog() {
         "\n",
       );
 
-      const fullDescription = `${description.trim()}\n\n---\n${meta}`;
+      const suffix = `\n\n---\n${meta}`;
+      // Trim user description so total stays within API 4000 char limit
+      const maxDescLen = 4000 - suffix.length;
+      const fullDescription = `${description.trim().slice(0, maxDescLen)}${suffix}`;
 
       const res = await fetch(FEEDBACK_API, {
         method: "POST",
@@ -124,7 +128,7 @@ export function BugReportDialog() {
             {/* Type selector */}
             <div className="flex flex-col gap-2">
               <label className="text-k-text-secondary text-[11px] font-medium tracking-[0.06em] uppercase">
-                {t("bugTitleLabel")}
+                {t("bugTypeLabel")}
               </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {TYPES.map((opt) => (

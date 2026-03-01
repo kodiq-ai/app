@@ -345,6 +345,7 @@
   "reportBug": "Report a bug",
   "bugReportTitle": "Feedback",
   "bugReportDesc": "Report a bug, suggest an improvement, or share an idea",
+  "bugTypeLabel": "Type",
   "bugTypeBug": "Bug",
   "bugTypeImprovement": "Improvement",
   "bugTypeIdea": "Idea",
