@@ -48,6 +48,7 @@ export function initAnalytics(): void {
       capture_pageleave: false,
       persistence: "localStorage",
     });
+    posthog.register({ $product: "Kodiq IDE" });
   }
 
   initialized = true;

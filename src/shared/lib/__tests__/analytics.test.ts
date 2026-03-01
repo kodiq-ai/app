@@ -12,6 +12,7 @@ vi.mock("@sentry/browser", () => ({
 vi.mock("posthog-js", () => ({
   default: {
     init: vi.fn(),
+    register: vi.fn(),
     capture: vi.fn(),
     identify: vi.fn(),
     opt_out_capturing: vi.fn(),
