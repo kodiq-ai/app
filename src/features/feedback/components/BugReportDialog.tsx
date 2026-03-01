@@ -130,11 +130,17 @@ export function BugReportDialog() {
               <label className="text-k-text-secondary text-[11px] font-medium tracking-[0.06em] uppercase">
                 {t("bugTypeLabel")}
               </label>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div
+                className="grid grid-cols-3 gap-1.5"
+                role="radiogroup"
+                aria-label={t("bugTypeLabel")}
+              >
                 {TYPES.map((opt) => (
                   <button
                     key={opt.key}
                     type="button"
+                    role="radio"
+                    aria-checked={type === opt.key}
                     onClick={() => setType(opt.key)}
                     className={`flex flex-col items-center gap-1 rounded-md border px-2 py-2.5 text-[11px] transition-all ${
                       type === opt.key
