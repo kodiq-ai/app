@@ -23,8 +23,8 @@ const KIND_ICON: Record<string, { icon: typeof Pencil; color: string }> = {
   added: { icon: FilePlus, color: "#22c55e" },
   deleted: { icon: FileMinus, color: "#ef4444" },
   untracked: { icon: FileQuestion, color: "#a1a1a8" },
-  renamed: { icon: CircleDot, color: "#4da3c7" },
-  copied: { icon: CircleDot, color: "#4da3c7" },
+  renamed: { icon: CircleDot, color: "#c4a882" },
+  copied: { icon: CircleDot, color: "#c4a882" },
   other: { icon: CircleDot, color: "#6e6e76" },
 };
 

@@ -1,5 +1,5 @@
-// ── CodeMirror 6 Theme — Kodiq Dark ─────────────────────────────────────────
-// Matches design tokens: bg-base, text-primary, accent cyan, Monaspace Neon.
+// ── CodeMirror 6 Theme — Kodiq Warm Gold ────────────────────────────────────
+// Matches design tokens: bg-base, text-primary, accent warm gold, Monaspace Neon.
 
 import { EditorView } from "@codemirror/view";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
@@ -7,18 +7,18 @@ import { tags as t } from "@lezer/highlight";
 
 // -- Design Tokens -------
 const tokens = {
-  bg: "#141416",
-  bgSurface: "#1a1a1d",
-  bgHighlight: "#202024",
-  accent: "#4DA3C7",
-  text: "#E6E6E9",
-  textSecondary: "#A1A1A8",
-  textTertiary: "#6E6E76",
-  border: "#6E6E76",
-  selection: "rgba(77, 163, 199, 0.15)",
+  bg: "#08080a",
+  bgSurface: "#111114",
+  bgHighlight: "#18181d",
+  accent: "#c4a882",
+  text: "#ece8e1",
+  textSecondary: "#8a8780",
+  textTertiary: "#5a5854",
+  border: "#5a5854",
+  selection: "rgba(196, 168, 130, 0.15)",
   lineHighlight: "rgba(255, 255, 255, 0.03)",
-  gutter: "#202024",
-  gutterActive: "#A1A1A8",
+  gutter: "#18181d",
+  gutterActive: "#8a8780",
 };
 
 // -- Editor View Theme (UI) -------
@@ -72,15 +72,15 @@ const editorTheme = EditorView.theme(
       },
     },
     ".cm-searchMatch": {
-      backgroundColor: "rgba(77, 163, 199, 0.2)",
-      outline: `1px solid rgba(77, 163, 199, 0.4)`,
+      backgroundColor: "rgba(196, 168, 130, 0.2)",
+      outline: `1px solid rgba(196, 168, 130, 0.4)`,
     },
     ".cm-searchMatch.cm-searchMatch-selected": {
-      backgroundColor: "rgba(77, 163, 199, 0.35)",
+      backgroundColor: "rgba(196, 168, 130, 0.35)",
     },
     ".cm-matchingBracket": {
-      backgroundColor: "rgba(77, 163, 199, 0.25)",
-      outline: "1px solid rgba(77, 163, 199, 0.5)",
+      backgroundColor: "rgba(196, 168, 130, 0.25)",
+      outline: "1px solid rgba(196, 168, 130, 0.5)",
     },
     ".cm-panels": {
       backgroundColor: tokens.bgSurface,
@@ -121,18 +121,18 @@ const highlightStyle = HighlightStyle.define([
   { tag: t.operatorKeyword, color: "#8DA1F2" },
 
   // Types & classes
-  { tag: t.typeName, color: "#4DA3C7" },
-  { tag: t.className, color: "#4DA3C7" },
-  { tag: t.namespace, color: "#4DA3C7" },
+  { tag: t.typeName, color: "#c4a882" },
+  { tag: t.className, color: "#c4a882" },
+  { tag: t.namespace, color: "#c4a882" },
 
   // Functions
   { tag: t.function(t.variableName), color: "#E5C07B" },
   { tag: t.function(t.propertyName), color: "#E5C07B" },
 
   // Variables & properties
-  { tag: t.variableName, color: "#E6E6E9" },
-  { tag: t.propertyName, color: "#4DA3C7" },
-  { tag: t.definition(t.variableName), color: "#E6E6E9" },
+  { tag: t.variableName, color: "#ece8e1" },
+  { tag: t.propertyName, color: "#c4a882" },
+  { tag: t.definition(t.variableName), color: "#ece8e1" },
 
   // Strings
   { tag: t.string, color: "#A8C97F" },
@@ -144,7 +144,7 @@ const highlightStyle = HighlightStyle.define([
   { tag: t.null, color: "#C678DD" },
 
   // Regex
-  { tag: t.regexp, color: "#C36A6A" },
+  { tag: t.regexp, color: "#c4705a" },
 
   // Operators & punctuation
   { tag: t.operator, color: "#A1A1A8" },
@@ -152,7 +152,7 @@ const highlightStyle = HighlightStyle.define([
   { tag: t.bracket, color: "#A1A1A8" },
 
   // Tags (HTML/XML)
-  { tag: t.tagName, color: "#C36A6A" },
+  { tag: t.tagName, color: "#c4705a" },
   { tag: t.attributeName, color: "#E5C07B" },
   { tag: t.attributeValue, color: "#A8C97F" },
 
@@ -161,13 +161,13 @@ const highlightStyle = HighlightStyle.define([
   { tag: t.processingInstruction, color: "#A1A1A8" },
 
   // Heading (Markdown)
-  { tag: t.heading, color: "#E6E6E9", fontWeight: "bold" },
+  { tag: t.heading, color: "#ece8e1", fontWeight: "bold" },
   { tag: t.emphasis, fontStyle: "italic" },
   { tag: t.strong, fontWeight: "bold" },
-  { tag: t.link, color: "#4DA3C7", textDecoration: "underline" },
+  { tag: t.link, color: "#c4a882", textDecoration: "underline" },
 
   // Invalid
-  { tag: t.invalid, color: "#C36A6A", textDecoration: "underline wavy" },
+  { tag: t.invalid, color: "#c4705a", textDecoration: "underline wavy" },
 ]);
 
 // -- Combined Extension -------
