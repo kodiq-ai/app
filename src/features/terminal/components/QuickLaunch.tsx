@@ -57,19 +57,20 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
   // Load launch configs when project changes
   useEffect(() => {
     if (!projectId) return;
-    useAppStore.getState().loadLaunchConfigs(projectId);
+    void useAppStore.getState().loadLaunchConfigs(projectId);
   }, [projectId]);
 
   const handleLaunchConfig = (config: LaunchConfig) => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
       const payload: LaunchConfigPayload = JSON.parse(config.config);
       const parts = [config.cli_name, ...payload.args];
       const command = parts.join(" ");
       setLastLaunchConfigId(config.id);
       const env = Object.keys(payload.env).length > 0 ? payload.env : undefined;
-      onSpawnTab(command, config.profile_name, env);
+      void onSpawnTab(command, config.profile_name, env);
     } catch {
-      onSpawnTab(config.cli_name, config.profile_name);
+      void onSpawnTab(config.cli_name, config.profile_name);
     }
   };
 
@@ -160,7 +161,7 @@ export function QuickLaunch({ onSpawnTab }: QuickLaunchProps) {
                   variant="ghost"
                   onClick={() => {
                     const url = CLI_INSTALL_URLS[tool.bin];
-                    if (url) open(url);
+                    if (url) void open(url);
                   }}
                   className="group text-k-border hover:text-k-text-tertiary h-7 justify-start gap-1.5 px-2 text-[11px] hover:bg-white/[0.02]"
                 >

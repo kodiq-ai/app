@@ -23,7 +23,7 @@ export function SshConnectionList() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    loadSaved();
+    void loadSaved();
   }, [loadSaved]);
 
   const isActive = (id: string) => activeConns.some((c) => c.id === id && c.status === "connected");

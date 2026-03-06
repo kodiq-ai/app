@@ -29,9 +29,11 @@ export function setOptOut(value: boolean): void {
 export function initAnalytics(): void {
   if (isOptedOut()) return;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (dsn) {
     Sentry.init({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
       dsn,
       release: `kodiq@${__APP_VERSION__}`,
       environment: import.meta.env.DEV ? "development" : "production",
@@ -39,8 +41,10 @@ export function initAnalytics(): void {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
   const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
   if (posthogKey) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- untyped
     posthog.init(posthogKey, {
       api_host: "https://us.i.posthog.com",
       autocapture: false,

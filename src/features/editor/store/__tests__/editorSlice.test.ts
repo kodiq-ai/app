@@ -5,7 +5,9 @@ import { createEditorSlice } from "../editorSlice";
 function createTestStore() {
   let state: ReturnType<typeof createEditorSlice>;
   const set = (partial: unknown) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- untyped
     const next = typeof partial === "function" ? partial(state) : partial;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
     state = { ...state, ...next };
   };
   const get = () => state;

@@ -14,7 +14,7 @@ export function SshKeyBrowser({ onSelect }: SshKeyBrowserProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       try {
         const home = await homeDir();
         const sshDir = `${home}.ssh`;

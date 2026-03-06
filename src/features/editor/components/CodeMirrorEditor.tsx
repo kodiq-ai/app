@@ -125,7 +125,7 @@ export function CodeMirrorEditor({ tab }: Props) {
     setViewEntry(tab.path, entry);
 
     // Load language async
-    loadLanguage(tab.language).then((lang) => {
+    void loadLanguage(tab.language).then((lang) => {
       if (lang && hasViewEntry(tab.path)) {
         view.dispatch({
           effects: langCompartment.reconfigure(lang),

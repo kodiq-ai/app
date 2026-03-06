@@ -19,7 +19,7 @@ export function SshPortForwardPanel() {
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
-    refreshForwards();
+    void refreshForwards();
   }, [refreshForwards]);
 
   if (!activeId) return null;

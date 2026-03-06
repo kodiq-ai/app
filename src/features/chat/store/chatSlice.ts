@@ -142,6 +142,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
     );
 
     // Listen for process completion
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- untyped
     const unlistenDone = await listen<{ provider: string }>("chat-done", async () => {
       const { chatStreamingContent, chatMessages, chatActiveProvider } = get();
 

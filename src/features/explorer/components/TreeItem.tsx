@@ -72,7 +72,7 @@ export function TreeItem({ entry, depth, onExpand }: TreeItemProps) {
 
   const revealInSidebar = () => {
     if (entry.isDir) {
-      handleClick();
+      void handleClick();
     }
   };
 

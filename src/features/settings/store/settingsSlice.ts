@@ -103,6 +103,7 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
     const parse = (v: string | undefined): string | undefined => {
       if (!v) return undefined;
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
         const p = JSON.parse(v);
         return typeof p === "string" ? p : v;
       } catch {
@@ -112,6 +113,7 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
     const parseNum = (v: string | undefined): number | undefined => {
       if (!v) return undefined;
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
         const p = JSON.parse(v);
         return typeof p === "number" ? p : parseFloat(v);
       } catch {

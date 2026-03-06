@@ -158,7 +158,7 @@ export default function App() {
       return;
     }
     const cmd = closed.command === "shell" || !closed.command ? undefined : closed.command;
-    spawnTab(cmd, closed.label);
+    void spawnTab(cmd, closed.label);
   }, [spawnTab]);
 
   const openProject = (path: string) => {
@@ -168,7 +168,7 @@ export default function App() {
     useAppStore.getState().closeAllEditorTabs();
     destroyAllEditorViews();
     addRecent({ name, path });
-    loadFileTree(path);
+    void loadFileTree(path);
 
     // Start native filesystem watcher
     fs.startWatching(path).catch((e) => console.warn("[Watcher] failed to start:", e));
@@ -185,7 +185,7 @@ export default function App() {
       .catch(() => {});
 
     // Async init: DB project → auto-config → restore sessions (proper await chain)
-    (async () => {
+    void (async () => {
       try {
         const project = await db.projects.getOrCreate(name, path);
 
@@ -333,7 +333,7 @@ export default function App() {
         openProject(lastPath);
       }
     };
-    init();
+    void init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -341,10 +341,10 @@ export default function App() {
   useEffect(() => {
     const unlistenFs = listen<string>("fs-changed", () => {
       const path = useAppStore.getState().projectPath;
-      if (path) loadFileTree(path);
+      if (path) void loadFileTree(path);
     });
     return () => {
-      unlistenFs.then((fn) => fn());
+      void unlistenFs.then((fn) => fn());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -362,7 +362,7 @@ export default function App() {
       });
     });
     return () => {
-      unlisten.then((fn) => fn());
+      void unlisten.then((fn) => fn());
     };
   }, [setPreviewUrl]);
 
@@ -424,10 +424,10 @@ export default function App() {
     });
 
     return () => {
-      unlistenReady.then((fn) => fn());
-      unlistenExit.then((fn) => fn());
-      unlistenConsole.then((fn) => fn());
-      unlistenNetwork.then((fn) => fn());
+      void unlistenReady.then((fn) => fn());
+      void unlistenExit.then((fn) => fn());
+      void unlistenConsole.then((fn) => fn());
+      void unlistenNetwork.then((fn) => fn());
     };
   }, []);
 

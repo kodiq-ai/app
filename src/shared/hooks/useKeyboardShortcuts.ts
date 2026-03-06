@@ -59,7 +59,7 @@ export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: Shortcut
     "mod+t",
     (e) => {
       e.preventDefault();
-      if (useAppStore.getState().projectPath) spawnTab(undefined, t("terminal"));
+      if (useAppStore.getState().projectPath) void spawnTab(undefined, t("terminal"));
     },
     { enableOnFormTags: true },
   );
@@ -137,13 +137,14 @@ export function useKeyboardShortcuts({ spawnTab, closeTab, reopenTab }: Shortcut
       const config = launchConfigs.find((c) => c.id === lastLaunchConfigId);
       if (!config) return;
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
         const payload: LaunchConfigPayload = JSON.parse(config.config);
         const parts = [config.cli_name, ...payload.args];
         const command = parts.join(" ");
         const env = Object.keys(payload.env).length > 0 ? payload.env : undefined;
-        spawnTab(command, config.profile_name, env);
+        void spawnTab(command, config.profile_name, env);
       } catch {
-        spawnTab(config.cli_name, config.profile_name);
+        void spawnTab(config.cli_name, config.profile_name);
       }
     },
     { enableOnFormTags: true },

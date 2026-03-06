@@ -108,8 +108,8 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     });
 
     return () => {
-      unlisten.then((fn) => fn());
-      unlistenExit.then((fn) => fn());
+      void unlisten.then((fn) => fn());
+      void unlistenExit.then((fn) => fn());
       markerManager.dispose();
       linkDisposable.dispose();
       term.dispose();

@@ -61,7 +61,13 @@ export function CommandPalette({ onSpawnTab, onOpenFolder, onCloseProject }: Com
 
         {/* Terminal */}
         <CommandGroup heading={t("terminal")}>
-          <CommandItem onSelect={() => runAndClose(() => onSpawnTab(undefined, t("terminal")))}>
+          <CommandItem
+            onSelect={() =>
+              runAndClose(() => {
+                void onSpawnTab(undefined, t("terminal"));
+              })
+            }
+          >
             <TerminalSquare className="size-4" />
             <span>{t("newTerminal")}</span>
             <CommandShortcut>⌘T</CommandShortcut>
@@ -69,7 +75,11 @@ export function CommandPalette({ onSpawnTab, onOpenFolder, onCloseProject }: Com
           {installedCli.map((tool) => (
             <CommandItem
               key={tool.bin}
-              onSelect={() => runAndClose(() => onSpawnTab(tool.bin, tool.name))}
+              onSelect={() =>
+                runAndClose(() => {
+                  void onSpawnTab(tool.bin, tool.name);
+                })
+              }
             >
               <TerminalSquare className="size-4" />
               <span>

@@ -35,7 +35,7 @@ export function GitPanel() {
 
     const unlisten = listen<string>("git-changed", refresh);
     return () => {
-      unlisten.then((fn) => fn());
+      void unlisten.then((fn) => fn());
     };
   }, [sidebarTab, projectPath, setGitInfo]);
 
@@ -131,7 +131,7 @@ export function GitPanel() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && canCommit) {
               e.preventDefault();
-              handleCommit();
+              void handleCommit();
             }
           }}
           placeholder={t("gitCommitPlaceholder")}

@@ -55,11 +55,41 @@ export default tseslint.config(
       "no-unneeded-ternary": "error",
       eqeqeq: ["error", "always"],
       curly: ["error", "all"],
-      "no-throw-literal": "error",
       "prefer-arrow-callback": "error",
       "no-param-reassign": "error",
-      "no-return-await": "error",
-      "require-await": "error",
+    },
+  },
+
+  // ── Type-aware rules (require TS compiler) ──────────────────────
+  {
+    files: ["src/**/*.ts", "src/**/*.tsx"],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      // Catch forgotten await — operation silently doesn't execute
+      "@typescript-eslint/no-floating-promises": "error",
+      // Catch `if (asyncFn())` — always truthy
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        { checksVoidReturn: { attributes: false } },
+      ],
+      // Catch `any` leaking into typed code
+      "@typescript-eslint/no-unsafe-argument": "error",
+      "@typescript-eslint/no-unsafe-assignment": "error",
+      "@typescript-eslint/no-unsafe-call": "error",
+      "@typescript-eslint/no-unsafe-member-access": "error",
+      "@typescript-eslint/no-unsafe-return": "error",
+      // Type-aware replacements for base rules
+      "no-throw-literal": "off",
+      "@typescript-eslint/only-throw-error": "error",
+      "no-return-await": "off",
+      "@typescript-eslint/return-await": "error",
+      "require-await": "off",
+      "@typescript-eslint/require-await": "error",
     },
   },
   prettier,

@@ -156,7 +156,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
               {/* Shell */}
               <button
                 onClick={() => {
-                  onSpawnTab(undefined, t("terminal"));
+                  void onSpawnTab(undefined, t("terminal"));
                   setNewTermOpen(false);
                 }}
                 className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
@@ -173,7 +173,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                     <button
                       key={tool.bin}
                       onClick={() => {
-                        onSpawnTab(tool.bin, tool.name);
+                        void onSpawnTab(tool.bin, tool.name);
                         setNewTermOpen(false);
                       }}
                       className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]"

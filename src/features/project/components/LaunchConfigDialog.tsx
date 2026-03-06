@@ -61,6 +61,7 @@ export function LaunchConfigDialog({ open, onOpenChange, editConfig }: LaunchCon
       setIsDefault(editConfig.is_default);
       setIsGlobal(editConfig.project_id === null);
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- untyped
         const payload: LaunchConfigPayload = JSON.parse(editConfig.config);
         setArgs(payload.args.join(" "));
         setEnvText(

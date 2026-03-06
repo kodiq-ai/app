@@ -58,7 +58,8 @@ export function useUpdateChecker() {
 
   // Check on app start + every 4 hours
   useEffect(() => {
-    checkForUpdate();
+    void checkForUpdate();
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- untyped
     const interval = setInterval(checkForUpdate, 4 * 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, [checkForUpdate]);

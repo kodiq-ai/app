@@ -55,7 +55,7 @@ export function ActivityPanel() {
     refreshGit();
     const unlisten = listen<string>("git-changed", refreshGit);
     return () => {
-      unlisten.then((fn) => fn());
+      void unlisten.then((fn) => fn());
     };
   }, [sidebarTab, projectPath, refreshGit]);
 

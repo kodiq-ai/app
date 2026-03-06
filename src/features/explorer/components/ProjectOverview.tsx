@@ -87,7 +87,7 @@ export function ProjectOverview() {
     // Refresh git on native filesystem events (replaces 10s polling)
     const unlisten = listen<string>("git-changed", refreshGit);
     return () => {
-      unlisten.then((fn) => fn());
+      void unlisten.then((fn) => fn());
     };
   }, [projectPath]);
 
