@@ -42,7 +42,22 @@
     "macOS": {
       "signingIdentity": "Developer ID Application: AIPILOT, TOO (JRJGS4U2DJ)",
       "entitlements": null,
-      "minimumSystemVersion": "10.15"
+      "minimumSystemVersion": "10.15",
+      "dmg": {
+        "background": "dmg-background/background.png",
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        },
+        "appPosition": {
+          "x": 190,
+          "y": 190
+        },
+        "applicationFolderPosition": {
+          "x": 470,
+          "y": 190
+        }
+      }
     }
   },
   "plugins": {
