@@ -1,6 +1,6 @@
 // ── Bug Report Dialog ────────────────────────────────────────────────────────
-// Simplified feedback form for IDE — no auth, no Supabase, no history.
-// Submits to kodiq.ai Web API with source:"ide" → GitHub issue in kodiq-ai/ide.
+// Simplified feedback form for Workspace — no auth, no Supabase, no history.
+// Submits to kodiq.ai Web API with source:"workspace" → GitHub issue in kodiq-ai/workspace.
 
 import { useState } from "react";
 import { AlertCircle, CheckCircle, Loader2, Send } from "lucide-react";

@@ -33,7 +33,7 @@
   "packageManager": "pnpm@10.29.3",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kodiq-ai/ide.git"
+    "url": "git+https://github.com/kodiq-ai/workspace.git"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
