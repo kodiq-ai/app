@@ -266,6 +266,16 @@ export const chat = {
   clearHistory: (projectId: string) => invoke<number>("db_clear_chat", { projectId }),
 };
 
+// ── Academy — WebView ───────────────────────────────────
+export const academy = {
+  navigate: (url: string, bounds: PreviewBounds) =>
+    invoke<void>("academy_navigate", { url, bounds }),
+  resize: (bounds: PreviewBounds) => invoke<void>("academy_resize", { bounds }),
+  reload: () => invoke<void>("academy_reload"),
+  executeJs: (expression: string) => invoke<void>("academy_execute_js", { expression }),
+  destroy: () => invoke<void>("academy_destroy"),
+};
+
 // ── SSH ─────────────────────────────────────────────────
 export const ssh = {
   // Connection management

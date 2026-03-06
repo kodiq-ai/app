@@ -1,3 +1,4 @@
+mod academy;
 mod chat;
 mod cli;
 mod db;
@@ -47,6 +48,7 @@ pub fn run() {
         .manage(state::new_app_state())
         .manage(db_state)
         .manage(filesystem::watcher::WatcherState::new())
+        .manage(academy::manager::new_academy_state())
         .manage(preview::manager::new_preview_state())
         .manage(preview::server::new_server_state())
         .manage(ssh::new_ssh_state())
@@ -60,6 +62,7 @@ pub fn run() {
             #[cfg(desktop)]
             app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             app.handle().plugin(tauri_plugin_process::init())?;
+            app.handle().plugin(tauri_plugin_deep_link::init())?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -114,6 +117,12 @@ pub fn run() {
             db::launch_configs::db_create_launch_config,
             db::launch_configs::db_update_launch_config,
             db::launch_configs::db_delete_launch_config,
+            // Academy — WebView
+            academy::manager::academy_navigate,
+            academy::manager::academy_resize,
+            academy::manager::academy_reload,
+            academy::manager::academy_execute_js,
+            academy::manager::academy_destroy,
             // Preview — Webview
             preview::manager::preview_navigate,
             preview::manager::preview_resize,

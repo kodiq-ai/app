@@ -361,5 +361,21 @@
   "bugSubmitting": "Submitting…",
   "bugSuccess": "Thank you! We received your feedback.",
   "bugError": "Something went wrong. Please try again.",
-  "bugSuccessDone": "Done"
+  "bugSuccessDone": "Done",
+
+  "developer": "Developer",
+  "academy": "Academy",
+  "feed": "Feed",
+  "signIn": "Sign In",
+  "signOut": "Sign Out",
+  "signInWithGithub": "Continue with GitHub",
+  "signInWithGoogle": "Continue with Google",
+  "academyDescription": "Learn coding with interactive lessons",
+  "openAcademy": "Open Academy",
+  "signInEmail": "Email",
+  "signInPassword": "Password",
+  "signInError": "Sign in failed",
+  "academyNotAuthenticated": "Sign in to access Academy",
+  "feedNotAuthenticated": "Sign in to access Feed",
+  "or": "or"
 }

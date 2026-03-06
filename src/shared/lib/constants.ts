@@ -12,6 +12,15 @@ export const CLI_INSTALL_URLS: Record<string, string> = {
   claude: "https://docs.anthropic.com/en/docs/claude-code/overview",
 };
 
+// ── Academy ─────────────────────────────────────────────
+export const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "";
+export const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
+// Supabase storage key used by web app (sb-{project-ref}-auth-token)
+const supabaseRef = SUPABASE_URL ? new URL(SUPABASE_URL).hostname.split(".")[0] : "unknown";
+export const SUPABASE_STORAGE_KEY = `sb-${supabaseRef}-auth-token`;
+export const ACADEMY_URL = "https://kodiq.ai/academy";
+export const FEED_URL = "https://kodiq.ai/feed";
+
 export const XTERM_THEME = {
   background: "#08080a",
   foreground: "#ece8e1",

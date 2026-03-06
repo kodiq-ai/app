@@ -91,6 +91,13 @@ const DEFAULT_MOCKS: Record<string, unknown> = {
   },
   db_clear_chat: 0,
 
+  // Academy WebView
+  academy_navigate: undefined,
+  academy_resize: undefined,
+  academy_reload: undefined,
+  academy_execute_js: undefined,
+  academy_destroy: undefined,
+
   // Tauri plugin IPC (event listeners + updater)
   "plugin:event|listen": null,
   "plugin:event|unlisten": null,

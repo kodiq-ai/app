@@ -31,6 +31,7 @@ import { UpdateDialog } from "@features/settings/components/UpdateDialog";
 import { SshStatusBadge, SshPasswordPrompt } from "@features/ssh";
 import { BugReportDialog } from "@features/feedback/components/BugReportDialog";
 import { Bug } from "lucide-react";
+import { ModeSwitcher, AcademyView, FeedView } from "@features/academy";
 
 // ─── Main App ───────────────────────────────────────────────────────────────
 
@@ -58,6 +59,7 @@ export default function App() {
   const editorTabs = useAppStore((s) => s.editorTabs);
   const editorSplitRatio = useAppStore((s) => s.editorSplitRatio);
   const setBugReportOpen = useAppStore((s) => s.setBugReportOpen);
+  const appMode = useAppStore((s) => s.appMode);
 
   const [defaultShell, setDefaultShell] = useState("");
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -462,15 +464,18 @@ export default function App() {
         <div className="flex shrink-0 items-center pl-[80px]">
           <KodiqLogo height={18} className="text-k-text-tertiary" />
         </div>
-        <div className="flex flex-1 items-center justify-center" data-tauri-drag-region>
-          <ProjectSwitcher
-            projectName={projectName}
-            projectPath={projectPath}
-            recentProjects={recentProjects}
-            onOpenProject={openProject}
-            onOpenFolder={handleOpenFolder}
-            onCloseProject={closeProject}
-          />
+        <div className="flex flex-1 items-center justify-center gap-3" data-tauri-drag-region>
+          {appMode === "developer" && (
+            <ProjectSwitcher
+              projectName={projectName}
+              projectPath={projectPath}
+              recentProjects={recentProjects}
+              onOpenProject={openProject}
+              onOpenFolder={handleOpenFolder}
+              onCloseProject={closeProject}
+            />
+          )}
+          <ModeSwitcher />
         </div>
         <div className="flex w-[180px] items-center justify-end gap-1">
           <SshStatusBadge />
@@ -514,7 +519,8 @@ export default function App() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {projectPath && (
+        {/* Developer mode — IDE layout */}
+        {appMode === "developer" && projectPath && (
           <>
             {/* Main content area: vertical split (editor + terminal) | preview */}
             <div
@@ -610,7 +616,7 @@ export default function App() {
             </ErrorBoundary>
           </>
         )}
-        {!projectPath && !onboardingComplete && (
+        {appMode === "developer" && !projectPath && !onboardingComplete && (
           <OnboardingWizard
             cliTools={cliTools}
             defaultShell={defaultShell}
@@ -622,13 +628,19 @@ export default function App() {
             onOpenFolder={pickFolder}
           />
         )}
-        {!projectPath && onboardingComplete && (
+        {appMode === "developer" && !projectPath && onboardingComplete && (
           <EmptyState onOpenFolder={handleOpenFolder} onOpenProject={openProject} />
         )}
+
+        {/* Academy mode */}
+        {appMode === "academy" && <AcademyView />}
+
+        {/* Feed mode */}
+        {appMode === "feed" && <FeedView />}
       </div>
 
-      {/* Global Status Bar */}
-      {projectPath && <EditorStatusBar />}
+      {/* Global Status Bar — only in developer mode */}
+      {appMode === "developer" && projectPath && <EditorStatusBar />}
     </div>
   );
 }

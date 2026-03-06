@@ -361,5 +361,21 @@
   "bugSubmitting": "Отправляю…",
   "bugSuccess": "Спасибо! Мы получили ваш отзыв.",
   "bugError": "Что-то пошло не так. Попробуйте ещё раз.",
-  "bugSuccessDone": "Готово"
+  "bugSuccessDone": "Готово",
+
+  "developer": "Разработка",
+  "academy": "Академия",
+  "feed": "Лента",
+  "signIn": "Войти",
+  "signOut": "Выйти",
+  "signInWithGithub": "Войти через GitHub",
+  "signInWithGoogle": "Войти через Google",
+  "academyDescription": "Учись программировать с интерактивными уроками",
+  "openAcademy": "Открыть Академию",
+  "signInEmail": "Email",
+  "signInPassword": "Пароль",
+  "signInError": "Ошибка входа",
+  "academyNotAuthenticated": "Войдите для доступа к Академии",
+  "feedNotAuthenticated": "Войдите для доступа к Ленте",
+  "or": "или"
 }

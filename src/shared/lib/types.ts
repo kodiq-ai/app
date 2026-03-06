@@ -443,3 +443,6 @@ export interface PortDetectedEvent {
   port: number;
   url: string;
 }
+
+// ── Academy ─────────────────────────────────────────────
+export type AppMode = "developer" | "academy" | "feed";
