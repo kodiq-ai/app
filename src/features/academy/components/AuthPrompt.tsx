@@ -32,7 +32,7 @@ export function AuthPrompt({ description }: { description: string }) {
         <KodiqLogo height={24} className="text-k-text-tertiary" />
 
         {/* Description */}
-        <p className="text-center text-sm text-k-text-secondary">{description}</p>
+        <p className="text-k-text-secondary text-center text-sm">{description}</p>
 
         {/* Email/Password Form */}
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-3">
@@ -56,14 +56,12 @@ export function AuthPrompt({ description }: { description: string }) {
         </form>
 
         {/* Error */}
-        {authError && (
-          <p className="text-center text-xs text-red-400">{authError}</p>
-        )}
+        {authError && <p className="text-center text-xs text-red-400">{authError}</p>}
 
         {/* Divider */}
         <div className="flex w-full items-center gap-3">
           <div className="h-px flex-1 bg-white/[0.06]" />
-          <span className="text-xs text-k-text-tertiary">{t("or")}</span>
+          <span className="text-k-text-tertiary text-xs">{t("or")}</span>
           <div className="h-px flex-1 bg-white/[0.06]" />
         </div>
 

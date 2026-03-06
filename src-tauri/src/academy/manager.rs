@@ -38,7 +38,11 @@ fn is_allowed_url(url: &str) -> bool {
         .map(|u| {
             u.scheme() == "https"
                 && u.host_str()
-                    .map(|h| ALLOWED_HOSTS.iter().any(|allowed| h == *allowed || h.ends_with(&format!(".{allowed}"))))
+                    .map(|h| {
+                        ALLOWED_HOSTS
+                            .iter()
+                            .any(|allowed| h == *allowed || h.ends_with(&format!(".{allowed}")))
+                    })
                     .unwrap_or(false)
         })
         .unwrap_or(false)

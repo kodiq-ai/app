@@ -91,7 +91,7 @@ export function FeedView() {
         >
           <RotateCw className="h-3.5 w-3.5" />
         </Button>
-        <span className="ml-2 truncate text-xs text-k-text-tertiary">{FEED_URL}</span>
+        <span className="text-k-text-tertiary ml-2 truncate text-xs">{FEED_URL}</span>
       </div>
 
       {/* WebView container — Rust child webview renders here */}
