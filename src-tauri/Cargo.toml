@@ -1,6 +1,6 @@
 [package]
 name = "kodiq"
-version = "0.5.0"
+version = "0.5.2"
 description = "AI Workspace"
 authors = ["Kodiq Team"]
 license = "Apache-2.0"
