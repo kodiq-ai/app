@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { t } from "@/lib/i18n";
+import { t, detectLocale, setLocale } from "@/lib/i18n";
 import { initAnalytics, trackEvent } from "@/shared/lib/analytics";
 import App from "./App";
 import "./app.css";
@@ -16,6 +16,9 @@ import "@fontsource/monaspace-neon/500.css";
 import "@fontsource/monaspace-neon/600.css";
 import "@fontsource/monaspace-argon/400.css";
 import "@fontsource/monaspace-argon/500.css";
+
+// -- Detect system locale and apply before first render -------
+await setLocale(detectLocale());
 
 initAnalytics();
 trackEvent("app_launched", { version: __APP_VERSION__ });
