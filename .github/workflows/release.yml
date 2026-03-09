@@ -107,14 +107,16 @@ jobs:
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
 
-          # Write tauri signing key (raw minisign format, NOT base64-encoded)
-          printf '%s' "$TAURI_SIGNING_PRIVATE_KEY" > /tmp/signing.key
+          # Decode tauri signing key (base64 → rsign/minisign secret key file)
+          # tauri signer generate outputs base64-encoded minisign keys;
+          # tauri-action reads base64 natively, but rsign2 needs decoded format.
+          echo "$TAURI_SIGNING_PRIVATE_KEY" | base64 -d > /tmp/signing.key
           chmod 600 /tmp/signing.key
 
-          # Sanity check: key file should start with "untrusted comment:"
+          # Sanity check: decoded key must start with "untrusted comment:"
           if ! head -1 /tmp/signing.key | grep -q "^untrusted comment:"; then
-            echo "::error::TAURI_SIGNING_PRIVATE_KEY is not in minisign format. Expected 'untrusted comment:' header."
-            echo "Hint: store the raw output of 'tauri signer generate', not base64-encoded."
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY failed to decode. Expected base64-encoded minisign key."
+            echo "Hint: store the full content of the .key file from 'tauri signer generate'."
             exit 1
           fi
 
