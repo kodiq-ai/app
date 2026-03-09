@@ -98,6 +98,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
         run: |
@@ -106,9 +107,16 @@ jobs:
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
 
-          # Decode tauri signing key (base64 → rsign/minisign secret key file)
-          echo "$TAURI_SIGNING_PRIVATE_KEY" | base64 -d > /tmp/signing.key
+          # Write tauri signing key (raw minisign format, NOT base64-encoded)
+          printf '%s' "$TAURI_SIGNING_PRIVATE_KEY" > /tmp/signing.key
           chmod 600 /tmp/signing.key
+
+          # Sanity check: key file should start with "untrusted comment:"
+          if ! head -1 /tmp/signing.key | grep -q "^untrusted comment:"; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY is not in minisign format. Expected 'untrusted comment:' header."
+            echo "Hint: store the raw output of 'tauri signer generate', not base64-encoded."
+            exit 1
+          fi
 
           mkdir -p bundles
 
@@ -154,9 +162,9 @@ jobs:
             expect -c "
               spawn rsign sign -s /tmp/signing.key -t {tauri updater signature} -x {${file}.sig} {${file}}
               expect \"Password:\"
-              send \"\\r\"
+              send \"${TAURI_SIGNING_PRIVATE_KEY_PASSWORD}\r\"
               expect eof
-            " > /dev/null 2>&1
+            " 2>&1
             if [ -f "${file}.sig" ]; then
               echo "✅ Signed: $name"
             else
@@ -227,14 +235,18 @@ jobs:
           echo "=== Generated latest.json ==="
           cat latest.json
 
-          # Validate signatures are non-empty
-          if echo "$MAC_ARM_SIG" | grep -q "signature from rsign"; then
-            echo ""
-            echo "✅ All signatures look valid"
-          else
-            echo ""
-            echo "⚠️  Warning: some signatures may be empty"
+          # Validate signatures are non-empty (fail-fast)
+          EMPTY=0
+          [ -z "$MAC_ARM_SIG" ] && echo "❌ Empty signature: macOS arm64" && EMPTY=1
+          [ -z "$MAC_X64_SIG" ] && echo "❌ Empty signature: macOS x64" && EMPTY=1
+          [ -z "$LINUX_SIG" ] && echo "❌ Empty signature: Linux" && EMPTY=1
+          [ -z "$WIN_SIG" ] && echo "❌ Empty signature: Windows" && EMPTY=1
+          if [ "$EMPTY" -eq 1 ]; then
+            echo "::error::One or more signatures are empty. Check TAURI_SIGNING_PRIVATE_KEY format."
+            exit 1
           fi
+          echo ""
+          echo "✅ All signatures are non-empty"
 
           # Upload latest.json
           gh release upload "$TAG" latest.json --repo "$REPO" --clobber
