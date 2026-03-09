@@ -142,6 +142,7 @@
   "newTerminalShort": "New terminal (⌘T)",
   "searchCommandsDesc": "Search commands",
 
+  "appLabel": "Workspace",
   "updateAvailable": "Update Available",
   "currentVersion": "Current",
   "whatsNew": "What's new",
