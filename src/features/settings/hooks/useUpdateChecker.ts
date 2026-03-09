@@ -42,7 +42,7 @@ export function useUpdateChecker() {
       if (!checkModule) return;
 
       const update = await checkModule.check();
-      if (update) {
+      if (update && update.version !== update.currentVersion) {
         setUpdateAvailable({
           version: update.version,
           currentVersion: update.currentVersion,
