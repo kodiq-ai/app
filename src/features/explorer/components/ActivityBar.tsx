@@ -7,7 +7,7 @@ import {
   GitBranch,
   Settings,
   MonitorSmartphone,
-  MessageSquare,
+  GraduationCap,
 } from "lucide-react";
 import { fs } from "@shared/lib/tauri";
 import { useAppStore, type FileEntry, type SidebarTab } from "@/lib/store";
@@ -107,14 +107,14 @@ export function ActivityBar() {
         )}
       >
         {/* Panel header */}
-        <div className="flex h-9 min-w-[13rem] shrink-0 items-center px-2.5">
+        <div className="flex h-10 min-w-[13rem] shrink-0 items-center px-3">
           <span className="text-k-text-secondary flex-1 truncate text-[11px] font-medium tracking-wider uppercase">
             {sidebarTab === "files" && projectName}
             {sidebarTab === "activity" && t("activityLog")}
             {sidebarTab === "project" && t("projectInfo")}
             {sidebarTab === "git" && t("gitSourceControl")}
             {sidebarTab === "ssh" && t("sshRemote")}
-            {sidebarTab === "chat" && t("chat")}
+            {sidebarTab === "chat" && t("mentorTitle")}
           </span>
         </div>
 
@@ -144,7 +144,7 @@ export function ActivityBar() {
       </div>
 
       {/* Activity Bar — always visible */}
-      <div className="flex w-10 shrink-0 flex-col items-center gap-0.5 border-l border-white/[0.06] pt-1 pb-2">
+      <div className="flex w-10 shrink-0 flex-col items-center gap-1.5 border-l border-white/[0.06] pt-2.5 pb-2">
         <ActivityIcon
           icon={FolderOpen}
           label={t("files")}
@@ -176,8 +176,8 @@ export function ActivityBar() {
           onClick={() => handleIconClick("ssh")}
         />
         <ActivityIcon
-          icon={MessageSquare}
-          label={t("chat")}
+          icon={GraduationCap}
+          label={t("mentor")}
           active={sidebarOpen && sidebarTab === "chat"}
           onClick={() => handleIconClick("chat")}
         />

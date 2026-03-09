@@ -1,33 +1,44 @@
+// ── Chat Slice — AI Mentor ──────────────────────────────────────────────────
+// Web API chat via kodiq.ai/api/academy/chat. Local DB for history cache.
+
 import type { StateCreator } from "zustand";
-import type { ChatMessage, ChatProvider } from "@shared/lib/types";
-import { chat, listen } from "@shared/lib/tauri";
+import type { ChatMessage } from "@shared/lib/types";
+import { chat } from "@shared/lib/tauri";
+import { getSession } from "@shared/lib/supabase";
+import { sendMentorMessage } from "../lib/mentorApi";
 
 export interface ChatSlice {
   // State
   chatMessages: ChatMessage[];
   chatStreaming: boolean;
   chatStreamingContent: string;
-  chatActiveProvider: ChatProvider;
+  chatThinkingContent: string;
   chatError: string | null;
 
   // Actions
-  chatSendMessage: (prompt: string, projectId: string, cwd?: string | null) => Promise<void>;
-  chatStopStreaming: () => Promise<void>;
-  chatSetProvider: (provider: ChatProvider) => void;
+  chatSendMessage: (prompt: string, projectId: string) => Promise<void>;
+  chatStopStreaming: () => void;
   chatLoadHistory: (projectId: string) => Promise<void>;
   chatClearHistory: (projectId: string) => Promise<void>;
-  chatSetupListeners: () => Promise<() => void>;
 }
+
+// AbortController lives outside store to avoid serialization issues
+let abortController: AbortController | null = null;
 
 export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set, get) => ({
   chatMessages: [],
   chatStreaming: false,
   chatStreamingContent: "",
-  chatActiveProvider: "claude",
+  chatThinkingContent: "",
   chatError: null,
 
-  chatSendMessage: async (prompt, projectId, cwd) => {
-    const provider = get().chatActiveProvider;
+  chatSendMessage: async (prompt, projectId) => {
+    // Get auth token
+    const { session } = await getSession();
+    if (!session?.access_token) {
+      set({ chatError: "mentorSignInRequired" });
+      return;
+    }
 
     // Add user message immediately
     const userMsg: ChatMessage = {
@@ -35,7 +46,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
       project_id: projectId,
       role: "user",
       content: prompt,
-      provider,
+      provider: "mentor",
       created_at: Date.now(),
     };
 
@@ -43,6 +54,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
       chatMessages: [...s.chatMessages, userMsg],
       chatStreaming: true,
       chatStreamingContent: "",
+      chatThinkingContent: "",
       chatError: null,
     }));
 
@@ -53,64 +65,118 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
         project_id: projectId,
         role: "user",
         content: prompt,
-        provider,
+        provider: "mentor",
       });
     } catch (e) {
       console.error("[Chat] save user message:", e);
     }
 
-    // Send to CLI tool
+    // Stream from web API
+    abortController = new AbortController();
+
     try {
-      await chat.send(provider, prompt, cwd);
+      await sendMentorMessage(
+        prompt,
+        session.access_token,
+        {
+          onToken: (text) => {
+            set((s) => ({
+              chatStreamingContent: s.chatStreamingContent + text,
+            }));
+          },
+          onThinking: (text) => {
+            set((s) => ({
+              chatThinkingContent: s.chatThinkingContent + text,
+            }));
+          },
+          onDone: async () => {
+            const { chatStreamingContent } = get();
+            if (!chatStreamingContent) {
+              set({ chatStreaming: false });
+              return;
+            }
+
+            const assistantMsg: ChatMessage = {
+              id: crypto.randomUUID(),
+              project_id: projectId,
+              role: "assistant",
+              content: chatStreamingContent,
+              provider: "mentor",
+              created_at: Date.now(),
+            };
+
+            set((s) => ({
+              chatMessages: [...s.chatMessages, assistantMsg],
+              chatStreaming: false,
+              chatStreamingContent: "",
+              chatThinkingContent: "",
+            }));
+
+            // Persist assistant message
+            try {
+              await chat.saveMessage({
+                id: assistantMsg.id,
+                project_id: projectId,
+                role: "assistant",
+                content: chatStreamingContent,
+                provider: "mentor",
+              });
+            } catch (e) {
+              console.error("[Chat] save assistant message:", e);
+            }
+          },
+          onError: (error) => {
+            set({ chatStreaming: false, chatError: error });
+          },
+        },
+        abortController.signal,
+      );
     } catch (e) {
-      set({ chatStreaming: false, chatError: String(e) });
-    }
-  },
+      // AbortError is expected when user stops streaming
+      if (e instanceof DOMException && e.name === "AbortError") {
+        const { chatStreamingContent } = get();
+        if (chatStreamingContent) {
+          const assistantMsg: ChatMessage = {
+            id: crypto.randomUUID(),
+            project_id: projectId,
+            role: "assistant",
+            content: chatStreamingContent,
+            provider: "mentor",
+            created_at: Date.now(),
+          };
 
-  chatStopStreaming: async () => {
-    try {
-      await chat.stop();
-    } catch {
-      // ignore — process may already be dead
-    }
+          set((s) => ({
+            chatMessages: [...s.chatMessages, assistantMsg],
+            chatStreaming: false,
+            chatStreamingContent: "",
+            chatThinkingContent: "",
+          }));
 
-    // Finalize any accumulated streaming content
-    const { chatStreamingContent, chatMessages, chatActiveProvider } = get();
-    if (chatStreamingContent) {
-      const projectId = chatMessages[chatMessages.length - 1]?.project_id ?? "";
-      const assistantMsg: ChatMessage = {
-        id: crypto.randomUUID(),
-        project_id: projectId,
-        role: "assistant",
-        content: chatStreamingContent,
-        provider: chatActiveProvider,
-        created_at: Date.now(),
-      };
-
-      set((s) => ({
-        chatMessages: [...s.chatMessages, assistantMsg],
-        chatStreaming: false,
-        chatStreamingContent: "",
-      }));
-
-      // Persist assistant message
-      try {
-        await chat.saveMessage({
-          id: assistantMsg.id,
-          project_id: projectId,
-          role: "assistant",
-          content: chatStreamingContent,
-          provider: chatActiveProvider,
-        });
-      } catch (e) {
-        console.error("[Chat] save assistant message:", e);
+          try {
+            await chat.saveMessage({
+              id: assistantMsg.id,
+              project_id: projectId,
+              role: "assistant",
+              content: chatStreamingContent,
+              provider: "mentor",
+            });
+          } catch (err) {
+            console.error("[Chat] save assistant message:", err);
+          }
+        } else {
+          set({ chatStreaming: false });
+        }
+      } else {
+        set({ chatStreaming: false, chatError: String(e) });
       }
-    } else {
-      set({ chatStreaming: false });
+    } finally {
+      abortController = null;
     }
   },
 
-  chatSetProvider: (provider) => set({ chatActiveProvider: provider }),
+  chatStopStreaming: () => {
+    abortController?.abort();
+  },
 
   chatLoadHistory: async (projectId) => {
     try {
@@ -128,60 +194,5 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
     } catch (e) {
       console.error("[Chat] clear history:", e);
     }
-  },
-
-  chatSetupListeners: async () => {
-    // Listen for streaming chunks
-    const unlistenChunk = await listen<{ provider: string; content: string }>(
-      "chat-chunk",
-      (event) => {
-        set((s) => ({
-          chatStreamingContent: s.chatStreamingContent + event.payload.content,
-        }));
-      },
-    );
-
-    // Listen for process completion
-    const unlistenDone = await listen<{ provider: string }>("chat-done", async () => {
-      const { chatStreamingContent, chatMessages, chatActiveProvider } = get();
-
-      if (chatStreamingContent) {
-        const projectId = chatMessages[chatMessages.length - 1]?.project_id ?? "";
-        const assistantMsg: ChatMessage = {
-          id: crypto.randomUUID(),
-          project_id: projectId,
-          role: "assistant",
-          content: chatStreamingContent,
-          provider: chatActiveProvider,
-          created_at: Date.now(),
-        };
-
-        set((s) => ({
-          chatMessages: [...s.chatMessages, assistantMsg],
-          chatStreaming: false,
-          chatStreamingContent: "",
-        }));
-
-        // Persist assistant message
-        try {
-          await chat.saveMessage({
-            id: assistantMsg.id,
-            project_id: projectId,
-            role: "assistant",
-            content: chatStreamingContent,
-            provider: chatActiveProvider,
-          });
-        } catch (e) {
-          console.error("[Chat] save assistant message:", e);
-        }
-      } else {
-        set({ chatStreaming: false });
-      }
-    });
-
-    return () => {
-      unlistenChunk();
-      unlistenDone();
-    };
   },
 });

@@ -117,7 +117,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   fontFamily: "'Monaspace Neon', 'SF Mono', 'Menlo', 'Consolas', monospace",
   locale: "en",
   splitRatio: 0.5,
-  sidebarOpen: true,
+  sidebarOpen: false,
   previewOpen: true,
   autoOpenPreview: true,
   wordWrap: false,
@@ -326,7 +326,7 @@ export interface SnapshotNode {
 
 // ── Chat ────────────────────────────────────────────────
 export type ChatRole = "user" | "assistant";
-export type ChatProvider = "claude" | "gemini" | "codex";
+export type ChatProvider = "claude" | "gemini" | "codex" | "mentor";
 
 export interface ChatMessage {
   id: string;
@@ -445,4 +445,4 @@ export interface PortDetectedEvent {
 }
 
 // ── Academy ─────────────────────────────────────────────
-export type AppMode = "developer" | "academy" | "feed";
+export type AppMode = "developer" | "home" | "progress" | "feed" | "leaderboard";

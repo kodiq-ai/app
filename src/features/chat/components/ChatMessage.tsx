@@ -13,12 +13,14 @@ interface ChatMessageProps {
   content: string;
   provider: ChatProvider;
   isStreaming?: boolean;
+  thinkingContent?: string;
 }
 
 const providerLabel: Record<ChatProvider, string> = {
   claude: "Claude",
   gemini: "Gemini",
   codex: "Codex",
+  mentor: "Кодик Ментор",
 };
 
 function CodeBlock({ children, className }: { children: string; className?: string }) {
@@ -45,7 +47,7 @@ function CodeBlock({ children, className }: { children: string; className?: stri
 }
 
 export const ChatMessageItem = memo(
-  ({ role, content, provider, isStreaming }: ChatMessageProps) => {
+  ({ role, content, provider, isStreaming, thinkingContent }: ChatMessageProps) => {
     return (
       <div
         className={cn("flex gap-2 px-3 py-2", role === "user" ? "justify-end" : "justify-start")}
@@ -62,6 +64,18 @@ export const ChatMessageItem = memo(
             <div className="text-k-text-tertiary mb-1 text-[10px] font-medium tracking-wider uppercase">
               {providerLabel[provider]}
             </div>
+          )}
+
+          {/* Thinking content (collapsed) */}
+          {role === "assistant" && thinkingContent && (
+            <details className="mb-2 rounded bg-white/[0.02] text-[11px]">
+              <summary className="text-k-text-tertiary cursor-pointer px-2 py-1 select-none">
+                {t("mentorThinking")}
+              </summary>
+              <div className="text-k-text-tertiary border-t border-white/[0.04] px-2 py-1.5 whitespace-pre-wrap">
+                {thinkingContent}
+              </div>
+            </details>
           )}
 
           {role === "user" ? (

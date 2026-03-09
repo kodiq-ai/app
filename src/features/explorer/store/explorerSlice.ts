@@ -17,7 +17,7 @@ export interface ExplorerSlice {
 
 export const createExplorerSlice: StateCreator<ExplorerSlice, [], [], ExplorerSlice> = (set) => ({
   fileTree: [],
-  sidebarOpen: true,
+  sidebarOpen: false,
   sidebarTab: "files",
 
   setFileTree: (fileTree) => set({ fileTree }),

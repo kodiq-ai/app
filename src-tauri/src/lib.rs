@@ -10,7 +10,14 @@ mod ssh;
 mod state;
 mod terminal;
 
+use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
+use tauri::Emitter;
 use tracing_subscriber::prelude::*;
+
+#[tauri::command]
+fn get_os_locale() -> String {
+    sys_locale::get_locale().unwrap_or_else(|| "en".to_string())
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -63,9 +70,61 @@ pub fn run() {
             app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             app.handle().plugin(tauri_plugin_process::init())?;
             app.handle().plugin(tauri_plugin_deep_link::init())?;
+
+            // ── Native menu ──────────────────────────────────────────────
+            let settings = MenuItemBuilder::with_id("settings", "Settings...")
+                .accelerator("CmdOrCtrl+,")
+                .build(app)?;
+            let check_updates =
+                MenuItemBuilder::with_id("check-updates", "Check for Updates...").build(app)?;
+
+            let app_submenu = SubmenuBuilder::new(app, "Kodiq")
+                .about(None)
+                .separator()
+                .item(&check_updates)
+                .separator()
+                .item(&settings)
+                .separator()
+                .hide()
+                .hide_others()
+                .show_all()
+                .separator()
+                .quit()
+                .build()?;
+
+            let edit_submenu = SubmenuBuilder::new(app, "Edit")
+                .undo()
+                .redo()
+                .separator()
+                .cut()
+                .copy()
+                .paste()
+                .select_all()
+                .build()?;
+
+            let menu = MenuBuilder::new(app).item(&app_submenu).item(&edit_submenu).build()?;
+
+            app.set_menu(menu)?;
+
+            app.on_menu_event(move |app_handle, event| {
+                let id = event.id().0.as_str();
+                tracing::info!("Menu event: {}", id);
+                match id {
+                    "settings" => {
+                        let _ = app_handle.emit("menu://settings", ());
+                    }
+                    "check-updates" => {
+                        let _ = app_handle.emit("menu://check-updates", ());
+                    }
+                    _ => {}
+                }
+            });
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            // System
+            get_os_locale,
             // Terminal
             terminal::manager::spawn_terminal,
             terminal::manager::write_to_pty,

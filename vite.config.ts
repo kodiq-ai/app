@@ -29,6 +29,7 @@ export default defineConfig({
     strictPort: true,
     host: host || false,
     hmr: host ? { protocol: "ws", host, port: 5174 } : undefined,
+    allowedHosts: ["kodiqws.codeboev.tech"],
   },
   build: {
     outDir: "dist",

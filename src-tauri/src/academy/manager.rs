@@ -50,9 +50,15 @@ fn is_allowed_url(url: &str) -> bool {
 
 // ── Initialization Script ────────────────────────────────────────
 
-const INIT_SCRIPT: &str = r#"(function() {
+fn build_init_script(session_js: &Option<String>) -> String {
+    let session_block = session_js.as_deref().unwrap_or("");
+    format!(
+        r#"(function() {{
   window.__kodiq_academy = true;
-})()"#;
+  {session_block}
+}})()"#
+    )
+}
 
 // ── Tauri Commands ───────────────────────────────────────────────
 
@@ -62,6 +68,7 @@ pub fn academy_navigate(
     state: tauri::State<'_, AcademyManager>,
     url: String,
     bounds: AcademyBounds,
+    session_js: Option<String>,
 ) -> Result<(), String> {
     // Security: only allow navigation to kodiq.ai domains
     if !is_allowed_url(&url) {
@@ -70,7 +77,7 @@ pub fn academy_navigate(
 
     let mut academy = state.lock().map_err(|e| e.to_string())?;
 
-    // If webview exists, just navigate
+    // If webview exists, just navigate (localStorage persists on same origin)
     if let Some(ref webview) = academy.webview {
         webview
             .navigate(url.parse().map_err(|e: url::ParseError| e.to_string())?)
@@ -81,13 +88,14 @@ pub fn academy_navigate(
     // Create new webview as a child of the main window
     let window = app.get_window("main").ok_or("Main window not found")?;
 
+    let init_script = build_init_script(&session_js);
     let webview = window
         .add_child(
             WebviewBuilder::new(
                 "academy",
                 WebviewUrl::External(url.parse().map_err(|e: url::ParseError| e.to_string())?),
             )
-            .initialization_script(INIT_SCRIPT)
+            .initialization_script(&init_script)
             .auto_resize(),
             tauri::LogicalPosition::new(bounds.x, bounds.y),
             tauri::LogicalSize::new(bounds.width, bounds.height),

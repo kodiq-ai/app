@@ -55,7 +55,7 @@ export function EditorTabBar({ tabs, activeTab, onClose }: Props) {
   }, []);
 
   return (
-    <div className="flex h-8 shrink-0 items-center gap-0 overflow-x-auto border-b border-white/[0.06] bg-[var(--bg-base)]">
+    <div className="flex h-9 shrink-0 items-center gap-0 overflow-x-auto border-b border-white/[0.06] bg-[var(--bg-base)]">
       {tabs.map((tab, idx) => {
         const isActive = tab.path === activeTab;
         const isDirty = tab.content !== tab.savedContent;

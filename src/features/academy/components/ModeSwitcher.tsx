@@ -1,7 +1,8 @@
 // ── Mode Switcher ────────────────────────────────────────────────────────────
-// Pill toggle in the title bar for switching between Developer, Academy, and Feed.
+// Segmented control in the title bar for switching between app sections.
+// Mirrors mobile bottom navigation: Workspace, Home, Progress, Feed, Leaderboard.
 
-import { Code2, GraduationCap, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, Code2, Home, Trophy, Users, type LucideIcon } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import type { AppMode } from "@shared/lib/types";
 import { t } from "@/lib/i18n";
@@ -24,13 +25,13 @@ function ModeButton({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors",
+        "relative flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-150",
         active
-          ? "bg-white/[0.08] text-white"
-          : "text-k-text-tertiary hover:text-k-text-secondary hover:bg-white/[0.04]",
+          ? "bg-white/[0.10] text-white shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+          : "text-white/40 hover:bg-white/[0.04] hover:text-white/60",
       )}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-3.5 w-3.5" strokeWidth={active ? 2.5 : 2} />
       {label}
     </button>
   );
@@ -39,9 +40,11 @@ function ModeButton({
 // ── Mode Switcher ────────────────────────────────────────
 
 const modes: { mode: AppMode; icon: LucideIcon; labelKey: string }[] = [
-  { mode: "developer", icon: Code2, labelKey: "developer" },
-  { mode: "academy", icon: GraduationCap, labelKey: "academy" },
+  { mode: "developer", icon: Code2, labelKey: "workspace" },
+  { mode: "home", icon: Home, labelKey: "home" },
+  { mode: "progress", icon: BarChart3, labelKey: "progress" },
   { mode: "feed", icon: Users, labelKey: "feed" },
+  { mode: "leaderboard", icon: Trophy, labelKey: "leaderboard" },
 ];
 
 export function ModeSwitcher() {
@@ -49,7 +52,7 @@ export function ModeSwitcher() {
   const setAppMode = useAppStore((s) => s.setAppMode);
 
   return (
-    <div className="flex items-center gap-0.5 rounded-lg bg-white/[0.04] p-0.5">
+    <div className="flex items-center gap-0.5 rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5">
       {modes.map(({ mode, icon, labelKey }) => (
         <ModeButton
           key={mode}
