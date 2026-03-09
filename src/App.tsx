@@ -4,8 +4,9 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { useAppStore, type FileEntry } from "@/lib/store";
 import type { GitInfo, ConsoleLevel, NetworkEvent } from "@shared/lib/types";
-import { terminal, fs, git, cli, db, ssh, listen } from "@shared/lib/tauri";
-import { t } from "@/lib/i18n";
+import { terminal, fs, git, cli, db, ssh, system, listen } from "@shared/lib/tauri";
+import { t, setLocale, getLocale, type Locale } from "@/lib/i18n";
+import { HOME_URL, PROGRESS_URL, FEED_URL, LEADERBOARD_URL } from "@shared/lib/constants";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
@@ -28,10 +29,11 @@ import { EditorPanel, EditorStatusBar, destroyAllEditorViews } from "@features/e
 import { OnboardingWizard } from "@features/settings/components/OnboardingWizard";
 import { UpdateBadge } from "@features/settings/components/UpdateBadge";
 import { UpdateDialog } from "@features/settings/components/UpdateDialog";
+import { useUpdateChecker } from "@features/settings/hooks/useUpdateChecker";
 import { SshStatusBadge, SshPasswordPrompt } from "@features/ssh";
 import { BugReportDialog } from "@features/feedback/components/BugReportDialog";
-import { Bug } from "lucide-react";
-import { ModeSwitcher, AcademyView, FeedView } from "@features/academy";
+import { Bug, GraduationCap } from "lucide-react";
+import { ModeSwitcher, WebSection, AuthScreen } from "@features/academy";
 
 // ─── Main App ───────────────────────────────────────────────────────────────
 
@@ -60,8 +62,13 @@ export default function App() {
   const editorSplitRatio = useAppStore((s) => s.editorSplitRatio);
   const setBugReportOpen = useAppStore((s) => s.setBugReportOpen);
   const appMode = useAppStore((s) => s.appMode);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
+  const setSidebarTab = useAppStore((s) => s.setSidebarTab);
 
+  const { checkForUpdate } = useUpdateChecker();
   const [defaultShell, setDefaultShell] = useState("");
+  const [appReady, setAppReady] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 
   const { panelsRef, isDragging, startDrag } = useSplitDrag();
@@ -321,6 +328,34 @@ export default function App() {
         // DB not ready — defaults used
       }
 
+      // 3b. Resolve locale: DB preference → OS locale → keep browser detect
+      try {
+        const dbLocale = await db.settings.get("locale");
+        if (dbLocale) {
+          // User explicitly chose a locale — honour it
+          const parsed = JSON.parse(dbLocale) as string;
+          if ((parsed === "en" || parsed === "ru") && parsed !== getLocale()) {
+            await setLocale(parsed as Locale);
+          }
+        } else {
+          // No DB preference — detect from OS (WKWebView may lie about navigator.language)
+          const osLocale = await system.getOsLocale();
+          const lang = osLocale.slice(0, 2) === "ru" ? "ru" : "en";
+          if (lang !== getLocale()) {
+            await setLocale(lang as Locale);
+          }
+        }
+      } catch {
+        // Fallback: keep whatever main.tsx detected
+      }
+
+      // 3c. Restore auth session from SQLite
+      try {
+        await useAppStore.getState().loadSession();
+      } catch {
+        // No cached session — user will see AuthScreen
+      }
+
       // 4. Restore last project (DB first → localStorage fallback)
       let lastPath: string | null = null;
       try {
@@ -334,6 +369,7 @@ export default function App() {
       if (lastPath) {
         openProject(lastPath);
       }
+      setAppReady(true);
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -440,10 +476,45 @@ export default function App() {
     return () => window.removeEventListener("kodiq:open-update-dialog", handler);
   }, []);
 
+  // ── Native menu events (Settings, Check for Updates) ───────────────
+  useEffect(() => {
+    const unsubs = [
+      listen("menu://settings", () => setSettingsOpen(true)),
+      listen("menu://check-updates", () => {
+        checkForUpdate();
+        setUpdateDialogOpen(true);
+      }),
+    ];
+    return () => {
+      unsubs.forEach((p) => p.then((fn) => fn()));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ─── Layout ─────────────────────────────────────────────────────────
 
+  // Prevent flash: don't render until DB hydration + project restore are done
+  if (!appReady) {
+    return <div className="flex h-screen w-screen flex-col" />;
+  }
+
+  // Auth Gate — require sign-in before accessing workspace
+  // Skipped in e2e tests (Playwright sets VITE_E2E=true via webServer.env)
+  if (!isAuthenticated && !import.meta.env.VITE_E2E) {
+    return <AuthScreen />;
+  }
+
+  // URL for current web mode (used by persistent WebView)
+  const WEB_MODE_URLS: Record<string, string> = {
+    home: HOME_URL,
+    progress: PROGRESS_URL,
+    feed: FEED_URL,
+    leaderboard: LEADERBOARD_URL,
+  };
+  const webModeUrl = WEB_MODE_URLS[appMode] ?? HOME_URL;
+
   return (
-    <div className="flex h-screen w-screen flex-col bg-[var(--bg-base)]">
+    <div className="flex h-screen w-screen flex-col">
       {/* Modals */}
       <CommandPalette
         onSpawnTab={spawnTab}
@@ -461,8 +532,8 @@ export default function App() {
         className="flex h-[52px] shrink-0 items-center border-b border-white/[0.06] px-4 select-none"
         data-tauri-drag-region
       >
-        <div className="flex shrink-0 items-center pl-[80px]">
-          <KodiqLogo height={18} className="text-k-text-tertiary" />
+        <div className="flex w-[200px] shrink-0 items-center gap-2 pl-[80px]">
+          <KodiqLogo height={24} className="text-k-text-tertiary" />
         </div>
         <div className="flex flex-1 items-center justify-center gap-3" data-tauri-drag-region>
           {appMode === "developer" && (
@@ -477,23 +548,9 @@ export default function App() {
           )}
           <ModeSwitcher />
         </div>
-        <div className="flex w-[180px] items-center justify-end gap-1">
+        <div className="flex shrink-0 items-center justify-end gap-2.5">
           <SshStatusBadge />
           <UpdateBadge onClick={() => setUpdateDialogOpen(true)} />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setBugReportOpen(true)}
-                aria-label={t("reportBug")}
-                className="text-k-text-tertiary hover:text-k-text-secondary h-6 w-6 p-0"
-              >
-                <Bug className="h-3.5 w-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{t("reportBug")}</TooltipContent>
-          </Tooltip>
           {projectPath && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -503,7 +560,7 @@ export default function App() {
                   onClick={togglePreview}
                   aria-label={previewOpen ? "hide preview" : "show preview"}
                   className={cn(
-                    "border-k-border text-k-text-tertiary hover:text-k-text-secondary h-6 rounded-md px-2.5 text-xs font-medium",
+                    "border-k-border text-k-text-tertiary hover:text-k-text-secondary h-7 rounded-md px-3 text-xs font-medium",
                     previewOpen && "border-k-accent/40 text-k-accent",
                   )}
                 >
@@ -515,6 +572,38 @@ export default function App() {
               </TooltipContent>
             </Tooltip>
           )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSidebarOpen(true);
+                  setSidebarTab("chat");
+                }}
+                aria-label={t("mentor")}
+                className="border-k-border text-k-text-tertiary hover:text-k-text-secondary h-7 gap-1.5 rounded-md px-3 text-xs font-medium"
+              >
+                <GraduationCap className="h-4 w-4" />
+                {t("mentor")}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{t("mentorTitle")}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setBugReportOpen(true)}
+                aria-label={t("reportBug")}
+                className="text-k-text-tertiary hover:text-k-text-secondary h-7 w-7 p-0"
+              >
+                <Bug className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{t("reportBug")}</TooltipContent>
+          </Tooltip>
         </div>
       </header>
 
@@ -632,11 +721,8 @@ export default function App() {
           <EmptyState onOpenFolder={handleOpenFolder} onOpenProject={openProject} />
         )}
 
-        {/* Academy mode */}
-        {appMode === "academy" && <AcademyView />}
-
-        {/* Feed mode */}
-        {appMode === "feed" && <FeedView />}
+        {/* Web sections — single persistent WebView, navigated by mode */}
+        {appMode !== "developer" && <WebSection url={webModeUrl} />}
       </div>
 
       {/* Global Status Bar — only in developer mode */}

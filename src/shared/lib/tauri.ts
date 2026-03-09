@@ -193,6 +193,11 @@ export const cli = {
   detectShell: () => invoke<string>("detect_default_shell"),
 };
 
+// ── System ───────────────────────────────────────────────
+export const system = {
+  getOsLocale: () => invoke<string>("get_os_locale"),
+};
+
 // ── Database — Projects ──────────────────────────────────
 export const db = {
   projects: {
@@ -268,8 +273,8 @@ export const chat = {
 
 // ── Academy — WebView ───────────────────────────────────
 export const academy = {
-  navigate: (url: string, bounds: PreviewBounds) =>
-    invoke<void>("academy_navigate", { url, bounds }),
+  navigate: (url: string, bounds: PreviewBounds, sessionJs?: string) =>
+    invoke<void>("academy_navigate", { url, bounds, sessionJs: sessionJs ?? null }),
   resize: (bounds: PreviewBounds) => invoke<void>("academy_resize", { bounds }),
   reload: () => invoke<void>("academy_reload"),
   executeJs: (expression: string) => invoke<void>("academy_execute_js", { expression }),

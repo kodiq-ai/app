@@ -8,10 +8,9 @@ interface ChatInputProps {
   onSend: (message: string) => void;
   onStop: () => void;
   isStreaming: boolean;
-  disabled?: boolean;
 }
 
-export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, onStop, isStreaming }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = useCallback(() => {
@@ -49,7 +48,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
         <textarea
           ref={textareaRef}
           placeholder={t("chatPlaceholder")}
-          disabled={disabled || isStreaming}
+          disabled={isStreaming}
           onKeyDown={handleKeyDown}
           onInput={handleInput}
           rows={1}
@@ -76,7 +75,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
             variant="ghost"
             size="icon-xs"
             onClick={handleSend}
-            disabled={disabled}
+            disabled={isStreaming}
             className="text-k-text-tertiary hover:text-k-accent"
             title={t("chatSend")}
           >

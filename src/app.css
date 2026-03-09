@@ -9,11 +9,12 @@
 
 :root {
   /* Kodiq custom tokens — Warm Gold Dark (synced with web + mobile) */
-  --bg-base: #08080a;
-  --bg-surface: #111114;
-  --bg-raised: #18181d;
-  --bg-overlay: #1e1e24;
-  --bg-elevated: #28282e;
+  --bg-base: transparent;
+  --bg-base-solid: #08080a;
+  --bg-surface: rgba(17, 17, 20, 0.85);
+  --bg-raised: rgba(24, 24, 29, 0.9);
+  --bg-overlay: rgba(30, 30, 36, 0.92);
+  --bg-elevated: rgba(40, 40, 46, 0.92);
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-dim: rgba(255, 255, 255, 0.03);
   --border-default: rgba(255, 255, 255, 0.1);
@@ -48,7 +49,7 @@
 
   /* shadcn tokens — dark theme as default */
   --radius: 0.625rem;
-  --background: #08080a;
+  --background: var(--bg-base-solid);
   --foreground: #ece8e1;
   --card: #111114;
   --card-foreground: #ece8e1;
@@ -84,7 +85,7 @@
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
 
 body {
-  background: var(--bg-base);
+  background: var(--bg-base-solid);
   color: var(--text-primary);
   font-family: var(--font-ui);
   overflow: hidden;
@@ -102,10 +103,10 @@ body::after {
   position: fixed;
   inset: 0;
   background: radial-gradient(
-    circle at 50% 15%,
-    rgba(196, 168, 130, 0.09) 0%,
-    rgba(196, 168, 130, 0.03) 35%,
-    transparent 65%
+    ellipse 100% 60% at 50% 0%,
+    rgba(196, 168, 130, 0.14) 0%,
+    rgba(196, 168, 130, 0.06) 40%,
+    transparent 80%
   );
   pointer-events: none;
   z-index: 0;
@@ -124,6 +125,27 @@ body::after {
 
 .xterm-container {
   padding: 8px 4px;
+  position: relative;
+}
+
+.xterm-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 120% 80% at 50% 0%,
+    rgba(196, 168, 130, 0.08) 0%,
+    rgba(196, 168, 130, 0.03) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.xterm-container .xterm,
+.xterm-container .xterm-viewport,
+.xterm-container .xterm-screen {
+  background-color: transparent !important;
 }
 
 .xterm-container .xterm {

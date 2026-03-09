@@ -3,7 +3,6 @@ import { terminal, ssh, listen } from "@shared/lib/tauri";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
-import { WebglAddon } from "@xterm/addon-webgl";
 import "@xterm/xterm/css/xterm.css";
 import { XTERM_THEME } from "@/lib/constants";
 import { useAppStore } from "@/lib/store";
@@ -32,6 +31,7 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
       lineHeight: 1.35,
       letterSpacing: 0,
       theme: XTERM_THEME,
+      allowTransparency: true,
       cursorBlink: true,
       cursorStyle: "bar",
       scrollback: 5000,
@@ -47,13 +47,6 @@ export function XtermPanel({ termId, isActive }: XtermPanelProps) {
     const linkDisposable = term.registerLinkProvider(createFilePathLinkProvider(term, projectPath));
 
     term.open(containerRef.current);
-
-    // GPU-accelerated rendering via WebGL, fallback to default Canvas
-    try {
-      term.loadAddon(new WebglAddon());
-    } catch {
-      // WebGL not available — Canvas 2D renderer will be used
-    }
 
     requestAnimationFrame(() => {
       try {

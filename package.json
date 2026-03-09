@@ -106,7 +106,7 @@
       "prettier --check"
     ],
     "*.rs": [
-      "cd src-tauri && cargo fmt -- --check"
+      "cargo fmt --manifest-path src-tauri/Cargo.toml -- --check"
     ]
   },
   "devDependencies": {

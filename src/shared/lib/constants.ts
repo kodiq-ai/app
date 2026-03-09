@@ -18,11 +18,13 @@ export const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
 // Supabase storage key used by web app (sb-{project-ref}-auth-token)
 const supabaseRef = SUPABASE_URL ? new URL(SUPABASE_URL).hostname.split(".")[0] : "unknown";
 export const SUPABASE_STORAGE_KEY = `sb-${supabaseRef}-auth-token`;
-export const ACADEMY_URL = "https://kodiq.ai/academy";
+export const HOME_URL = "https://kodiq.ai/academy";
+export const PROGRESS_URL = "https://kodiq.ai/dashboard";
 export const FEED_URL = "https://kodiq.ai/feed";
+export const LEADERBOARD_URL = "https://kodiq.ai/leaderboard";
 
 export const XTERM_THEME = {
-  background: "#08080a",
+  background: "#00000000",
   foreground: "#ece8e1",
   cursor: "#c4a882",
   cursorAccent: "#08080a",

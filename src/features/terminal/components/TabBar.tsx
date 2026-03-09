@@ -132,11 +132,11 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
   };
 
   return (
-    <div className="relative flex flex-1 overflow-hidden" style={{ background: "var(--bg-base)" }}>
+    <div className="relative flex flex-1 overflow-hidden">
       {/* Vertical tab sidebar — left */}
-      <div className="flex w-44 shrink-0 flex-col overflow-hidden border-r border-white/[0.06] bg-[var(--bg-base)]">
+      <div className="flex w-44 shrink-0 flex-col overflow-hidden border-r border-white/[0.06]">
         {/* New terminal button with tool picker */}
-        <div className="shrink-0 px-2 pt-2 pb-1">
+        <div className="shrink-0 px-2.5 pt-2.5 pb-1.5">
           <Popover open={newTermOpen} onOpenChange={setNewTermOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -190,7 +190,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
 
         {/* Search */}
         {tabs.length > 1 && (
-          <div className="shrink-0 px-2 pb-1">
+          <div className="shrink-0 px-2.5 pb-1.5">
             <div className="flex h-7 items-center gap-1.5 rounded-md border border-white/[0.04] bg-white/[0.02] px-2">
               <Search className="text-k-border size-3 shrink-0" />
               <input
@@ -227,7 +227,7 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
                     onClick={() => setActiveTab(tab.id)}
                     onDoubleClick={() => startRename(tab.id, tab.label)}
                     className={cn(
-                      "group h-8 w-full justify-start gap-1.5 rounded-none px-2.5 text-[11px]",
+                      "group h-9 w-full justify-start gap-2 rounded-none px-3 text-[11px]",
                       activeTab === tab.id
                         ? "text-k-text bg-white/[0.04]"
                         : "text-k-text-tertiary hover:text-k-text-secondary hover:bg-white/[0.02]",

@@ -1,7 +1,6 @@
 // ── Update Badge ─────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/store";
-import { t } from "@shared/i18n";
 import { isTauri } from "@shared/lib/tauri";
 
 interface UpdateBadgeProps {
@@ -25,7 +24,7 @@ export function UpdateBadge({ onClick }: UpdateBadgeProps) {
     return (
       <button
         onClick={onClick}
-        className="bg-k-accent/10 text-k-accent hover:bg-k-accent/20 flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium transition-colors"
+        className="bg-k-accent/10 text-k-accent hover:bg-k-accent/20 flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors"
       >
         <span className="relative flex h-2 w-2">
           <span className="bg-k-accent absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
@@ -40,8 +39,9 @@ export function UpdateBadge({ onClick }: UpdateBadgeProps) {
   if (!currentVersion) return null;
 
   return (
-    <span className="text-k-text-tertiary px-1.5 text-[10px] font-medium tracking-wide">
-      {t("appLabel")} v{currentVersion}
+    <span className="text-[11px] font-medium tracking-wide whitespace-nowrap">
+      <span className="text-k-accent">Workspace</span>
+      <span className="text-k-text-tertiary"> v{currentVersion}</span>
     </span>
   );
 }
