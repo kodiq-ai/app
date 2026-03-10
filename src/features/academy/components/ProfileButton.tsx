@@ -48,7 +48,7 @@ export function ProfileButton() {
         <DropdownMenuTrigger asChild>
           <button
             className={cn(
-              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none",
+              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none focus-visible:outline-none",
               "text-k-text-tertiary hover:text-k-text-secondary transition-colors hover:bg-white/[0.04]",
             )}
             aria-label={t("signIn")}
@@ -74,7 +74,7 @@ export function ProfileButton() {
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none",
+            "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none focus-visible:outline-none",
             "text-k-text-tertiary hover:text-k-text-secondary transition-colors hover:bg-white/[0.04]",
           )}
           aria-label={t("profile")}
