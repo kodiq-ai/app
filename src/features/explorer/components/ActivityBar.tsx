@@ -22,6 +22,7 @@ import { ActivityPanel } from "@features/activity/components/ActivityPanel";
 import { GitPanel } from "@features/git/components/GitPanel";
 import { SshConnectionList } from "@features/ssh/components/SshConnectionList";
 import { ChatPanel } from "@features/chat/components/ChatPanel";
+import { ProfileButton } from "@features/academy/components/ProfileButton";
 import { Loader } from "@/components/Loader";
 import { t } from "@/lib/i18n";
 
@@ -181,12 +182,17 @@ export function ActivityBar() {
           active={sidebarOpen && sidebarTab === "chat"}
           onClick={() => handleIconClick("chat")}
         />
-        <ActivityIcon
-          icon={Settings}
-          label={t("settings")}
-          active={false}
-          onClick={() => setSettingsOpen(true)}
-        />
+
+        {/* Bottom section — settings + profile */}
+        <div className="mt-auto flex flex-col items-center gap-0.5">
+          <ActivityIcon
+            icon={Settings}
+            label={t("settings")}
+            active={false}
+            onClick={() => setSettingsOpen(true)}
+          />
+          <ProfileButton />
+        </div>
       </div>
     </div>
   );

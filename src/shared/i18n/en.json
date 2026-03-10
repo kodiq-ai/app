@@ -377,5 +377,8 @@
   "signInError": "Sign in failed",
   "academyNotAuthenticated": "Sign in to access Academy",
   "feedNotAuthenticated": "Sign in to access Feed",
-  "or": "or"
+  "or": "or",
+
+  "profile": "Profile",
+  "signedInAs": "Signed in as"
 }

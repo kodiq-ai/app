@@ -377,5 +377,8 @@
   "signInError": "Ошибка входа",
   "academyNotAuthenticated": "Войдите для доступа к Академии",
   "feedNotAuthenticated": "Войдите для доступа к Ленте",
-  "or": "или"
+  "or": "или",
+
+  "profile": "Профиль",
+  "signedInAs": "Вы вошли как"
 }
