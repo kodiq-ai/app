@@ -391,5 +391,8 @@
   "authScreenTitle": "AI Workspace для разработчиков",
   "checkForUpdates": "Проверить обновления",
   "noUpdatesAvailable": "У вас последняя версия",
-  "aboutApp": "О Kodiq"
+  "aboutApp": "О Kodiq",
+
+  "profile": "Профиль",
+  "signedInAs": "Вы вошли как"
 }

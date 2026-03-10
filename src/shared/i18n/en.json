@@ -391,5 +391,8 @@
   "authScreenCreateAccountLink": "Create on kodiq.ai",
   "checkForUpdates": "Check for Updates",
   "noUpdatesAvailable": "You're up to date",
-  "aboutApp": "About Kodiq"
+  "aboutApp": "About Kodiq",
+
+  "profile": "Profile",
+  "signedInAs": "Signed in as"
 }
