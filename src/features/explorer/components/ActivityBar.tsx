@@ -21,7 +21,6 @@ import { ActivityPanel } from "@features/activity/components/ActivityPanel";
 import { GitPanel } from "@features/git/components/GitPanel";
 import { SshConnectionList } from "@features/ssh/components/SshConnectionList";
 import { Loader } from "@/components/Loader";
-import { ProfileButton } from "@features/academy/components/ProfileButton";
 import { t } from "@/lib/i18n";
 
 // ── Activity Bar Icon ────────────────────────────────────────────────────────
@@ -172,16 +171,12 @@ export function ActivityBar() {
           active={sidebarOpen && sidebarTab === "ssh"}
           onClick={() => handleIconClick("ssh")}
         />
-        {/* Bottom section — settings + profile */}
-        <div className="mt-auto flex flex-col items-center gap-0.5">
-          <ActivityIcon
-            icon={Settings}
-            label={t("settings")}
-            active={false}
-            onClick={() => setSettingsOpen(true)}
-          />
-          <ProfileButton />
-        </div>
+        <ActivityIcon
+          icon={Settings}
+          label={t("settings")}
+          active={false}
+          onClick={() => setSettingsOpen(true)}
+        />
       </div>
     </div>
   );

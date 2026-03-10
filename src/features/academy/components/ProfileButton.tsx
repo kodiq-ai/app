@@ -1,5 +1,5 @@
 // ── Profile Button ──────────────────────────────────────────────────────────
-// Avatar/initials in the ActivityBar bottom — shows auth state and profile dropdown.
+// Sidebar profile button — shows auth state with avatar + name/email.
 
 import { User, LogOut, LogIn } from "lucide-react";
 import { useAppStore } from "@/lib/store";
@@ -14,8 +14,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 // ── Helpers ─────────────────────────────────────────────────
 
@@ -47,24 +45,20 @@ export function ProfileButton() {
   if (!isAuthenticated) {
     return (
       <DropdownMenu>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                className="text-k-text-tertiary hover:text-k-text-secondary relative size-7"
-                aria-label={t("signIn")}
-              >
-                <User className="size-4" />
-                <span className="bg-k-accent absolute right-1 bottom-1 size-1.5 rounded-full" />
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent side="left">{t("signIn")}</TooltipContent>
-        </Tooltip>
+        <DropdownMenuTrigger asChild>
+          <button
+            className={cn(
+              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left",
+              "text-k-text-tertiary hover:text-k-text-secondary transition-colors hover:bg-white/[0.04]",
+            )}
+            aria-label={t("signIn")}
+          >
+            <User className="size-4 shrink-0" />
+            <span className="truncate text-[11px]">{t("signIn")}</span>
+          </button>
+        </DropdownMenuTrigger>
 
-        <DropdownMenuContent side="top" align="end" className="min-w-[10rem]">
+        <DropdownMenuContent side="top" align="start" className="min-w-[10rem]">
           <DropdownMenuItem onClick={() => signInWithOAuth("github")}>
             <LogIn className="size-4" />
             {t("signIn")}
@@ -76,31 +70,25 @@ export function ProfileButton() {
 
   return (
     <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              className={cn(
-                "relative size-7 overflow-hidden rounded-full p-0",
-                "text-k-text-tertiary hover:text-k-text-secondary",
-              )}
-              aria-label={t("profile")}
-            >
-              <Avatar size="sm">
-                {avatarUrl && <AvatarImage src={avatarUrl} alt={fullName ?? email ?? ""} />}
-                <AvatarFallback className="text-k-text-secondary bg-white/[0.08] text-[10px]">
-                  {getInitials(fullName, email)}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent side="left">{t("profile")}</TooltipContent>
-      </Tooltip>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={cn(
+            "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left",
+            "text-k-text-tertiary hover:text-k-text-secondary transition-colors hover:bg-white/[0.04]",
+          )}
+          aria-label={t("profile")}
+        >
+          <Avatar size="sm" className="size-5 shrink-0">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={fullName ?? email ?? ""} />}
+            <AvatarFallback className="text-k-text-secondary bg-white/[0.08] text-[9px]">
+              {getInitials(fullName, email)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-k-text-secondary truncate text-[11px]">{fullName || email}</span>
+        </button>
+      </DropdownMenuTrigger>
 
-      <DropdownMenuContent side="top" align="end" className="min-w-[12rem]">
+      <DropdownMenuContent side="top" align="start" className="min-w-[12rem]">
         <DropdownMenuLabel className="text-xs font-normal">
           <span className="text-k-text-secondary">{t("signedInAs")}</span>
           <p className="text-k-text truncate text-sm font-medium">{email}</p>

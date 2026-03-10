@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/context-menu";
 import { TabIconSvg } from "@/components/icons";
 import { XtermPanel } from "@/components/XtermPanel";
+import { ProfileButton } from "@features/academy/components/ProfileButton";
 import { t } from "@/lib/i18n";
 
 interface TabBarProps {
@@ -333,6 +334,11 @@ export function TabBar({ onSpawnTab, onCloseTab, onReopenTab }: TabBarProps) {
             </Button>
           </div>
         )}
+
+        {/* Profile — bottom of sidebar */}
+        <div className="shrink-0 border-t border-white/[0.06] px-2.5 py-2">
+          <ProfileButton />
+        </div>
       </div>
 
       {/* Terminal area — right */}
