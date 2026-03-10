@@ -1,5 +1,6 @@
 use std::sync::Mutex;
-use tauri::{AppHandle, Manager, Webview, WebviewBuilder, WebviewUrl};
+use tauri::webview::PageLoadEvent;
+use tauri::{AppHandle, Emitter, Manager, Webview, WebviewBuilder, WebviewUrl};
 
 // ── Academy State ────────────────────────────────────────────────
 
@@ -89,6 +90,7 @@ pub fn academy_navigate(
     let window = app.get_window("main").ok_or("Main window not found")?;
 
     let init_script = build_init_script(&session_js);
+    let app_for_handler = app.clone();
     let webview = window
         .add_child(
             WebviewBuilder::new(
@@ -96,6 +98,11 @@ pub fn academy_navigate(
                 WebviewUrl::External(url.parse().map_err(|e: url::ParseError| e.to_string())?),
             )
             .initialization_script(&init_script)
+            .on_page_load(move |_wv, payload| {
+                if matches!(payload.event(), PageLoadEvent::Finished) {
+                    let _ = app_for_handler.emit("academy-page-loaded", ());
+                }
+            })
             .auto_resize(),
             tauri::LogicalPosition::new(bounds.x, bounds.y),
             tauri::LogicalSize::new(bounds.width, bounds.height),
