@@ -1,7 +1,7 @@
 // ── Profile Button ──────────────────────────────────────────────────────────
 // Sidebar profile button — shows auth state with avatar + name/email.
 
-import { User, LogOut, LogIn, ChevronUp } from "lucide-react";
+import { User, LogOut, LogIn, ChevronUp, Settings, Keyboard, Bug } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
 
 // ── Helpers ─────────────────────────────────────────────────
@@ -30,6 +31,9 @@ function getInitials(name?: string, email?: string): string {
   return "?";
 }
 
+const isMac = navigator.platform.startsWith("Mac");
+const cmdKey = isMac ? "⌘" : "Ctrl+";
+
 // ── Component ───────────────────────────────────────────────
 
 export function ProfileButton() {
@@ -37,32 +41,49 @@ export function ProfileButton() {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const signOut = useAppStore((s) => s.signOut);
   const signInWithOAuth = useAppStore((s) => s.signInWithOAuth);
+  const setSettingsOpen = useAppStore((s) => s.setSettingsOpen);
+  const setBugReportOpen = useAppStore((s) => s.setBugReportOpen);
+  const toggleCommandPalette = useAppStore((s) => s.toggleCommandPalette);
 
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const fullName = user?.user_metadata?.full_name as string | undefined;
   const email = user?.email;
 
+  const triggerClass = cn(
+    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none focus-visible:outline-none",
+    "text-k-text-tertiary hover:text-k-text-secondary transition-colors hover:bg-white/[0.04]",
+  );
+
   if (!isAuthenticated) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            className={cn(
-              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none focus-visible:outline-none",
-              "text-k-text-tertiary hover:text-k-text-secondary transition-colors hover:bg-white/[0.04]",
-            )}
-            aria-label={t("signIn")}
-          >
+          <button className={triggerClass} aria-label={t("signIn")}>
             <User className="size-4 shrink-0" />
             <span className="min-w-0 flex-1 truncate text-[11px]">{t("signIn")}</span>
             <ChevronUp className="size-3 shrink-0 opacity-50" />
           </button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent side="top" align="start" className="min-w-[10rem]">
+        <DropdownMenuContent side="top" align="start" className="min-w-[12rem]">
           <DropdownMenuItem onClick={() => signInWithOAuth("github")}>
             <LogIn className="size-4" />
             {t("signIn")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+            <Settings className="size-4" />
+            {t("settings")}
+            <DropdownMenuShortcut>{cmdKey},</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => toggleCommandPalette()}>
+            <Keyboard className="size-4" />
+            {t("keyboardShortcuts")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setBugReportOpen(true)}>
+            <Bug className="size-4" />
+            {t("reportBug")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -72,13 +93,7 @@ export function ProfileButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          className={cn(
-            "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none focus-visible:outline-none",
-            "text-k-text-tertiary hover:text-k-text-secondary transition-colors hover:bg-white/[0.04]",
-          )}
-          aria-label={t("profile")}
-        >
+        <button className={triggerClass} aria-label={t("profile")}>
           <Avatar size="sm" className="size-5 shrink-0">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={fullName ?? email ?? ""} />}
             <AvatarFallback className="text-k-text-secondary bg-white/[0.08] text-[9px]">
@@ -97,6 +112,21 @@ export function ProfileButton() {
           <span className="text-k-text-secondary">{t("signedInAs")}</span>
           <p className="text-k-text truncate text-sm font-medium">{email}</p>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+          <Settings className="size-4" />
+          {t("settings")}
+          <DropdownMenuShortcut>{cmdKey},</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => toggleCommandPalette()}>
+          <Keyboard className="size-4" />
+          {t("keyboardShortcuts")}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setBugReportOpen(true)}>
+          <Bug className="size-4" />
+          {t("reportBug")}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => void signOut()}>
           <LogOut className="size-4" />
